@@ -2,39 +2,60 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELSIE CORP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Elegant serif font -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+
   <style>
     html, body {
       margin: 0;
-      height: 100%;
+      padding: 0;
       background: black;
       color: white;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      height: 100vh;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
     }
 
-    .flicker {
-      font-size: 2rem;
+    .background-img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: auto;
+      height: auto;
+      max-height: 70%;
+      max-width: 70%;
+      transform: translate(-50%, -50%);
+      opacity: 0.3;
+      pointer-events: none;
+      filter: contrast(120%) grayscale(80%) brightness(0.9);
+    }
+
+    .text-flicker {
+      font-size: 3rem;
       text-align: center;
-      animation: flicker 1.5s infinite;
+      animation: flicker 2s infinite;
+      z-index: 2;
+      text-shadow: 0 0 10px white, 0 0 20px white;
     }
 
     @keyframes flicker {
-      0%, 18%, 22%, 25%, 53%, 57%, 100% {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
         opacity: 1;
       }
       20%, 24%, 55% {
-        opacity: 0;
+        opacity: 0.4;
       }
     }
 
-    /* Optional: glitch scanline */
     .overlay {
-      position: fixed;
+      position: absolute;
       width: 100%;
       height: 100%;
       background: repeating-linear-gradient(
@@ -45,11 +66,13 @@
         transparent 2px
       );
       pointer-events: none;
+      z-index: 1;
     }
   </style>
 </head>
+
 <body>
-  <div class="flicker">⟁ ELSIE CORP INITIALIZING ⟁</div>
-  <div class="overlay"></div>
-</body>
-</html>
+  <img src="images.jpeg" alt="Background doorway" class="background-img">
+  <div class="text-flicker">⟁ ELSIE CORP ⟁</div>
+  <div class="ove
+
