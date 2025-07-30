@@ -2,29 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ELSIE CORP</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      height: 100%;
       background: black;
       color: white;
-      font-family: serif;
-      font-size: 1.2rem;
-      padding: 3rem;
-      animation: flicker 1s infinite alternate;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
     }
-    @keyframes flicker {
-      from { opacity: 0.95; }
-      to { opacity: 0.8; }
-    }
-    h1 {
+
+    .flicker {
+      font-size: 2rem;
       text-align: center;
-      font-size: 2.5rem;
+      animation: flicker 1.5s infinite;
+    }
+
+    @keyframes flicker {
+      0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0;
+      }
+    }
+
+    /* Optional: glitch scanline */
+    .overlay {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.02),
+        rgba(255,255,255,0.02) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <h1>✶ ELSIE CORP ✶</h1>
-  <p>We replace buttons with veils. Navigation with procession. Access with ritual.</p>
+  <div class="flicker">⟁ ELSIE CORP INITIALIZING ⟁</div>
+  <div class="overlay"></div>
 </body>
 </html>
