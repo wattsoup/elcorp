@@ -148,25 +148,24 @@ line-height: 1.4;
 
 
 
-  <script>
-    // Scroll-triggered reveal
-    const reveal = document.getElementById('reveal');
+ <script>
+  // Scroll-triggered reveal
+  const reveal = document.getElementById('reveal');
 
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            reveal.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          reveal.classList.add('visible');
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
 
-    observer.observe(reveal);
+  observer.observe(reveal);
 
-    // Font cycling for title
-<script>
+  // Font cycling for title (breakbeat style)
   const title = document.getElementById('title');
   const fonts = [
     'Helvetica, Arial, sans-serif',
@@ -183,8 +182,7 @@ line-height: 1.4;
     setTimeout(switchFont, nextDelay);
   }
 
-  // start the recursive loop
-  switchFont();
+  switchFont(); // Start the loop
 </script>
 
 </body>
