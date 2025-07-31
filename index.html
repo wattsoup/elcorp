@@ -159,29 +159,38 @@
 
  <script>
   const title = document.getElementById('title');
+  const enterBtn = document.getElementById('enter-btn');
   const fonts = [
     'Helvetica, Arial, sans-serif',
     '"Cormorant Garamond", serif'
   ];
 
+  let fontInterval; // so we can stop it later
+
   function switchFont() {
-    // Flick out
     title.style.opacity = '0';
 
-    // Wait ~100–250ms before reappearing
+    const blackout = Math.floor(Math.random() * 50) + 80;
     setTimeout(() => {
       const nextFont = fonts[Math.floor(Math.random() * fonts.length)];
       title.style.fontFamily = nextFont;
       title.style.opacity = '1';
 
-      // Angry rhythm: fast, unpredictable, sharp
-      const nextDelay = Math.floor(Math.random() * 200) + 150; // 150–850ms
-      setTimeout(switchFont, nextDelay);
-    }, Math.floor(Math.random() * 50) + 80); // blackout duration: 80–230ms
+      const nextDelay = Math.floor(Math.random() * 200) + 150;
+      fontInterval = setTimeout(switchFont, nextDelay);
+    }, blackout);
   }
 
-  switchFont(); // Start the loop
+  switchFont(); // start font switching
+
+  // Stop animation on ENTER click
+  enterBtn.addEventListener('click', () => {
+    clearTimeout(fontInterval);           // stop font flicker
+    title.style.opacity = '1';            // make sure it's visible
+    enterBtn.style.display = 'none';      // hide button
+  });
 </script>
+
 
 </body>
 </html>
