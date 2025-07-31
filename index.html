@@ -407,7 +407,7 @@
     }
 
    function animateSnake() {
-  const margin = 6; // move this to the top
+  const margin = 6; // half of .snake-trail size
 
   const box = snakeFrame.getBoundingClientRect();
   const w = box.width;
@@ -417,26 +417,34 @@
 
   let x, y;
   if (direction === 0) {
-    x = x0 + pos;
+    // top: left → right
+    x = x0 + margin + pos;
     y = y0 + margin;
   } else if (direction === 1) {
+    // right: top → bottom
     x = x0 + w - margin;
-    y = y0 + pos;
+    y = y0 + margin + pos;
   } else if (direction === 2) {
-    x = x0 + w - pos;
+    // bottom: right → left
+    x = x0 + w - margin - pos;
     y = y0 + h - margin;
   } else if (direction === 3) {
+    // left: bottom → top
     x = x0 + margin;
-    y = y0 + h - pos;
+    y = y0 + h - margin - pos;
   }
 
-  spawnTrail(x - 6, y - 6); // center the dot
+  // center dot around cursor
+  spawnTrail(x - 6, y - 6);
   pos += speed;
 
-  if ((direction === 0 && pos >= w - 2 * margin) ||
-      (direction === 1 && pos >= h - 2 * margin) ||
-      (direction === 2 && pos >= w - 2 * margin) ||
-      (direction === 3 && pos >= h - 2 * margin)) {
+  // edge detection — subtract total margin from full edge length
+  if (
+    (direction === 0 && pos >= w - 2 * margin) ||
+    (direction === 1 && pos >= h - 2 * margin) ||
+    (direction === 2 && pos >= w - 2 * margin) ||
+    (direction === 3 && pos >= h - 2 * margin)
+  ) {
     pos = 0;
     direction = (direction + 1) % 4;
   }
@@ -444,6 +452,7 @@
   requestAnimationFrame(animateSnake);
 }
 animateSnake();
+
   </script>
 </body>
 </html>
