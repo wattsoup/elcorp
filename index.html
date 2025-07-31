@@ -33,7 +33,7 @@
       position: absolute;
       width: 60vw;
       height: 34vw;
-      top: 20%;
+      top: 23%;
       left: 50%;
       transform: translateX(-50%);
       z-index: 3;
@@ -112,29 +112,40 @@
       font-weight: bold;
       font-size: 2.5rem;
       z-index: 4;
-      text-align: center;
-    }
-
-    .planned-word {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      line-height: 1.1;
-    }
-
-    .planned-word .line {
-      display: block;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0.5rem;
     }
 
     .anti-word {
       visibility: hidden;
       opacity: 0;
-      transition: opacity 0.6s ease;
+      color: white;
+      transition: opacity 0.3s ease, color 0.3s ease;
     }
 
-    .anti-word.visible {
+    .anti-word.visible-white {
       visibility: visible;
       opacity: 1;
+      color: white;
+    }
+
+    .anti-word.visible-red {
+      visibility: visible;
+      opacity: 1;
+      color: red;
+    }
+
+    .planned-word {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
+
+    .planned-word .line {
+      display: block;
     }
 
     .hero {
@@ -269,17 +280,29 @@
       }
     });
 
-    function flickerAnti() {
-      antiText.classList.add('visible');
+    function complexFlickerAnti() {
+      antiText.className = 'anti-word visible-white';
       setTimeout(() => {
-        antiText.classList.remove('visible');
-      }, 1500);
+        antiText.className = 'anti-word';
+        setTimeout(() => {
+          antiText.className = 'anti-word visible-red';
+          setTimeout(() => {
+            antiText.className = 'anti-word';
+            setTimeout(() => {
+              antiText.className = 'anti-word visible-white';
+              setTimeout(() => {
+                antiText.className = 'anti-word';
+              }, 500);
+            }, 400);
+          }, 300);
+        }, 300);
+      }, 1000);
     }
 
     function loopAntiFlicker() {
       const interval = Math.floor(Math.random() * 10000) + 5000;
       setTimeout(() => {
-        flickerAnti();
+        complexFlickerAnti();
         loopAntiFlicker();
       }, interval);
     }
