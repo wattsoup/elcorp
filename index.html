@@ -4,9 +4,7 @@
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
-
   <style>
     html, body {
       margin: 0;
@@ -35,9 +33,9 @@
       position: absolute;
       width: 60vw;
       height: 34vw;
-      top: 50%;
+      top: 18%;
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       z-index: 3;
       pointer-events: none;
     }
@@ -86,38 +84,37 @@
     }
 
     .switcher {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 2.5rem;
-  z-index: 4;
-  width: 100%;
-  text-align: center;
-}
+      position: absolute;
+      top: 7%;
+      left: 10%;
+      font-family: Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: 2.5rem;
+      z-index: 4;
+      text-align: left;
+    }
 
-.switcher-inner {
-  display: inline-flex;
-  align-items: flex-start;
-  justify-content: center;
-  white-space: nowrap;
-  gap: 0.15rem;
-}
+    .planned-word {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
 
-.anti-word {
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
+    .planned-word .line {
+      display: block;
+    }
 
-.anti-word.visible {
-  visibility: visible;
-  opacity: 1;
-}
+    .anti-word {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
 
-
+    .anti-word.visible {
+      visibility: visible;
+      opacity: 1;
+    }
 
     .hero {
       height: 100vh;
@@ -198,42 +195,20 @@
       margin: 0 0 0.7rem 0;
       line-height: 1.4;
     }
-
-    .flicker-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: red;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 7rem;
-      font-weight: bold;
-      font-family: Helvetica, sans-serif;
-      color: white;
-      z-index: 999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
   </style>
 </head>
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
-
   <div class="snake-frame" id="snake-frame"></div>
   <div class="overlay"></div>
 
   <div class="switcher">
-    <div class="switcher-inner">
-      <span class="anti-word" id="anti-text">ANTI-</span>
-      <span class="planned-word">PLANNED<br>ECONOMY</span>
+    <span class="anti-word" id="anti-text">ANTI-</span>
+    <div class="planned-word">
+      <span class="line">PLANNED</span>
+      <span class="line">ECONOMY</span>
     </div>
   </div>
-
-  <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
 
   <section class="hero">
     <div class="hero-inner">
@@ -254,18 +229,14 @@
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
     const reveal = document.getElementById('reveal');
-    const snakeFrame = document.getElementById('snake-frame');
     const antiText = document.getElementById('anti-text');
-    const flickerOverlay = document.getElementById('flicker-overlay');
+    const snakeFrame = document.getElementById('snake-frame');
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
       title.style.opacity = '1';
       enterBtn.style.display = 'none';
-      window.scrollTo({
-        top: reveal.offsetTop,
-        behavior: 'smooth'
-      });
+      window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
     });
 
     window.addEventListener('scroll', () => {
@@ -275,7 +246,6 @@
       }
     });
 
-    // Flickering ANTI- logic
     function flickerAnti() {
       antiText.classList.add('visible');
       setTimeout(() => {
@@ -290,14 +260,11 @@
         loopAntiFlicker();
       }, interval);
     }
-
     loopAntiFlicker();
 
-    // Snake logic
     let pos = 0;
     let direction = 0;
     const speed = 1;
-
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
       dot.className = 'snake-trail';
@@ -342,27 +309,7 @@
 
       requestAnimationFrame(animateSnake);
     }
-
     animateSnake();
-
-    // Red flicker
-    function flickerRed() {
-      flickerOverlay.style.opacity = 1;
-      setTimeout(() => {
-        flickerOverlay.style.opacity = 0;
-      }, 250);
-    }
-
-    function randomFlickerLoop() {
-      const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => {
-        flickerRed();
-        randomFlickerLoop();
-      }, interval);
-    }
-
-    randomFlickerLoop();
   </script>
 </body>
 </html>
-
