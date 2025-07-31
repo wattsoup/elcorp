@@ -72,14 +72,13 @@
       }
     }
 
-
-    .content {
+    
+.content {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 10vh 10vw;
+  justify-content: center;      /* center the block horizontally */
+  align-items: center;          /* center the block vertically */
+  padding: 5vh 10vw;
   z-index: 2;
   position: relative;
   opacity: 0;
@@ -94,9 +93,10 @@
 
 .block {
   max-width: 700px;
-  margin-bottom: 3rem;
-  text-align: center;
+  margin: 0 auto;
+  text-align: left;             /* align text to the left */
 }
+
 
 .block p {
   font-size: 1.5rem;
