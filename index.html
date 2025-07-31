@@ -113,17 +113,19 @@
       position: absolute;
       width: 12px;
       height: 12px;
-      border-radius: 1px;
+      border-radius: 2px;
       background-color: white;
       background-image: 
         linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
       background-size: 3px 3px;
-      box-shadow: 0 0 6px white, 0 0 12px rgba(255,255,255,0.6);
-      animation: fadeout 2s linear forwards, pixelpulse 0.5s infinite alternate;
+      box-shadow: 
+        0 0 4px rgba(255, 255, 255, 0.3),
+        0 0 12px rgba(255, 255, 255, 0.15);
+      animation: fadeout 3.5s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 2;
-      opacity: 0.95;
+      opacity: 0.25;
     }
 
     @keyframes pixelpulse {
@@ -176,23 +178,16 @@
     }
   </style>
 </head>
-
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="overlay"></div>
-
-  <!-- Snake container -->
   <div class="snake-frame" id="snake-frame"></div>
-
-  <!-- Hero section -->
   <section class="hero">
     <div class="hero-inner">
       <div class="text-flicker" id="title">ELSIE CORP.</div>
       <button id="enter-btn">ENTER</button>
     </div>
   </section>
-
-  <!-- Scroll-revealed content -->
   <section class="content" id="reveal">
     <div class="text-block">
       <div class="block">
@@ -206,7 +201,6 @@
       </div>
     </div>
   </section>
-
   <script>
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
@@ -227,10 +221,9 @@
       }
     });
 
-    // Snake trail logic
     let pos = 0;
-    let direction = 0; // 0: right, 1: down, 2: left, 3: up
-    const speed = 3;
+    let direction = 0;
+    const speed = 2;
 
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
@@ -238,11 +231,11 @@
       dot.style.left = `${x}px`;
       dot.style.top = `${y}px`;
       document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 2500);
+      setTimeout(() => dot.remove(), 3500);
     }
 
     function animateSnake() {
-      const box = snakeFrame.getBoundingClientRect(); // get fresh box each frame
+      const box = snakeFrame.getBoundingClientRect();
       const w = box.width;
       const h = box.height;
       const x0 = box.left;
@@ -250,16 +243,16 @@
 
       let x, y;
 
-      if (direction === 0) { // right
+      if (direction === 0) {
         x = x0 + pos;
         y = y0;
-      } else if (direction === 1) { // down
+      } else if (direction === 1) {
         x = x0 + w;
         y = y0 + pos;
-      } else if (direction === 2) { // left
+      } else if (direction === 2) {
         x = x0 + w - pos;
         y = y0 + h;
-      } else if (direction === 3) { // up
+      } else if (direction === 3) {
         x = x0;
         y = y0 + h - pos;
       }
