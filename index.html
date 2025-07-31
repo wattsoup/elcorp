@@ -58,7 +58,7 @@
     .text-flicker {
       font-size: 7rem;
       text-align: center;
-      animation: flicker 2s infinite;
+      animation: flicker 1s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
       transition: font-family 1s ease;
     }
@@ -177,7 +177,7 @@ line-height: 1.4;
     setInterval(() => {
       index = (index + 1) % fonts.length;
       title.style.fontFamily = fonts[index];
-    }, 300); // change every 4s
+    }, 100); // change every 4s
   </script>
 </body>
 </html>
