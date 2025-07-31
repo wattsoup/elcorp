@@ -433,10 +433,12 @@ if (direction === 0) {
       spawnTrail(x, y);
       pos += speed;
 
-      if ((direction === 0 && pos >= w) ||
-          (direction === 1 && pos >= h) ||
-          (direction === 2 && pos >= w) ||
-          (direction === 3 && pos >= h)) {
+      const margin = 6;
+
+if ((direction === 0 && pos >= w - 2 * margin) ||
+    (direction === 1 && pos >= h - 2 * margin) ||
+    (direction === 2 && pos >= w - 2 * margin) ||
+    (direction === 3 && pos >= h - 2 * margin)) {
         pos = 0;
         direction = (direction + 1) % 4;
       }
