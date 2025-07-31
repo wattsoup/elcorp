@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <!-- Fonts -->
+
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
 
   <style>
@@ -49,11 +48,19 @@
     .hero {
       height: 100vh;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      flex-direction: column;
       position: relative;
       z-index: 2;
+    }
+
+    .hero-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      margin-top: 60px;
     }
 
     .text-flicker {
@@ -91,28 +98,34 @@
       color: black;
     }
 
-    /* SNAKE */
-    .snake {
+    .snake-trail {
       position: absolute;
       width: 10px;
       height: 10px;
       border-radius: 50%;
       background-color: white;
       box-shadow: 0 0 10px white, 0 0 20px white;
-      animation: snake-run 8s linear infinite;
-      z-index: 3;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.9;
+      animation: fadeout 1s linear forwards;
+    }
+
+    @keyframes fadeout {
+      to { opacity: 0; }
+    }
+
+    .snake-frame {
+      position: absolute;
+      width: 60vw;
+      height: 34vw;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
       pointer-events: none;
     }
 
-    @keyframes snake-run {
-      0%   { top: 0; left: 0; }
-      25%  { top: 0; left: 100%; transform: translate(-100%, 0); }
-      50%  { top: 100%; left: 100%; transform: translate(-100%, -100%); }
-      75%  { top: 100%; left: 0; transform: translate(0, -100%); }
-      100% { top: 0; left: 0; transform: translate(0, 0); }
-    }
-
-    /* SCROLL SECTION */
     .content {
       font-size: 1.7rem;
       min-height: 100vh;
@@ -159,13 +172,15 @@
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="overlay"></div>
 
-  <!-- 🐍 Snake runner -->
-  <div class="snake"></div>
+  <!-- 🐍 Snake runner will append trails dynamically -->
+  <div class="snake-frame" id="snake-frame"></div>
 
   <!-- HERO SECTION -->
   <section class="hero">
-    <div class="text-flicker" id="title">ELSIE CORP.</div>
-    <button id="enter-btn">ENTER</button>
+    <div class="hero-inner">
+      <div class="text-flicker" id="title">ELSIE CORP.</div>
+      <button id="enter-btn">ENTER</button>
+    </div>
   </section>
 
   <!-- SCROLL-REVEALED CENTERED TEXT -->
@@ -187,8 +202,8 @@
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
     const reveal = document.getElementById('reveal');
+    const snakeFrame = document.getElementById('snake-frame');
 
-    // Hide button and stop flicker on click
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
       title.style.opacity = '1';
@@ -196,14 +211,66 @@
       window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
     });
 
-    // Reveal content on scroll
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
       if (rect.top < window.innerHeight) {
         reveal.classList.add('visible');
       }
     });
+
+    // Snake trail logic
+    let pos = 0;
+    let direction = 0; // 0: right, 1: down, 2: left, 3: up
+    const speed = 3;
+    const trailInterval = 20;
+    const box = snakeFrame.getBoundingClientRect();
+
+    function spawnTrail(x, y) {
+      const dot = document.createElement('div');
+      dot.className = 'snake-trail';
+      dot.style.left = `${x}px`;
+      dot.style.top = `${y}px`;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 1000);
+    }
+
+    function animateSnake() {
+      const w = box.width;
+      const h = box.height;
+      const x0 = box.left;
+      const y0 = box.top;
+
+      let x, y;
+
+      if (direction === 0) { // right
+        x = x0 + pos;
+        y = y0;
+      } else if (direction === 1) { // down
+        x = x0 + w;
+        y = y0 + pos;
+      } else if (direction === 2) { // left
+        x = x0 + w - pos;
+        y = y0 + h;
+      } else if (direction === 3) { // up
+        x = x0;
+        y = y0 + h - pos;
+      }
+
+      spawnTrail(x, y);
+      pos += speed;
+
+      if ((direction === 0 && pos >= w) ||
+          (direction === 1 && pos >= h) ||
+          (direction === 2 && pos >= w) ||
+          (direction === 3 && pos >= h)) {
+        pos = 0;
+        direction = (direction + 1) % 4;
+      }
+
+      requestAnimationFrame(animateSnake);
+    }
+
+    animateSnake();
   </script>
 </body>
 </html>
-
