@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Elegant serif font -->
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
 
   <style>
@@ -15,42 +13,20 @@
       background: black;
       color: white;
       font-family: 'Cormorant Garamond', serif;
-      height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden;
     }
 
     .background-img {
       position: fixed;
       top: 50%;
       left: 50%;
-      width: auto;
-      height: auto;
+      transform: translate(-50%, -50%);
       max-height: 70%;
       max-width: 70%;
-      transform: translate(-50%, -50%);
-      opacity: 0.3;
+      opacity: 0.25;
       pointer-events: none;
-      filter: contrast(120%) grayscale(80%) brightness(0.9);
       z-index: 0;
-    }
-
-    .text-flicker {
-      font-size: 7rem;
-      text-align: center;
-      animation: flicker 2s infinite;
-      z-index: 2;
-      position: relative;
-      margin-top: 4vh;
-      text-shadow: 0 0 10px white, 0 0 20px white;
-    }
-
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-        opacity: 1;
-      }
-      20%, 24%, 55% {
-        opacity: 0.4;
-      }
+      filter: contrast(120%) grayscale(80%) brightness(0.9);
     }
 
     .overlay {
@@ -68,32 +44,91 @@
       z-index: 1;
     }
 
-    .scrollable {
+    .hero {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       position: relative;
       z-index: 2;
-      height: 75vh;
-      overflow-y: scroll;
-      padding: 2rem;
+    }
+
+    .text-flicker {
+      font-size: 7rem;
+      text-align: center;
+      animation: flicker 2s infinite;
+      text-shadow: 0 0 10px white, 0 0 20px white;
+    }
+
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 24%, 55% {
+        opacity: 0.4;
+      }
+    }
+
+    .content {
+      min-height: 100vh;
+      padding: 5vh 10vw;
+      z-index: 2;
+      position: relative;
+      opacity: 0;
+      transform: translateY(50px);
+      transition: all 1.2s ease;
+    }
+
+    .content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .content p {
       font-size: 1.5rem;
-      line-height: 1.8;
+      line-height: 2;
+      margin-bottom: 2rem;
     }
   </style>
 </head>
 
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
+  <div class="overlay"></div>
 
-  <div class="text-flicker">ELSIE CORP</div>
+  <!-- HERO TITLE SECTION -->
+  <section class="hero">
+    <div class="text-flicker">ELSIE CORP</div>
+  </section>
 
-  <div class="scrollable">
-    <p>Long poetic prophecy text...</p>
+  <!-- SCROLL-REVEALED CONTENT -->
+  <section class="content" id="reveal">
     <p>The screen does not forget. The screen does not forgive.</p>
     <p>Time spills through the corners of the frame.</p>
     <p>The doorway is not a metaphor. It is a method.</p>
     <p>Further down. Further in.</p>
-    <p>[Your scrollable prophecy goes here]</p>
-  </div>
+    <p>We speak in the residue of signal. You are not alone in this transmission.</p>
+    <p>The body reprograms itself. The soul syncs with noise.</p>
+    <p>Welcome to ELSIE CORP.</p>
+  </section>
 
-  <div class="overlay"></div>
+  <script>
+    // Fade-in on scroll
+    const reveal = document.getElementById('reveal');
+
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            reveal.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(reveal);
+  </script>
 </body>
 </html>
+
