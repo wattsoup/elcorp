@@ -139,29 +139,33 @@
     }
 
     .switcher {
-      position: absolute;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      font-family: Helvetica, sans-serif;
-      font-weight: bold;
-      font-size: 2.5rem;
-      line-height: 1.2;
-      z-index: 4;
-    }
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 2.5rem;
+  z-index: 4;
+}
 
-    .switcher .anti {
-      font-size: 4rem;
-      height: 1.8rem;
-      margin-bottom: 0.5rem;
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
+.switcher-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: left;
+  white-space: nowrap;
+}
 
-    .switcher .anti.visible {
-      opacity: 0.7;
-    }
+.anti-word {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.anti-word.visible {
+  opacity: 1;
+}
 
     .content {
       font-size: 1.7rem;
@@ -220,12 +224,12 @@
   <div class="overlay"></div>
 
   <div class="switcher" id="switcher">
-    <div class="text">
-      <div class="anti" id="anti-text">ANTI-</div>
-      PLANNED<br>ECONOMY
-    </div>
+  <div class="switcher-inner">
+    <span class="anti-word" id="anti-text">ANTI-</span>
+    <span class="planned-word">PLANNED<br>ECONOMY</span>
   </div>
-
+</div>
+  
   <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
 
   <section class="hero">
@@ -277,18 +281,26 @@
       { delay: 1000, anti: true }
     ];
     let index = 0;
-    function cycleWords() {
-      const step = sequence[index % sequence.length];
-      setTimeout(() => {
-        antiText.classList.toggle('visible', step.anti);
-        setTimeout(() => {
-          antiText.classList.remove('visible');
-          index++;
-          cycleWords();
-        }, 1500);
-      }, step.delay);
-    }
-    cycleWords();
+    
+    const antiText = document.getElementById('anti-text');
+
+function flickerAnti() {
+  antiText.classList.add('visible');
+  setTimeout(() => {
+    antiText.classList.remove('visible');
+  }, 1500); // Visible duration
+}
+
+function loopAntiFlicker() {
+  const interval = Math.floor(Math.random() * 10000) + 5000;
+  setTimeout(() => {
+    flickerAnti();
+    loopAntiFlicker();
+  }, interval);
+}
+
+loopAntiFlicker();
+
 
     // Snake trail animation
     let pos = 0;
