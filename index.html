@@ -393,8 +393,8 @@
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
       dot.className = 'snake-trail';
-      dot.style.left = ${x - 6}px;
-      dot.style.top = ${y - 6}px;
+      dot.style.left = `${x - 6}px`;
+      dot.style.top = `${y - 6}px`;
       document.body.appendChild(dot);
       setTimeout(() => dot.remove(), 15000);
     }
