@@ -185,18 +185,10 @@
       transform: translateY(0);
     }
 
-    .text-block {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      margin-bottom: 0.3rem;
-    }
-
-    .block {
-      max-width: 700px;
-      margin-bottom: 0.3rem;
-      text-align: left;
-    }
+   .text-block p {
+  margin: 0 0 0.7rem 0; /* bottom margin only, adjustable */
+  line-height: 1.4;
+}
 
     .flicker-overlay {
       position: fixed;
@@ -242,18 +234,12 @@
   </section>
 
   <section class="content" id="reveal">
-    <div class="text-block">
-      <div class="block">
-        <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
-      </div>
-      <div class="block">
-        <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
-      </div>
-      <div class="block">
-        <p>Our first wave of work will explore the interface as a portal, the avatar as a fragment of the divine, and the economy as a ritual form.</p>
-      </div>
-    </div>
-  </section>
+  <div class="text-block">
+    <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
+    <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
+    <p>Our first wave of work will explore the interface as a portal, the avatar as a fragment of the divine, and the economy as a ritual form.</p>
+  </div>
+</section>
 
   <script>
     const enterBtn = document.getElementById('enter-btn');
