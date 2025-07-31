@@ -94,12 +94,15 @@
 
 .block {
   max-width: 700px;
-  margin-bottom: 1rem;
+  margin-bottom: 1rem; /* tighter spacing between blocks */
   text-align: left;
 }
+
 .block p {
-  line-height: 1; /* default spacing between lines within one paragraph */
+  margin: 0;              /* remove default browser p margin */
+  line-height: 1.4;       /* tighten line spacing inside each block */
 }
+
     
 .text-block {
   display: flex;
