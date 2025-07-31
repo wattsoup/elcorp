@@ -33,7 +33,7 @@
       position: absolute;
       width: 60vw;
       height: 34vw;
-      top: 18%;
+      top: 20%;
       left: 50%;
       transform: translateX(-50%);
       z-index: 3;
@@ -83,21 +83,42 @@
       z-index: 2;
     }
 
+    .flicker-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 7rem;
+      font-weight: bold;
+      font-family: Helvetica, sans-serif;
+      color: white;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
     .switcher {
       position: absolute;
-      top: 7%;
-      left: 10%;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
       font-family: Helvetica, sans-serif;
       font-weight: bold;
       font-size: 2.5rem;
       z-index: 4;
-      text-align: left;
+      text-align: center;
     }
 
     .planned-word {
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
+      align-items: center;
       line-height: 1.1;
     }
 
@@ -201,6 +222,7 @@
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="snake-frame" id="snake-frame"></div>
   <div class="overlay"></div>
+  <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
 
   <div class="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
@@ -231,6 +253,7 @@
     const reveal = document.getElementById('reveal');
     const antiText = document.getElementById('anti-text');
     const snakeFrame = document.getElementById('snake-frame');
+    const flickerOverlay = document.getElementById('flicker-overlay');
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
@@ -261,6 +284,22 @@
       }, interval);
     }
     loopAntiFlicker();
+
+    function flickerRed() {
+      flickerOverlay.style.opacity = 1;
+      setTimeout(() => {
+        flickerOverlay.style.opacity = 0;
+      }, 250);
+    }
+
+    function randomFlickerLoop() {
+      const interval = Math.floor(Math.random() * 10000) + 5000;
+      setTimeout(() => {
+        flickerRed();
+        randomFlickerLoop();
+      }, interval);
+    }
+    randomFlickerLoop();
 
     let pos = 0;
     let direction = 0;
