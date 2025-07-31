@@ -100,21 +100,27 @@
 
     .switcher {
       position: absolute;
-      top: 12%;
+      top: 10%;
       left: 50%;
       transform: translateX(-50%);
       text-align: center;
       font-family: Helvetica, sans-serif;
       font-weight: bold;
       font-size: 2.5rem;
-      line-height: 1.1;
+      line-height: 1.2;
       z-index: 10;
     }
 
     .switcher .anti {
       font-size: 1.8rem;
-      display: block;
-      transform: translateY(-1.2rem);
+      height: 1.8rem;
+      margin-bottom: 0.3rem;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .switcher .anti.visible {
+      opacity: 1;
     }
 
     .snake-frame {
@@ -203,7 +209,7 @@
 
   <div class="switcher" id="switcher">
     <div class="text">
-      <div class="anti" id="anti-text" style="display: none;">ANTI-</div>
+      <div class="anti" id="anti-text">ANTI-</div>
       PLANNED<br>ECONOMY
     </div>
   </div>
@@ -265,10 +271,14 @@
       const step = sequence[index % sequence.length];
 
       setTimeout(() => {
-        antiText.style.display = step.anti ? 'block' : 'none';
+        if (step.anti) {
+          antiText.classList.add('visible');
+        } else {
+          antiText.classList.remove('visible');
+        }
 
         setTimeout(() => {
-          antiText.style.display = 'none';
+          antiText.classList.remove('visible');
           index++;
           cycleWords();
         }, 1500);
@@ -279,56 +289,4 @@
     // Snake trail logic
     let pos = 0;
     let direction = 0;
-    const speed = 1;
-
-    function spawnTrail(x, y) {
-      const dot = document.createElement('div');
-      dot.className = 'snake-trail';
-      dot.style.left = `${x}px`;
-      dot.style.top = `${y}px`;
-      document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 15000);
-    }
-
-    function animateSnake() {
-      const box = snakeFrame.getBoundingClientRect();
-      const w = box.width;
-      const h = box.height;
-      const x0 = box.left;
-      const y0 = box.top;
-
-      let x, y;
-
-      if (direction === 0) {
-        x = x0 + pos;
-        y = y0;
-      } else if (direction === 1) {
-        x = x0 + w;
-        y = y0 + pos;
-      } else if (direction === 2) {
-        x = x0 + w - pos;
-        y = y0 + h;
-      } else if (direction === 3) {
-        x = x0;
-        y = y0 + h - pos;
-      }
-
-      spawnTrail(x, y);
-      pos += speed;
-
-      if ((direction === 0 && pos >= w) ||
-          (direction === 1 && pos >= h) ||
-          (direction === 2 && pos >= w) ||
-          (direction === 3 && pos >= h)) {
-        pos = 0;
-        direction = (direction + 1) % 4;
-      }
-
-      requestAnimationFrame(animateSnake);
-    }
-
-    animateSnake();
-  </script>
-</body>
-</html>
-
+    const s
