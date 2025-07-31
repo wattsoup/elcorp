@@ -264,11 +264,15 @@
     const flickerOverlay = document.getElementById('flicker-overlay');
 
     enterBtn.addEventListener('click', () => {
-      title.style.animation = 'none';
-      title.style.opacity = '1';
-      enterBtn.style.display = 'none';
-      reveal.scrollIntoView({ behavior: 'smooth' });
-    });
+  title.style.animation = 'none';
+  title.style.opacity = '1';
+  enterBtn.style.display = 'none';
+
+  window.scrollTo({
+    top: reveal.offsetTop,
+    behavior: 'smooth'
+  });
+});
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
