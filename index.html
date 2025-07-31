@@ -76,14 +76,15 @@
 .content {
   min-height: 100vh;
   display: flex;
-  justify-content: center;      /* center the block horizontally */
-  align-items: center;          /* center the block vertically */
-  padding: 5vh 10vw;
+  justify-content: center;     /* center horizontally */
+  align-items: center;         /* center vertically */
   z-index: 2;
   position: relative;
   opacity: 0;
   transform: translateY(50px);
   transition: all 1.2s ease;
+  padding: 0 10vw;
+  text-align: left;
 }
 
 .content.visible {
@@ -93,15 +94,16 @@
 
 .block {
   max-width: 700px;
-  margin: 0 auto;
-  text-align: left;             /* align text to the left */
+  margin-bottom: 2rem;
+  text-align: left;
+}
+    
+.text-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-
-.block p {
-  font-size: 1.5rem;
-  line-height: 2;
-}
 
   </style>
 </head>
@@ -117,22 +119,25 @@
 
   <!-- SCROLL-REVEALED CENTERED TEXT -->
   <section class="content" id="reveal">
-  <div class="block">
-    <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
-  </div>
-  <div class="block">
-    <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
-  </div>
-  <div class="block">
-    <p>Our first wave of work will explore the interface as a portal,</p>
-  </div>
-  <div class="block">
-    <p>the avatar as a fragment of the divine,</p>
-  </div>
-  <div class="block">
-    <p>and the economy as a ritual form.</p>
+  <div class="text-block">
+    <div class="block">
+      <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
+    </div>
+    <div class="block">
+      <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
+    </div>
+    <div class="block">
+      <p>Our first wave of work will explore the interface as a portal,</p>
+    </div>
+    <div class="block">
+      <p>the avatar as a fragment of the divine,</p>
+    </div>
+    <div class="block">
+      <p>and the economy as a ritual form.</p>
+    </div>
   </div>
 </section>
+
 
 
   <script>
