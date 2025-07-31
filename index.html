@@ -30,6 +30,45 @@
       filter: contrast(120%) grayscale(80%) brightness(0.9);
     }
 
+    .snake-frame {
+      position: absolute;
+      width: 60vw;
+      height: 34vw;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .snake-trail {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      background-color: white;
+      background-image: 
+        linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
+      background-size: 3px 3px;
+      box-shadow: 
+        0 0 4px rgba(255, 255, 255, 0.3),
+        0 0 12px rgba(255, 255, 255, 0.15);
+      animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.18;
+    }
+
+    @keyframes pixelpulse {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.4); }
+    }
+
+    @keyframes fadeout {
+      to { opacity: 0; }
+    }
+
     .overlay {
       position: fixed;
       width: 100%;
@@ -42,7 +81,7 @@
         transparent 2px
       );
       pointer-events: none;
-      z-index: 1;
+      z-index: 2;
     }
 
     .hero {
@@ -52,7 +91,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
-      z-index: 2;
+      z-index: 3;
     }
 
     .hero-inner {
@@ -108,7 +147,7 @@
       font-weight: bold;
       font-size: 2.5rem;
       line-height: 1.2;
-      z-index: 10;
+      z-index: 4;
     }
 
     .switcher .anti {
@@ -123,52 +162,13 @@
       opacity: 1;
     }
 
-    .snake-frame {
-      position: absolute;
-      width: 60vw;
-      height: 34vw;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .snake-trail {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      background-color: white;
-      background-image: 
-        linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
-      background-size: 3px 3px;
-      box-shadow: 
-        0 0 4px rgba(255, 255, 255, 0.3),
-        0 0 12px rgba(255, 255, 255, 0.15);
-      animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: 2;
-      opacity: 0.18;
-    }
-
-    @keyframes pixelpulse {
-      from { filter: brightness(1); }
-      to   { filter: brightness(1.4); }
-    }
-
-    @keyframes fadeout {
-      to { opacity: 0; }
-    }
-
     .content {
       font-size: 1.7rem;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 2;
+      z-index: 3;
       position: relative;
       opacity: 0;
       transform: translateY(50px);
@@ -188,7 +188,6 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      line-height: 1.4;
     }
 
     .block {
@@ -197,14 +196,31 @@
       text-align: left;
     }
 
-    .block p {
-      margin: 0;
-      line-height: 1.4;
+    .flicker-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: red;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 7rem;
+      font-weight: bold;
+      font-family: Helvetica, sans-serif;
+      color: white;
+      z-index: 999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
     }
   </style>
 </head>
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
+
+  <div class="snake-frame" id="snake-frame"></div>
   <div class="overlay"></div>
 
   <div class="switcher" id="switcher">
@@ -214,7 +230,7 @@
     </div>
   </div>
 
-  <div class="snake-frame" id="snake-frame"></div>
+  <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
 
   <section class="hero">
     <div class="hero-inner">
@@ -243,12 +259,13 @@
     const reveal = document.getElementById('reveal');
     const snakeFrame = document.getElementById('snake-frame');
     const antiText = document.getElementById('anti-text');
+    const flickerOverlay = document.getElementById('flicker-overlay');
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
       title.style.opacity = '1';
       enterBtn.style.display = 'none';
-      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+      reveal.scrollIntoView({ behavior: 'smooth' });
     });
 
     window.addEventListener('scroll', () => {
@@ -258,25 +275,18 @@
       }
     });
 
-    // PLANNED / ANTI- switch
+    // PLANNED / ANTI- switcher
     const sequence = [
       { delay: 5000, anti: false },
       { delay: 3000, anti: true },
       { delay: 7000, anti: false },
       { delay: 1000, anti: true }
     ];
-
     let index = 0;
     function cycleWords() {
       const step = sequence[index % sequence.length];
-
       setTimeout(() => {
-        if (step.anti) {
-          antiText.classList.add('visible');
-        } else {
-          antiText.classList.remove('visible');
-        }
-
+        antiText.classList.toggle('visible', step.anti);
         setTimeout(() => {
           antiText.classList.remove('visible');
           index++;
@@ -286,7 +296,72 @@
     }
     cycleWords();
 
-    // Snake trail logic
+    // Snake trail animation
     let pos = 0;
     let direction = 0;
-    const s
+    const speed = 1;
+    function spawnTrail(x, y) {
+      const dot = document.createElement('div');
+      dot.className = 'snake-trail';
+      dot.style.left = `${x}px`;
+      dot.style.top = `${y}px`;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 15000);
+    }
+
+    function animateSnake() {
+      const box = snakeFrame.getBoundingClientRect();
+      const w = box.width;
+      const h = box.height;
+      const x0 = box.left;
+      const y0 = box.top;
+
+      let x, y;
+      if (direction === 0) {
+        x = x0 + pos;
+        y = y0;
+      } else if (direction === 1) {
+        x = x0 + w;
+        y = y0 + pos;
+      } else if (direction === 2) {
+        x = x0 + w - pos;
+        y = y0 + h;
+      } else if (direction === 3) {
+        x = x0;
+        y = y0 + h - pos;
+      }
+
+      spawnTrail(x, y);
+      pos += speed;
+
+      if ((direction === 0 && pos >= w) ||
+          (direction === 1 && pos >= h) ||
+          (direction === 2 && pos >= w) ||
+          (direction === 3 && pos >= h)) {
+        pos = 0;
+        direction = (direction + 1) % 4;
+      }
+
+      requestAnimationFrame(animateSnake);
+    }
+    animateSnake();
+
+    // Random red flicker
+    function flickerRed() {
+      flickerOverlay.style.opacity = 1;
+      setTimeout(() => {
+        flickerOverlay.style.opacity = 0;
+      }, 250);
+    }
+
+    function randomFlickerLoop() {
+      const interval = Math.floor(Math.random() * 10000) + 5000;
+      setTimeout(() => {
+        flickerRed();
+        randomFlickerLoop();
+      }, interval);
+    }
+    randomFlickerLoop();
+  </script>
+</body>
+</html>
