@@ -122,7 +122,7 @@
       box-shadow: 
         0 0 4px rgba(255, 255, 255, 0.3),
         0 0 12px rgba(255, 255, 255, 0.15);
-      animation: fadeout 3.5s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
+      animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 2;
       opacity: 0.25;
@@ -231,7 +231,7 @@
       dot.style.left = `${x}px`;
       dot.style.top = `${y}px`;
       document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 3500);
+      setTimeout(() => dot.remove(), 15000);
     }
 
     function animateSnake() {
