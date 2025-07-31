@@ -98,6 +98,25 @@
       color: black;
     }
 
+    .switcher {
+      position: absolute;
+      top: 12%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      font-family: Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: 2.5rem;
+      line-height: 1.1;
+      z-index: 10;
+    }
+
+    .switcher .anti {
+      font-size: 1.8rem;
+      display: block;
+      transform: translateY(-1.2rem);
+    }
+
     .snake-frame {
       position: absolute;
       width: 60vw;
@@ -125,7 +144,7 @@
       animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
       pointer-events: none;
       z-index: 2;
-      opacity: 0.25;
+      opacity: 0.18;
     }
 
     @keyframes pixelpulse {
@@ -181,13 +200,23 @@
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="overlay"></div>
+
+  <div class="switcher" id="switcher">
+    <div class="text">
+      <div class="anti" id="anti-text" style="display: none;">ANTI-</div>
+      PLANNED<br>ECONOMY
+    </div>
+  </div>
+
   <div class="snake-frame" id="snake-frame"></div>
+
   <section class="hero">
     <div class="hero-inner">
       <div class="text-flicker" id="title">ELSIE CORP.</div>
       <button id="enter-btn">ENTER</button>
     </div>
   </section>
+
   <section class="content" id="reveal">
     <div class="text-block">
       <div class="block">
@@ -201,11 +230,13 @@
       </div>
     </div>
   </section>
+
   <script>
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
     const reveal = document.getElementById('reveal');
     const snakeFrame = document.getElementById('snake-frame');
+    const antiText = document.getElementById('anti-text');
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
@@ -221,9 +252,34 @@
       }
     });
 
+    // PLANNED / ANTI- switch
+    const sequence = [
+      { delay: 5000, anti: false },
+      { delay: 3000, anti: true },
+      { delay: 7000, anti: false },
+      { delay: 1000, anti: true }
+    ];
+
+    let index = 0;
+    function cycleWords() {
+      const step = sequence[index % sequence.length];
+
+      setTimeout(() => {
+        antiText.style.display = step.anti ? 'block' : 'none';
+
+        setTimeout(() => {
+          antiText.style.display = 'none';
+          index++;
+          cycleWords();
+        }, 1500);
+      }, step.delay);
+    }
+    cycleWords();
+
+    // Snake trail logic
     let pos = 0;
     let direction = 0;
-    const speed = 2;
+    const speed = 1;
 
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
