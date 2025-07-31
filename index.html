@@ -56,12 +56,13 @@
     }
 
     .text-flicker {
-      font-size: 7rem;
-      text-align: center;
-      animation: flicker 1s infinite;
-      text-shadow: 0 0 10px white, 0 0 20px white;
-      transition: font-family 2s ease;
-    }
+  font-size: 7rem;
+  text-align: center;
+  animation: flicker 1s infinite;
+  text-shadow: 0 0 10px white, 0 0 20px white;
+  transition: opacity 0.1s ease-out, font-family 0s;
+}
+
 
     @keyframes flicker {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
@@ -137,39 +138,31 @@
     </div>
   </section>
 
-  <script>
-    // Scroll-triggered reveal
-    const reveal = document.getElementById('reveal');
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            reveal.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(reveal);
+ <script>
+  const title = document.getElementById('title');
+  const fonts = [
+    'Helvetica, Arial, sans-serif',
+    'Helvetica-Oblique, Arial, sans-serif'
+  ];
 
-    // Font cycling for title (breakbeat style)
-    const title = document.getElementById('title');
-    const fonts = [
-      'Helvetica, Arial, sans-serif',
-      '"Playfair Display", serif',
-      '"Cormorant Garamond", serif'
-    ];
+  function switchFont() {
+    // Flick out
+    title.style.opacity = '0';
 
-    function switchFont() {
+    // Wait ~100–250ms before reappearing
+    setTimeout(() => {
       const nextFont = fonts[Math.floor(Math.random() * fonts.length)];
       title.style.fontFamily = nextFont;
+      title.style.opacity = '1';
 
-      // Random time between 300ms and 2000ms
-      const nextDelay = Math.floor(Math.random() * 1700) + 300;
+      // Angry rhythm: fast, unpredictable, sharp
+      const nextDelay = Math.floor(Math.random() * 700) + 150; // 150–850ms
       setTimeout(switchFont, nextDelay);
-    }
+    }, Math.floor(Math.random() * 150) + 80); // blackout duration: 80–230ms
+  }
 
-    switchFont(); // Start the loop
-  </script>
+  switchFont(); // Start the loop
+</script>
+
 </body>
 </html>
