@@ -72,30 +72,37 @@
       }
     }
 
+
     .content {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 5vh 10vw;
-      z-index: 2;
-      position: relative;
-      opacity: 0;
-      transform: translateY(50px);
-      transition: all 1.2s ease;
-    }
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 10vh 10vw;
+  z-index: 2;
+  position: relative;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1.2s ease;
+}
 
-    .content.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+.content.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
-    .content p {
-      font-size: 1.5rem;
-      line-height: 2;
-      margin-bottom: 2rem;
-    }
+.block {
+  max-width: 700px;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+.block p {
+  font-size: 1.5rem;
+  line-height: 2;
+}
+
   </style>
 </head>
 
@@ -110,12 +117,23 @@
 
   <!-- SCROLL-REVEALED CENTERED TEXT -->
   <section class="content" id="reveal">
-    <p>ELSIE CORP exists to design and host new symbolic domains.</p>
+  <div class="block">
+    <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
+  </div>
+  <div class="block">
     <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
-    <p></p>
+  </div>
+  <div class="block">
     <p>Our first wave of work will explore the interface as a portal,</p>
-    <p>the avatar as a fragment of the divine, and the economy as a ritual form.</p>
-  </section>
+  </div>
+  <div class="block">
+    <p>the avatar as a fragment of the divine,</p>
+  </div>
+  <div class="block">
+    <p>and the economy as a ritual form.</p>
+  </div>
+</section>
+
 
   <script>
     // Scroll-triggered reveal
@@ -146,7 +164,7 @@
     setInterval(() => {
       index = (index + 1) % fonts.length;
       title.style.fontFamily = fonts[index];
-    }, 4000); // change every 4s
+    }, 700); // change every 4s
   </script>
 </body>
 </html>
