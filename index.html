@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
 
   <style>
     html, body {
@@ -17,24 +17,6 @@
       font-family: 'Cormorant Garamond', serif;
       overflow-x: hidden;
     }
-
-    #enter-btn {
-  margin-top: 2rem;
-  font-family: inherit;
-  font-size: 1.2rem;
-  background: none;
-  color: white;
-  border: 1px solid white;
-  padding: 0.5rem 1.5rem;
-  cursor: pointer;
-  z-index: 3;
-  transition: all 0.2s ease;
-}
-
-#enter-btn:hover {
-  background: white;
-  color: black;
-}
 
     .background-img {
       position: fixed;
@@ -69,27 +51,18 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       position: relative;
       z-index: 2;
     }
-    
-    .hero-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem; /* Space between title and button */
-  z-index: 2;
-}
-
 
     .text-flicker {
-  font-size: 7rem;
-  text-align: center;
-  animation: flicker 1s infinite;
-  text-shadow: 0 0 10px white, 0 0 20px white;
-  transition: opacity 0.1s ease-out, font-family 0s;
-}
-
+      font-size: 7rem;
+      text-align: center;
+      animation: flicker 1s infinite;
+      text-shadow: 0 0 10px white, 0 0 20px white;
+      transition: opacity 0.1s ease-out;
+    }
 
     @keyframes flicker {
       0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
@@ -100,6 +73,46 @@
       }
     }
 
+    #enter-btn {
+      margin-top: 2rem;
+      font-family: inherit;
+      font-size: 1.2rem;
+      background: none;
+      color: white;
+      border: 1px solid white;
+      padding: 0.5rem 1.5rem;
+      cursor: pointer;
+      z-index: 3;
+      transition: all 0.2s ease;
+    }
+
+    #enter-btn:hover {
+      background: white;
+      color: black;
+    }
+
+    /* SNAKE */
+    .snake {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 0 10px white, 0 0 20px white;
+      animation: snake-run 8s linear infinite;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    @keyframes snake-run {
+      0%   { top: 0; left: 0; }
+      25%  { top: 0; left: 100%; transform: translate(-100%, 0); }
+      50%  { top: 100%; left: 100%; transform: translate(-100%, -100%); }
+      75%  { top: 100%; left: 0; transform: translate(0, -100%); }
+      100% { top: 0; left: 0; transform: translate(0, 0); }
+    }
+
+    /* SCROLL SECTION */
     .content {
       font-size: 1.7rem;
       min-height: 100vh;
@@ -114,6 +127,7 @@
       padding: 0 10vw;
       text-align: left;
       line-height: 1.4;
+      background: black;
     }
 
     .content.visible {
@@ -145,14 +159,14 @@
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="overlay"></div>
 
-  <!-- HERO TITLE SECTION -->
+  <!-- 🐍 Snake runner -->
+  <div class="snake"></div>
+
+  <!-- HERO SECTION -->
   <section class="hero">
-  <div class="hero-inner">
     <div class="text-flicker" id="title">ELSIE CORP.</div>
     <button id="enter-btn">ENTER</button>
-  </div>
-</section>
-
+  </section>
 
   <!-- SCROLL-REVEALED CENTERED TEXT -->
   <section class="content" id="reveal">
@@ -169,40 +183,27 @@
     </div>
   </section>
 
- <script>
-  const title = document.getElementById('title');
-  const enterBtn = document.getElementById('enter-btn');
-  const fonts = [
-    'Helvetica, Arial, sans-serif',
-    '"Cormorant Garamond", serif'
-  ];
+  <script>
+    const enterBtn = document.getElementById('enter-btn');
+    const title = document.getElementById('title');
+    const reveal = document.getElementById('reveal');
 
-  let fontInterval; // so we can stop it later
-
-  function switchFont() {
-    title.style.opacity = '0';
-
-    const blackout = Math.floor(Math.random() * 50) + 80;
-    setTimeout(() => {
-      const nextFont = fonts[Math.floor(Math.random() * fonts.length)];
-      title.style.fontFamily = nextFont;
+    // Hide button and stop flicker on click
+    enterBtn.addEventListener('click', () => {
+      title.style.animation = 'none';
       title.style.opacity = '1';
+      enterBtn.style.display = 'none';
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    });
 
-      const nextDelay = Math.floor(Math.random() * 200) + 150;
-      fontInterval = setTimeout(switchFont, nextDelay);
-    }, blackout);
-  }
-
-  switchFont(); // start font switching
-
-  // Stop animation on ENTER click
-  enterBtn.addEventListener('click', () => {
-    clearTimeout(fontInterval);           // stop font flicker
-    title.style.opacity = '1';            // make sure it's visible
-    enterBtn.style.display = 'none';      // hide button
-  });
-</script>
-
-
+    // Reveal content on scroll
+    window.addEventListener('scroll', () => {
+      const rect = reveal.getBoundingClientRect();
+      if (rect.top < window.innerHeight) {
+        reveal.classList.add('visible');
+      }
+    });
+  </script>
 </body>
 </html>
+
