@@ -99,21 +99,24 @@
     }
 
     .switcher-inner {
-      display: inline-flex;
-      align-items: flex-start;
-      justify-content: center;
-      gap: 0.5rem;
-      white-space: nowrap;
-    }
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  white-space: nowrap;
+  gap: 0.15rem; /* reduced gap */
+}
+
 
     .anti-word {
-      opacity: 0;
-      transition: opacity 0.6s ease;
-    }
+  visibility: hidden;
+  transition: opacity 0.6s ease;
+}
 
-    .anti-word.visible {
-      opacity: 1;
-    }
+.anti-word.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
 
     .hero {
       height: 100vh;
