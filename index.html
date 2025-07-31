@@ -152,14 +152,15 @@
 
     .switcher .anti {
       font-size: 3rem;
+      letter-spacing: 0.5em; /* or px, rem */
       height: 1.8rem;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
       opacity: 0;
       transition: opacity 0.6s ease;
     }
 
     .switcher .anti.visible {
-      opacity: 1;
+      opacity: 0.6;
     }
 
     .content {
@@ -351,7 +352,7 @@
       flickerOverlay.style.opacity = 1;
       setTimeout(() => {
         flickerOverlay.style.opacity = 0;
-      }, 250);
+      }, 550);
     }
 
     function randomFlickerLoop() {
