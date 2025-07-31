@@ -16,7 +16,7 @@
       font-family: 'Cormorant Garamond', serif;
       overflow-x: hidden;
       scroll-behavior: smooth;
-    }   
+    }
 
     .background-img {
       position: fixed;
@@ -38,7 +38,7 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 1;
+      z-index: 3;
       pointer-events: none;
     }
 
@@ -57,7 +57,7 @@
         0 0 12px rgba(255, 255, 255, 0.15);
       animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
       pointer-events: none;
-      z-index: 1;
+      z-index: 3;
       opacity: 0.18;
     }
 
@@ -85,6 +85,36 @@
       z-index: 2;
     }
 
+    .switcher {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: 2.5rem;
+      z-index: 4;
+      width: 100%;
+      text-align: center;
+    }
+
+    .switcher-inner {
+      display: inline-flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .anti-word {
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .anti-word.visible {
+      opacity: 1;
+    }
+
     .hero {
       height: 100vh;
       display: flex;
@@ -92,7 +122,7 @@
       justify-content: center;
       align-items: center;
       position: relative;
-      z-index: 3;
+      z-index: 4;
     }
 
     .hero-inner {
@@ -138,35 +168,6 @@
       color: black;
     }
 
-    .switcher {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: Helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 2.5rem;
-  z-index: 4;
-}
-
-.switcher-inner {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0.5rem;
-  text-align: left;
-  white-space: nowrap;
-}
-
-.anti-word {
-  opacity: 0;
-  transition: opacity 0.6s ease;
-}
-
-.anti-word.visible {
-  opacity: 1;
-}
-
     .content {
       font-size: 1.7rem;
       min-height: 100vh;
@@ -180,7 +181,6 @@
       transition: all 1.2s ease;
       padding: 0 10vw;
       text-align: left;
-      line-height: 1.2;
       background: black;
     }
 
@@ -189,12 +189,11 @@
       transform: translateY(0);
     }
 
-   .text-block p {
-
-  max-width: 700px;
-  margin: 0 0 0.7rem 0; /* bottom margin only, adjustable */
-  line-height: 1.4;
-}
+    .text-block p {
+      max-width: 700px;
+      margin: 0 0 0.7rem 0;
+      line-height: 1.4;
+    }
 
     .flicker-overlay {
       position: fixed;
@@ -223,13 +222,13 @@
   <div class="snake-frame" id="snake-frame"></div>
   <div class="overlay"></div>
 
-  <div class="switcher" id="switcher">
-  <div class="switcher-inner">
-    <span class="anti-word" id="anti-text">ANTI-</span>
-    <span class="planned-word">PLANNED<br>ECONOMY</span>
+  <div class="switcher">
+    <div class="switcher-inner">
+      <span class="anti-word" id="anti-text">ANTI-</span>
+      <span class="planned-word">PLANNED<br>ECONOMY</span>
+    </div>
   </div>
-</div>
-  
+
   <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
 
   <section class="hero">
@@ -240,12 +239,12 @@
   </section>
 
   <section class="content" id="reveal">
-  <div class="text-block">
-    <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
-    <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
-    <p>Our first wave of work will explore the interface as a portal, the avatar as a fragment of the divine, and the economy as a ritual form.</p>
-  </div>
-</section>
+    <div class="text-block">
+      <p><strong>ELSIE CORP</strong> exists to design and host new symbolic domains.</p>
+      <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
+      <p>Our first wave of work will explore the interface as a portal, the avatar as a fragment of the divine, and the economy as a ritual form.</p>
+    </div>
+  </section>
 
   <script>
     const enterBtn = document.getElementById('enter-btn');
@@ -256,15 +255,14 @@
     const flickerOverlay = document.getElementById('flicker-overlay');
 
     enterBtn.addEventListener('click', () => {
-  title.style.animation = 'none';
-  title.style.opacity = '1';
-  enterBtn.style.display = 'none';
-
-  window.scrollTo({
-    top: reveal.offsetTop,
-    behavior: 'smooth'
-  });
-});
+      title.style.animation = 'none';
+      title.style.opacity = '1';
+      enterBtn.style.display = 'none';
+      window.scrollTo({
+        top: reveal.offsetTop,
+        behavior: 'smooth'
+      });
+    });
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
@@ -273,39 +271,29 @@
       }
     });
 
-    // PLANNED / ANTI- switcher
-    const sequence = [
-      { delay: 5000, anti: false },
-      { delay: 3000, anti: true },
-      { delay: 7000, anti: false },
-      { delay: 1000, anti: true }
-    ];
-    let index = 0;
-    
-    const antiText = document.getElementById('anti-text');
+    // Flickering ANTI- logic
+    function flickerAnti() {
+      antiText.classList.add('visible');
+      setTimeout(() => {
+        antiText.classList.remove('visible');
+      }, 1500);
+    }
 
-function flickerAnti() {
-  antiText.classList.add('visible');
-  setTimeout(() => {
-    antiText.classList.remove('visible');
-  }, 1500); // Visible duration
-}
+    function loopAntiFlicker() {
+      const interval = Math.floor(Math.random() * 10000) + 5000;
+      setTimeout(() => {
+        flickerAnti();
+        loopAntiFlicker();
+      }, interval);
+    }
 
-function loopAntiFlicker() {
-  const interval = Math.floor(Math.random() * 10000) + 5000;
-  setTimeout(() => {
-    flickerAnti();
     loopAntiFlicker();
-  }, interval);
-}
 
-loopAntiFlicker();
-
-
-    // Snake trail animation
+    // Snake logic
     let pos = 0;
     let direction = 0;
     const speed = 1;
+
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
       dot.className = 'snake-trail';
@@ -350,9 +338,10 @@ loopAntiFlicker();
 
       requestAnimationFrame(animateSnake);
     }
+
     animateSnake();
 
-    // Random red flicker
+    // Red flicker
     function flickerRed() {
       flickerOverlay.style.opacity = 1;
       setTimeout(() => {
@@ -367,7 +356,9 @@ loopAntiFlicker();
         randomFlickerLoop();
       }, interval);
     }
+
     randomFlickerLoop();
   </script>
 </body>
 </html>
+
