@@ -72,6 +72,15 @@
       position: relative;
       z-index: 2;
     }
+    
+    .hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; /* Space between title and button */
+  z-index: 2;
+}
+
 
     .text-flicker {
   font-size: 7rem;
@@ -138,9 +147,12 @@
 
   <!-- HERO TITLE SECTION -->
   <section class="hero">
+  <div class="hero-inner">
     <div class="text-flicker" id="title">ELSIE CORP.</div>
     <button id="enter-btn">ENTER</button>
-  </section>
+  </div>
+</section>
+
 
   <!-- SCROLL-REVEALED CENTERED TEXT -->
   <section class="content" id="reveal">
