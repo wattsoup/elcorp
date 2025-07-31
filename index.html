@@ -60,7 +60,7 @@
       text-align: center;
       animation: flicker 1s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
-      transition: font-family 1s ease;
+      transition: font-family 2s ease;
     }
 
     @keyframes flicker {
@@ -166,19 +166,27 @@ line-height: 1.4;
     observer.observe(reveal);
 
     // Font cycling for title
-    const title = document.getElementById('title');
-    const fonts = [
-      'Helvetica, Arial, sans-serif',                  // corporate sans
-      '"Playfair Display", serif',                    // italics
-      '"Cormorant Garamond", serif'                   // divine serif
-    ];
-    let index = 0;
+<script>
+  const title = document.getElementById('title');
+  const fonts = [
+    'Helvetica, Arial, sans-serif',
+    '"Playfair Display", serif',
+    '"Cormorant Garamond", serif'
+  ];
 
-    setInterval(() => {
-      index = (index + 1) % fonts.length;
-      title.style.fontFamily = fonts[index];
-    }, 100); // change every 4s
-  </script>
+  function switchFont() {
+    const nextFont = fonts[Math.floor(Math.random() * fonts.length)];
+    title.style.fontFamily = nextFont;
+
+    // Random time between 300ms and 2000ms
+    const nextDelay = Math.floor(Math.random() * 1700) + 300;
+    setTimeout(switchFont, nextDelay);
+  }
+
+  // start the recursive loop
+  switchFont();
+</script>
+
 </body>
 </html>
 
