@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -93,31 +93,34 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 7rem;
-      font-weight: bold;
-      font-family: Helvetica, sans-serif;
-      color: white;
       z-index: 999;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.2s ease;
     }
 
-    .switcher {
-  position: absolute;
-  top: 30%; /* Adjust vertically if needed */
-  left: 50%;
-  transform: translate(-50%, -50%); /* Center both horizontally and vertically */
-  font-family: Helvetica, sans-serif;
-  font-weight: bold;
-  font-size: 2.5rem;
-  z-index: 4;
-  display: flex;
-  align-items: center; /* Center vertical alignment of "ANTI-" */
-  justify-content: center;
-  gap: 1rem;
-}
+    .flicker-text {
+      font-family: Helvetica, sans-serif;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+      font-size: 7rem;
+    }
 
+    .switcher {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: 2.5rem;
+      z-index: 4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
 
     .anti-word {
       visibility: hidden;
@@ -230,83 +233,69 @@
       line-height: 1.4;
     }
 
-@media (max-width: 768px) {
-  .text-flicker {
-    font-size: 3rem;
-    text-shadow: 0 0 5px white, 0 0 10px white;
-  }
+    @media (max-width: 768px) {
+      .text-flicker {
+        font-size: 3rem;
+        text-shadow: 0 0 5px white, 0 0 10px white;
+      }
 
-  .switcher {
-    top: 20%;
-    font-size: 1.2rem;
-    flex-direction: column;
-    gap: 0.3rem;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
+      .switcher {
+        top: 20%;
+        font-size: 1.2rem;
+        flex-direction: column;
+        gap: 0.3rem;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
 
-  .planned-word {
-    align-items: center;
-    font-size: 2rem;
-  }
+      .planned-word {
+        align-items: center;
+        font-size: 2rem;
+      }
 
-  #enter-btn {
-    font-size: 1rem;
-    padding: 0.6rem 2rem;
-  }
+      #enter-btn {
+        font-size: 1rem;
+        padding: 0.6rem 2rem;
+      }
 
-.hero-inner {
-  margin-top: 3rem;
-}
+      .hero-inner {
+        margin-top: 3rem;
+      }
 
-.content {
-  font-size: 1rem;
-  padding: 0 1.5rem;
-  text-align: left;
-}
+      .content {
+        font-size: 1rem;
+        padding: 0 1.5rem;
+        text-align: left;
+      }
 
- .anti-word {
-      visibility: hidden;
-      font-size: 2rem;
-      opacity: 0;
-      color: white;
-      transition: opacity 0.3s ease, color 0.3s ease;
+      .anti-word {
+        font-size: 2rem;
+      }
+
+      .snake-frame {
+        border: 1px solid red;
+        width: 80vw;
+        height: 80vh;
+        top: 5%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        margin: 0;
+      }
+
+      .flicker-text {
+        font-size: 2.5rem;
+        padding: 0 1rem;
+        line-height: 1.2;
+      }
     }
-
-
-
-  
-  .snake-frame {
-    
-    border: 1px solid red;
-    width: 80vw;
-    height: 80vh;
-    top: 5%;
-    left: 50%;
-    transform: translate(-50%, 0);
-    margin: 0; /* ensure no inherited margins */
-  }
-
-}
-
-
-  .flicker-overlay {
-    font-size: 3rem;
-    line-height: 1.1;
-    padding: 0 1rem;
-    text-align: center;
-  }
-
-}
-
-   
   </style>
 </head>
 <body>
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="snake-frame" id="snake-frame"></div>
-  <div class="overlay"></div>
-  <div class="flicker-overlay" id="flicker-overlay">ANTI-PLANNED ECONOMY</div>
+  <div class="flicker-overlay" id="flicker-overlay">
+    <div class="flicker-text">ANTI-<br>PLANNED<br>ECONOMY</div>
+  </div>
 
   <div class="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
@@ -400,6 +389,7 @@
     let pos = 0;
     let direction = 0;
     const speed = 1;
+
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
       dot.className = 'snake-trail';
@@ -409,53 +399,47 @@
       setTimeout(() => dot.remove(), 15000);
     }
 
-   function animateSnake() {
-  const margin = 6; // half of .snake-trail size
+    function animateSnake() {
+      const margin = 6;
+      const box = snakeFrame.getBoundingClientRect();
+      const w = box.width;
+      const h = box.height;
+      const x0 = box.left + window.scrollX;
+      const y0 = box.top + window.scrollY;
 
-  const box = snakeFrame.getBoundingClientRect();
-  const w = box.width;
-  const h = box.height;
-  const x0 = box.left + window.scrollX;
-  const y0 = box.top + window.scrollY;
+      let x, y;
+      if (direction === 0) {
+        x = x0 + margin + pos;
+        y = y0 + margin;
+      } else if (direction === 1) {
+        x = x0 + w - margin;
+        y = y0 + margin + pos;
+      } else if (direction === 2) {
+        x = x0 + w - margin - pos;
+        y = y0 + h - margin;
+      } else if (direction === 3) {
+        x = x0 + margin;
+        y = y0 + h - margin - pos;
+      }
 
-  let x, y;
-  if (direction === 0) {
-    // top: left → right
-    x = x0 + margin + pos;
-    y = y0 + margin;
-  } else if (direction === 1) {
-    // right: top → bottom
-    x = x0 + w - margin;
-    y = y0 + margin + pos;
-  } else if (direction === 2) {
-    // bottom: right → left
-    x = x0 + w - margin - pos;
-    y = y0 + h - margin;
-  } else if (direction === 3) {
-    // left: bottom → top
-    x = x0 + margin;
-    y = y0 + h - margin - pos;
-  }
+      spawnTrail(x - 6, y - 6);
+      pos += speed;
 
-  // center dot around cursor
-  spawnTrail(x - 6, y - 6);
-  pos += speed;
+      if (
+        (direction === 0 && pos >= w - 2 * margin) ||
+        (direction === 1 && pos >= h - 2 * margin) ||
+        (direction === 2 && pos >= w - 2 * margin) ||
+        (direction === 3 && pos >= h - 2 * margin)
+      ) {
+        pos = 0;
+        direction = (direction + 1) % 4;
+      }
 
-  // edge detection — subtract total margin from full edge length
-  if (
-    (direction === 0 && pos >= w - 2 * margin) ||
-    (direction === 1 && pos >= h - 2 * margin) ||
-    (direction === 2 && pos >= w - 2 * margin) ||
-    (direction === 3 && pos >= h - 2 * margin)
-  ) {
-    pos = 0;
-    direction = (direction + 1) % 4;
-  }
+      requestAnimationFrame(animateSnake);
+    }
 
-  requestAnimationFrame(animateSnake);
-}
-animateSnake();
-
+    animateSnake();
   </script>
 </body>
 </html>
+
