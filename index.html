@@ -108,7 +108,7 @@
       pointer-events: none;
       z-index: 2;
       opacity: 0.9;
-      animation: fadeout 1s linear forwards;
+      animation: fadeout 2s linear forwards;
     }
 
     @keyframes fadeout {
@@ -231,7 +231,7 @@
       dot.style.left = `${x}px`;
       dot.style.top = `${y}px`;
       document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 1000);
+      setTimeout(() => dot.remove(), 2500);
     }
 
     function animateSnake() {
