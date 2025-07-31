@@ -406,46 +406,44 @@
       setTimeout(() => dot.remove(), 15000);
     }
 
-    function animateSnake() {
-      const box = snakeFrame.getBoundingClientRect();
-      const w = box.width;
-      const h = box.height;
-      const x0 = box.left;
-      const y0 = box.top;
+   function animateSnake() {
+  const margin = 6; // move this to the top
 
-      let x, y;
-const margin = 6; // half the trail width (12px) to center the dot inside
+  const box = snakeFrame.getBoundingClientRect();
+  const w = box.width;
+  const h = box.height;
+  const x0 = box.left + window.scrollX;
+  const y0 = box.top + window.scrollY;
 
-if (direction === 0) {
-  x = x0 + pos;
-  y = y0 + margin;
-} else if (direction === 1) {
-  x = x0 + w - margin;
-  y = y0 + pos;
-} else if (direction === 2) {
-  x = x0 + w - pos;
-  y = y0 + h - margin;
-} else if (direction === 3) {
-  x = x0 + margin;
-  y = y0 + h - pos;
+  let x, y;
+  if (direction === 0) {
+    x = x0 + pos;
+    y = y0 + margin;
+  } else if (direction === 1) {
+    x = x0 + w - margin;
+    y = y0 + pos;
+  } else if (direction === 2) {
+    x = x0 + w - pos;
+    y = y0 + h - margin;
+  } else if (direction === 3) {
+    x = x0 + margin;
+    y = y0 + h - pos;
+  }
+
+  spawnTrail(x - 6, y - 6); // center the dot
+  pos += speed;
+
+  if ((direction === 0 && pos >= w - 2 * margin) ||
+      (direction === 1 && pos >= h - 2 * margin) ||
+      (direction === 2 && pos >= w - 2 * margin) ||
+      (direction === 3 && pos >= h - 2 * margin)) {
+    pos = 0;
+    direction = (direction + 1) % 4;
+  }
+
+  requestAnimationFrame(animateSnake);
 }
-
-      spawnTrail(x, y);
-      pos += speed;
-
-      const margin = 6;
-
-if ((direction === 0 && pos >= w - 2 * margin) ||
-    (direction === 1 && pos >= h - 2 * margin) ||
-    (direction === 2 && pos >= w - 2 * margin) ||
-    (direction === 3 && pos >= h - 2 * margin)) {
-        pos = 0;
-        direction = (direction + 1) % 4;
-      }
-
-      requestAnimationFrame(animateSnake);
-    }
-    animateSnake();
+animateSnake();
   </script>
 </body>
 </html>
