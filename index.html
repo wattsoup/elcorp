@@ -98,31 +98,6 @@
       color: black;
     }
 
-    .snake-trail {
-  width: 12px;
-  height: 12px;
-  border-radius: 1px;
-  background-color: white;
-  background-image: 
-    linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
-  background-size: 3px 3px;
-  box-shadow: 0 0 6px white, 0 0 12px rgba(255,255,255,0.6);
-  animation: fadeout 2s linear forwards, pixelpulse 0.5s infinite alternate;
-  pointer-events: none;
-  z-index: 2;
-  opacity: 0.95;
-}
-
-    @keyframes pixelpulse {
-  from { filter: brightness(1); }
-  to   { filter: brightness(1.4); }
-}
-
-    @keyframes fadeout {
-      to { opacity: 0; }
-    }
-
     .snake-frame {
       position: absolute;
       width: 60vw;
@@ -132,6 +107,32 @@
       transform: translate(-50%, -50%);
       z-index: 2;
       pointer-events: none;
+    }
+
+    .snake-trail {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 1px;
+      background-color: white;
+      background-image: 
+        linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
+      background-size: 3px 3px;
+      box-shadow: 0 0 6px white, 0 0 12px rgba(255,255,255,0.6);
+      animation: fadeout 2s linear forwards, pixelpulse 0.5s infinite alternate;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.95;
+    }
+
+    @keyframes pixelpulse {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.4); }
+    }
+
+    @keyframes fadeout {
+      to { opacity: 0; }
     }
 
     .content {
@@ -180,10 +181,10 @@
   <img src="images.jpeg" alt="Background doorway" class="background-img">
   <div class="overlay"></div>
 
-  <!-- 🐍 Snake runner will append trails dynamically -->
+  <!-- Snake container -->
   <div class="snake-frame" id="snake-frame"></div>
 
-  <!-- HERO SECTION -->
+  <!-- Hero section -->
   <section class="hero">
     <div class="hero-inner">
       <div class="text-flicker" id="title">ELSIE CORP.</div>
@@ -191,7 +192,7 @@
     </div>
   </section>
 
-  <!-- SCROLL-REVEALED CENTERED TEXT -->
+  <!-- Scroll-revealed content -->
   <section class="content" id="reveal">
     <div class="text-block">
       <div class="block">
@@ -230,8 +231,6 @@
     let pos = 0;
     let direction = 0; // 0: right, 1: down, 2: left, 3: up
     const speed = 3;
-    const trailInterval = 20;
-    const box = snakeFrame.getBoundingClientRect();
 
     function spawnTrail(x, y) {
       const dot = document.createElement('div');
@@ -243,6 +242,7 @@
     }
 
     function animateSnake() {
+      const box = snakeFrame.getBoundingClientRect(); // get fresh box each frame
       const w = box.width;
       const h = box.height;
       const x0 = box.left;
@@ -282,3 +282,4 @@
   </script>
 </body>
 </html>
+
