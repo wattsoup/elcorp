@@ -1,10 +1,12 @@
-ter<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
 
   <style>
     html, body {
@@ -58,6 +60,7 @@ ter<!DOCTYPE html>
       text-align: center;
       animation: flicker 2s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
+      transition: font-family 1s ease;
     }
 
     @keyframes flicker {
@@ -71,6 +74,10 @@ ter<!DOCTYPE html>
 
     .content {
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
       padding: 5vh 10vw;
       z-index: 2;
       position: relative;
@@ -86,7 +93,7 @@ ter<!DOCTYPE html>
 
     .content p {
       font-size: 1.5rem;
-      line-height: 1;
+      line-height: 2;
       margin-bottom: 2rem;
     }
   </style>
@@ -98,10 +105,10 @@ ter<!DOCTYPE html>
 
   <!-- HERO TITLE SECTION -->
   <section class="hero">
-    <div class="text-flicker">ELSIE CORP</div>
+    <div class="text-flicker" id="title">ELSIE CORP</div>
   </section>
 
-  <!-- SCROLL-REVEALED CONTENT -->
+  <!-- SCROLL-REVEALED CENTERED TEXT -->
   <section class="content" id="reveal">
     <p>ELSIE CORP exists to design and host new symbolic domains.</p>
     <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
@@ -111,7 +118,7 @@ ter<!DOCTYPE html>
   </section>
 
   <script>
-    // Fade-in on scroll
+    // Scroll-triggered reveal
     const reveal = document.getElementById('reveal');
 
     const observer = new IntersectionObserver(
@@ -126,6 +133,20 @@ ter<!DOCTYPE html>
     );
 
     observer.observe(reveal);
+
+    // Font cycling for title
+    const title = document.getElementById('title');
+    const fonts = [
+      'Helvetica, Arial, sans-serif',                  // corporate sans
+      '"Playfair Display", serif',                    // italics
+      '"Cormorant Garamond", serif'                   // divine serif
+    ];
+    let index = 0;
+
+    setInterval(() => {
+      index = (index + 1) % fonts.length;
+      title.style.fontFamily = fonts[index];
+    }, 4000); // change every 4s
   </script>
 </body>
 </html>
