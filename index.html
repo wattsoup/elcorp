@@ -632,21 +632,7 @@ async function onDouble(val){
 }
 
 
-    function afterDiceRolled(){
-      if (faces[0] === faces[1]) {
-        const val = faces[0] + 1;
-        basket += 1;
-        basketEl.textContent = String(basket);
-        flashOnce(basketEl);
-        flashOnce(countdownEl);
-        setRandomCountdown();
-        flashOverlay(val);
-        maybeShowJoin();
-// NEW: milestone screen at specific basket totals
-showMilestone(basket);
-      }
-    }
-
+    
     function rollBothAndMaybeFlash(){
   rollDie(0, cube1);
   setTimeout(() => {
