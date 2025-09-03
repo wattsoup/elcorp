@@ -339,52 +339,77 @@
 .join-badge.show{ opacity: 1; }
 
    
-/* ===== PHONE REFINEMENTS (override) ===== */
+/* ===== PHONE REFINEMENTS (final) ===== */
 @media (max-width: 820px){
 
-  /* ELSIE CORP.: a bit bigger + lower */
+  /* Title: one line, bigger, lower */
   .text-flicker{
-    top: calc(env(safe-area-inset-top, 0) + 1.2rem);
-    font-size: clamp(2.6rem, 10.8vw, 3.8rem);
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 1.6rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    text-align: center;
+    font-size: clamp(2.8rem, 11.4vw, 4.1rem);
+    line-height: 1;
+    z-index: 9;
   }
 
-  /* ANTI- PLANNED ECONOMY: right underneath, one line, same size */
+  /* ANTI- PLANNED ECONOMY: one line right under title */
   .switcher{
-    top: calc(env(safe-area-inset-top, 0) + 5.1rem);
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 5.2rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    text-align: center;
     font-size: clamp(1.6rem, 7.2vw, 2.6rem);
+    z-index: 9;
   }
   .switcher .anti-word{ font-size: inherit; }
   .planned-word{ flex-direction: row; gap: .35rem; }
   .planned-word .line{ display:inline-block; }
 
-  /* Dice: centered, more diagonal */
-  .dice{
-    top: 43vh;
-    left: calc(50% - calc(var(--dice) * 1.1)); /* a touch left of center */
-  }
-  .dice2{
-    top: 55vh;
-    left: calc(50% + calc(var(--dice) * 1.1)); /* a touch right of center */
-  }
+  /* Dice: centered and clearer diagonal over lower third of image */
+  :root{ --dice: 92px; }                   /* a touch larger on phones */
+  .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
+  .dice  { top: 56vh; margin-left: calc(-1.15 * var(--dice)); } /* up-left */
+  .dice2 { top: 63vh; margin-left: calc( 0.55 * var(--dice)); } /* down-right */
 
-  /* Bottom row: countdown and basket number aligned horizontally.
-     Basket shows NUMBER first, then the labels under it. */
-  .countdown-box .digits{
-    font-size: clamp(1.9rem, 8.6vw, 2.6rem);
+  /* Bottom row: same baseline for time + basket number */
+  .countdown-box{
+    position: fixed; left: 5vw; right: auto;
+    bottom: 9vh; top: auto; transform: none; text-align: left;
   }
+  .countdown-box .digits{ font-size: clamp(2.0rem, 8.6vw, 2.8rem); }
 
   .stats{
-    display: flex;
-    flex-direction: column-reverse; /* puts number on top visually */
-    align-items: flex-end;
+    position: fixed; right: 5vw; left: auto;
+    bottom: 9vh; top: auto; text-align: right;
+    display: flex; flex-direction: column-reverse; align-items: flex-end;
   }
-  .stats .basket-num{
-    font-size: clamp(1.9rem, 8.6vw, 2.6rem);
-    line-height: 1;
-    margin: 0;                 /* sits on the same baseline as time */
+  .stats .basket-num{                /* number first */
+    font-size: clamp(2.0rem, 8.6vw, 2.8rem);
+    line-height: 1; margin: 0;
   }
-  .stats .label{ margin-top: .35rem; }     /* labels appear below number */
+  .stats .label{ margin-top: .35rem; }
   .stats .basket-line{ margin-top: .15rem; }
+}
+
+/* ===== “ENTER” mode: hide chrome, keep only text section ===== */
+body.entered #bg-img,
+body.entered #snake-canvas,
+body.entered .switcher,
+body.entered .dice,
+body.entered .stats,
+body.entered .countdown-box{
+  opacity: 0; pointer-events: none; transition: opacity .35s ease;
+}
+
+/* Smaller reading size once entered (applies everywhere; tighten on phones) */
+body.entered .content{ font-size: clamp(1.1rem, 3.6vw, 1.35rem); }
+@media (min-width: 821px){
+  body.entered .content{ font-size: 1.45rem; }  /* desktop slightly smaller than before */
 }
 
 
@@ -492,12 +517,13 @@
     const switcher  = document.getElementById('switcher');
 
     enterBtn.addEventListener('click', () => {
-      title.style.animation = 'none';
-      title.style.opacity = '1';
-      enterBtn.style.display = 'none';
-      switcher.classList.add('is-hidden');
-      window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
-    });
+  title.style.animation = 'none';
+  title.style.opacity = '1';
+  enterBtn.style.display = 'none';
+  document.body.classList.add('entered');    // ← hide all chrome
+  window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
+});
+
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
