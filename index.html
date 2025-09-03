@@ -302,7 +302,7 @@
       setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
     })();
 
-    /* Slideshow with black flicker (4s) */
+    /* ===== DICE + SLIDESHOW (roll on each image) ===== */
     const BG = document.getElementById('bg-img');
     const FX = document.getElementById('black-fx');
 
@@ -312,32 +312,9 @@
       '04.jpg','05.jpg','06.jpg','07.jpg','08.jpg',
       '09.jpg','010.jpg','011.jpg','012.jpg','013.jpg'
     ];
-
     const SHOW_MS = 4000, FLICK_MS = 120;
     IMAGES.forEach(src => { const i = new Image(); i.src = src; });
 
-    let idx = 1;
-    // helper (add anywhere above this block, e.g., under flashIfDouble)
-function rollBothAndMaybeFlash(){
-  // roll both in sync; keep a tiny stagger if you like the feel
-  rollDie(0, cube1);
-  setTimeout(() => { 
-    rollDie(1, cube2); 
-    flashIfDouble(); 
-  }, 0); // or 0 to be perfectly simultaneous
-}
-
-setInterval(() => {
-  FX.style.opacity = '1';
-  setTimeout(() => { 
-    BG.src = IMAGES[idx % IMAGES.length]; 
-    idx++; 
-    // roll dice on each image change (every SHOW_MS == 4000ms)
-    rollBothAndMaybeFlash();
-    FX.style.opacity = '0'; 
-  }, FLICK_MS);
-}, SHOW_MS);
-    /* TWO DICE (with gimbals): roll every 8s; flash red on doubles */
     const cube1 = document.getElementById('cube1');
     const cube2 = document.getElementById('cube2');
 
@@ -349,7 +326,6 @@ setInterval(() => {
       'rotateX(-90deg) rotateY(0deg)',     // 5
       'rotateX(90deg) rotateY(0deg)'       // 6
     ];
-
     let faces = [0, 0];
     function setFace(cube, idx){ cube.style.transform = POSES[idx]; }
     function rollDie(i, cube){
@@ -367,7 +343,22 @@ setInterval(() => {
       }
     }
     setFace(cube1, faces[0]); setFace(cube2, faces[1]);
-  
+
+    function rollBothAndMaybeFlash(){
+      rollDie(0, cube1);
+      setTimeout(() => { rollDie(1, cube2); flashIfDouble(); }, 0);
+    }
+
+    let idx = 1;
+    setInterval(() => {
+      FX.style.opacity = '1';
+      setTimeout(() => {
+        BG.src = IMAGES[idx % IMAGES.length]; 
+        idx++;
+        rollBothAndMaybeFlash();             // roll dice on each image change
+        FX.style.opacity = '0';
+      }, FLICK_MS);
+    }, SHOW_MS);
 
     /* ===================== SNAKE ===================== */
     const cvs = document.getElementById('snake-canvas');
@@ -386,21 +377,15 @@ setInterval(() => {
     const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
     const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
-    /* --- Frame source toggle ---
-       If you want the snake to hug the image rectangle again later, change this to true. */
-    const USE_BG_FRAME = false;
-
-    // distance outside the square/image frame
+    const USE_BG_FRAME = false;           // set true later if you want to hug the image
     const MARGIN_FRAME = TILE * 2;
 
-    // frame defaults (updated by computeFrame)
     let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
 
     function snap(v){ return Math.round(v / TILE) * TILE; }
 
     function computeFrame(){
       if (USE_BG_FRAME) {
-        // Use actual image rect (may be 0 if image not ready)
         const r = BG.getBoundingClientRect();
         let L = Math.max(0, r.left   - MARGIN_FRAME);
         let T = Math.max(0, r.top    - MARGIN_FRAME);
@@ -408,7 +393,7 @@ setInterval(() => {
         let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
         const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8;
         if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)) {
-          computeCenteredSquareFrame();  // fallback to centered square
+          computeCenteredSquareFrame();
         } else {
           frame.left   = snap(L);
           frame.top    = snap(T);
@@ -419,7 +404,6 @@ setInterval(() => {
         computeCenteredSquareFrame();
       }
 
-      // reset head only in rectangle mode
       if (mode === 'rect') {
         head.x = frame.left;
         head.y = frame.top;
@@ -459,7 +443,7 @@ setInterval(() => {
     document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', (e) => {
       e.stopPropagation();
       mode = 'grav';
-      gravStrength = 0; // ramp in slowly
+      gravStrength = 0;
     }));
 
     function step(now){
@@ -480,7 +464,6 @@ setInterval(() => {
         head = { x: nx, y: ny };
 
       } else {
-        // GRAVITATE toward mouse in Manhattan steps (snake vibe)
         gravStrength = Math.min(1, gravStrength + 0.06);
         const dx = target.x - head.x, dy = target.y - head.y;
         const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
@@ -500,6 +483,15 @@ setInterval(() => {
 
       // draw
       ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // GUIDELINE so you can SEE the frame (remove later if you want)
+      ctx.save();
+      ctx.globalAlpha = 0.28;
+      ctx.setLineDash([8, 8]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#fff';
+      ctx.strokeRect(frame.left, frame.top, frame.right - frame.left, frame.bottom - frame.top);
+      ctx.restore();
 
       // glow
       ctx.shadowColor = 'rgba(255,255,255,1)';
@@ -535,7 +527,6 @@ setInterval(() => {
       ctx.shadowBlur = 0;
     }
 
-    /* Seed a short visible tail so you see the snake immediately */
     function primeTrail(len = 24){
       trail.length = 0;
       for (let i = 0; i < len; i++){
