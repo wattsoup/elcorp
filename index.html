@@ -229,4 +229,183 @@
           setTimeout(() => {
             antiText.className = 'anti-word';
             setTimeout(() => {
-              antiText.className = 'anti-word visible
+              antiText.className = 'anti-word visible-white';
+              setTimeout(() => { antiText.className = 'anti-word'; }, 200);
+            }, 200);
+          }, 120);
+        }, 120);
+      }, 120);
+    }
+    (function loopAntiFlicker() {
+      const interval = Math.floor(Math.random() * 10000) + 5000;
+      setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
+    })();
+
+    /* ---------------- Background slideshow ---------------- */
+    const BG = document.getElementById('bg-img');
+    const FX = document.getElementById('black-fx');
+
+    const IMAGES = [
+      'images.jpeg',
+      '01.png','02.png','02.jpg','03.png','03.jpg',
+      '04.jpg','05.jpg','06.jpg','07.jpg','08.jpg',
+      '09.jpg','010.jpg','011.jpg','012.jpg','013.jpg'
+    ];
+
+    const SHOW_MS = 4000; // 4 seconds per image
+    const FLICK_MS = 120;
+
+    IMAGES.forEach(src => { const i = new Image(); i.src = src; });
+
+    let idx = 1;
+    setInterval(() => {
+      FX.style.opacity = '1';
+      setTimeout(() => {
+        BG.src = IMAGES[idx % IMAGES.length];
+        idx++;
+        FX.style.opacity = '0';
+      }, FLICK_MS);
+    }, SHOW_MS);
+
+    /* ---------------- Snake in top band (canvas) ---------------- */
+    const cvs = document.getElementById('snake-canvas');
+    const ctx = cvs.getContext('2d');
+
+    function sizeCanvas() {
+      cvs.width  = window.innerWidth;
+      cvs.height = Math.round(window.innerHeight * 0.22); // 22vh
+    }
+    sizeCanvas();
+    window.addEventListener('resize', sizeCanvas);
+
+    const TILE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
+    const TRAIL_STEPS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
+
+    let speedMs = 90; // lower = faster
+
+    const MARGIN = TILE * 2;
+
+    // snake state
+    let head = { x: MARGIN + TILE/2, y: MARGIN + TILE/2 }; // start top-left inner corner
+    let dir  = { x: TILE, y: 0 };          // moving right
+    let trail = [];
+    let lastStep = 0;
+
+    // RECTANGLE → then WANDER
+    let mode = 'rect';
+    let rectEdge = 0;       // 0 top→right, 1 right→down, 2 bottom→left, 3 left→up
+    let lapsLeft = 1;       // do exactly one full lap
+
+    // wander settings (big figures)
+    const TURN_BASE = 0.06;
+    const STRAIGHT_MIN = 6;
+    let stepsSinceTurn = 0;
+
+    // wheel affects snake only while locked
+    let boostUntil = 0;
+    let turnBias = 0;
+    window.addEventListener('wheel', (e) => {
+      if (scrollLocked) e.preventDefault();
+      boostUntil = performance.now() + 1200;
+      turnBias = Math.sign(e.deltaY);
+    }, { passive: false });
+
+    function rectLimits() {
+      return {
+        left:  MARGIN + TILE/2,
+        right: cvs.width  - MARGIN - TILE/2,
+        top:   MARGIN + TILE/2,
+        bottom:cvs.height - MARGIN - TILE/2
+      };
+    }
+
+    function step(now) {
+      requestAnimationFrame(step);
+      const stepDelay = (boostUntil > now ? speedMs * 0.55 : speedMs);
+      if (now - lastStep < stepDelay) return;
+      lastStep = now;
+
+      if (mode === 'rect') {
+        const L = rectLimits();
+        // move one tile along current edge
+        let nx = head.x + dir.x;
+        let ny = head.y + dir.y;
+
+        // clamp and turn at edges in exact rectangle
+        if (rectEdge === 0 && nx >= L.right) { nx = L.right; dir = {x:0,y:TILE}; rectEdge = 1; }
+        else if (rectEdge === 1 && ny >= L.bottom){ ny = L.bottom; dir = {x:-TILE,y:0}; rectEdge = 2; }
+        else if (rectEdge === 2 && nx <= L.left) { nx = L.left;  dir = {x:0,y:-TILE}; rectEdge = 3; }
+        else if (rectEdge === 3 && ny <= L.top)  {
+          ny = L.top; dir = {x:TILE,y:0}; rectEdge = 0; lapsLeft--;
+          if (lapsLeft <= 0) { mode = 'wander'; stepsSinceTurn = 0; }
+        }
+
+        head = { x: nx, y: ny };
+      } else {
+        // WANDER MODE (bigger figures)
+        stepsSinceTurn++;
+        const extraBias = Math.abs(turnBias) ? 0.06 : 0;
+        if (stepsSinceTurn >= STRAIGHT_MIN && Math.random() < (TURN_BASE + extraBias)) {
+          const turnRight = Math.random() < (turnBias > 0 ? 0.7 : (turnBias < 0 ? 0.3 : 0.5));
+          dir = turnRight ? { x:  dir.y, y: -dir.x } : { x: -dir.y, y:  dir.x };
+          stepsSinceTurn = 0;
+        }
+
+        // move one tile
+        let nx = head.x + dir.x;
+        let ny = head.y + dir.y;
+
+        // bounce within the band
+        const L = rectLimits();
+        if (nx < L.left)   { nx = L.left;   dir = { x: TILE,  y: 0 }; stepsSinceTurn = 0; }
+        if (ny < L.top)    { ny = L.top;    dir = { x: 0,     y: TILE }; stepsSinceTurn = 0; }
+        if (nx > L.right)  { nx = L.right;  dir = { x: -TILE, y: 0 }; stepsSinceTurn = 0; }
+        if (ny > L.bottom) { ny = L.bottom; dir = { x: 0,     y: -TILE }; stepsSinceTurn = 0; }
+
+        head = { x: nx, y: ny };
+      }
+
+      // trail
+      trail.unshift({ x: head.x, y: head.y });
+      if (trail.length > TRAIL_STEPS) trail.pop();
+
+      // draw
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // glow
+      ctx.shadowColor = 'rgba(255,255,255,1)';
+      ctx.shadowBlur = 20;
+
+      // head
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // body with fade (very long)
+      for (let i = 1; i < trail.length; i++) {
+        const t = i / trail.length;
+        const alpha = Math.max(0, 1 - t * 1.05);
+        if (alpha <= 0) continue;
+
+        ctx.globalAlpha = alpha;
+        const bx = trail[i].x - TILE / 2;
+        const by = trail[i].y - TILE / 2;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(bx, by, TILE, TILE);
+
+        // subtle inner pixel
+        ctx.globalAlpha = alpha * 0.35;
+        const p = TILE / 4;
+        ctx.fillRect(bx + p, by + p, TILE - 2 * p, TILE - 2 * p);
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+
+      if (Math.abs(turnBias) > 0.001) turnBias *= 0.92;
+    }
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>
