@@ -388,11 +388,13 @@
   }
 
   /* Same size + baseline for both numbers */
-  .countdown-box .digits,
+    .countdown-box .digits{ transform: translateY(0.08em); }
   .stats .basket-num{
     font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
   }
+
+
 
   /* Basket labels appear under the number (smaller spacing) */
   .stats .label{ margin-top: .25rem; }
