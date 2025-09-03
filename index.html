@@ -383,21 +383,37 @@ let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.inn
 
 function snap(v){ return Math.round(v / TILE) * TILE; }
 
-/* <-- THIS is computeFrame() */
 function computeFrame(){
-  const r = BG.getBoundingClientRect();   // slideshow image rect
-  frame.left   = snap(Math.max(0, r.left   - MARGIN_FRAME));
-  frame.top    = snap(Math.max(0, r.top    - MARGIN_FRAME));
-  frame.right  = snap(Math.min(window.innerWidth,  r.right  + MARGIN_FRAME));
-  frame.bottom = snap(Math.min(window.innerHeight, r.bottom + MARGIN_FRAME));
+  const r = BG.getBoundingClientRect();
 
-  if (mode === 'rect') {                   // reset head to top-left of frame
+  // proposed frame around the image
+  let L = Math.max(0, r.left   - MARGIN_FRAME);
+  let T = Math.max(0, r.top    - MARGIN_FRAME);
+  let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
+  let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
+
+  // Fallback if the image isn't ready (too thin/small)
+  const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8;
+  if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)) {
+    const pad = Math.round(Math.min(innerWidth, innerHeight) * 0.12);
+    L = pad; T = pad; R = innerWidth - pad; B = innerHeight - pad;
+  }
+
+  // snap to grid
+  frame.left   = snap(L);
+  frame.top    = snap(T);
+  frame.right  = snap(R);
+  frame.bottom = snap(B);
+
+  // reset head only while we're in "rect" mode
+  if (mode === 'rect') {
     head.x = frame.left;
     head.y = frame.top;
     dir = { x: TILE, y: 0 };
     rectEdge = 0;
   }
 }
+
 
 /* snake state */
 let head = { x: frame.left, y: frame.top };
