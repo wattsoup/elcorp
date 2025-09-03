@@ -317,11 +317,26 @@
     IMAGES.forEach(src => { const i = new Image(); i.src = src; });
 
     let idx = 1;
-    setInterval(() => {
-      FX.style.opacity = '1';
-      setTimeout(() => { BG.src = IMAGES[idx % IMAGES.length]; idx++; FX.style.opacity = '0'; }, FLICK_MS);
-    }, SHOW_MS);
+    // helper (add anywhere above this block, e.g., under flashIfDouble)
+function rollBothAndMaybeFlash(){
+  // roll both in sync; keep a tiny stagger if you like the feel
+  rollDie(0, cube1);
+  setTimeout(() => { 
+    rollDie(1, cube2); 
+    flashIfDouble(); 
+  }, 120); // or 0 to be perfectly simultaneous
+}
 
+setInterval(() => {
+  FX.style.opacity = '1';
+  setTimeout(() => { 
+    BG.src = IMAGES[idx % IMAGES.length]; 
+    idx++; 
+    // roll dice on each image change (every SHOW_MS == 4000ms)
+    rollBothAndMaybeFlash();
+    FX.style.opacity = '0'; 
+  }, FLICK_MS);
+}, SHOW_MS);
     /* TWO DICE (with gimbals): roll every 8s; flash red on doubles */
     const cube1 = document.getElementById('cube1');
     const cube2 = document.getElementById('cube2');
@@ -352,10 +367,7 @@
       }
     }
     setFace(cube1, faces[0]); setFace(cube2, faces[1]);
-    setInterval(() => {
-      rollDie(0, cube1);
-      setTimeout(() => { rollDie(1, cube2); flashIfDouble(); }, 200);
-    }, 8000);
+  
 
     /* ===================== SNAKE ===================== */
     const cvs = document.getElementById('snake-canvas');
