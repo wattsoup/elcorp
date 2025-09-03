@@ -198,15 +198,26 @@
       20%,60% { color: #ff3b3b; text-shadow: 0 0 18px rgba(255,0,0,.5), 0 0 28px rgba(255,0,0,.3); }
     }
 
-    /* Red overlay for doubles (optional, brief) */
-    .combo-overlay{
-      position: fixed; inset: 0;
-      background: #c40000;
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity .08s ease;
-      z-index: 9999; pointer-events: none;
-    }
-    .combo-overlay.show{ opacity: 1; }
+    
+    /* RED pair overlay */
+.combo-overlay{
+  position: fixed; inset: 0;
+  background:#c40000;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0;
+  visibility:hidden;                /* ← hide when not shown */
+  transition: opacity .08s linear,  /* fade */
+              visibility 0s linear .08s; /* hide after fade completes */
+  z-index:10000;
+  pointer-events:none;
+}
+.combo-overlay.show{
+  opacity:1;
+  visibility:visible;               /* ← show immediately */
+  transition: opacity .08s linear;  /* no visibility delay on show */
+}
+
+    
     .combo-overlay .big{
       font-family: Helvetica, Arial, sans-serif;
       font-weight: 900;
@@ -218,14 +229,18 @@
 
     /* ===== MILESTONES ===== */
 .milestone{
-  position: fixed; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,.95);          /* replaced in JS per milestone */
-  z-index: 10001;
-  opacity: 0; pointer-events: none;
-  transition: opacity .18s ease;
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#0aa84f;      /* ← solid (no alpha) for green variants */
+  opacity:0; visibility:hidden;
+  transition:opacity .14s ease;
+  z-index:10001;           /* above red pair */
+  pointer-events:none;
+  isolation:isolate;       /* avoid blending with layers below */
+  mix-blend-mode:normal;   /* ensure normal compositing */
 }
-.milestone.show{ opacity: 1; }
+.milestone.show{ opacity:1; visibility:visible; }
+
 
 .milestone .inner{
   text-align: center;
@@ -237,6 +252,9 @@
   text-shadow: 0 0 18px rgba(255,255,255,.25);
   padding: 4vmin 6vmin;
 }
+    .milestone.red   { background:#d30000; }
+.milestone.green { background:#0aa84f; }
+.milestone.black { background:#000000; }
 
 /* size presets */
 .ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
@@ -507,13 +525,36 @@
     setInterval(tickCountdown, 1000);
     setRandomCountdown();
 
-    function flashOverlay(v){
-      const overlay = document.getElementById('combo-overlay');
-      const text = document.getElementById('combo-text');
-      text.textContent = `${v}   ${v}`;
-      overlay.classList.add('show');
-      setTimeout(() => overlay.classList.remove('show'), 420);
-    }
+    
+function flashOverlay(val, showMs = 260){
+  const overlay = document.getElementById('combo-overlay');
+  const text = document.getElementById('combo-text');
+  return new Promise(resolve => {
+    text.textContent = `${val}   ${val}`;
+    overlay.classList.add('show');
+    setTimeout(() => {
+      const onEnd = (e) => {
+        if (e.propertyName === 'opacity') {
+          overlay.removeEventListener('transitionend', onEnd);
+          resolve();
+        }
+      };
+      overlay.addEventListener('transitionend', onEnd, { once:true });
+      overlay.classList.remove('show');   // start fade-out
+    }, showMs);
+  });
+}
+    function whiteFlash(ms = 70){
+  return new Promise(resolve => {
+    const wf = document.getElementById('white-flash');
+    wf.classList.add('show');
+    setTimeout(() => {
+      wf.classList.remove('show');
+      setTimeout(resolve, 80); // let the CSS transition finish
+    }, ms);
+  });
+}
+
 
     function maybeShowJoin(){
       if (Math.random() < 0.55) {
@@ -543,14 +584,37 @@
   };
 
   function showMilestone(n){
-    const ms = MILESTONES[n];
-    if (!ms) return;
-    milestoneEl.style.background = ms.bg;
+  const milestoneEl = document.getElementById('milestone');
+  const milestoneInner = document.getElementById('milestone-inner');
+  const ms = MILESTONES?.[n];     // your milestones map from earlier
+  return new Promise(resolve => {
+    if (!ms) return resolve();
+    milestoneEl.style.background = ms.bg;  // solid color (no alpha)
     milestoneInner.className = 'inner ' + ms.cls;
     milestoneInner.textContent = ms.text;
     milestoneEl.classList.add('show');
-    setTimeout(() => milestoneEl.classList.remove('show'), ms.dur || 1600);
-  }
+    setTimeout(() => {
+      milestoneEl.classList.remove('show');
+      resolve();
+    }, ms.dur || 1600);
+  });
+}
+async function onDouble(val){
+  // bump basket + tiny reactions (use your existing helpers/vars)
+  basket += 1;
+  basketEl.textContent = String(basket);
+  flashOnce(basketEl);
+  flashOnce(countdownEl);
+  setRandomCountdown();
+
+  // sequence: red pair -> white flash -> milestone
+  await flashOverlay(val, 260);
+  await whiteFlash(70);
+  await showMilestone(basket);
+
+  // optional: your join blip
+  maybeShowJoin();
+}
 
 
     function afterDiceRolled(){
@@ -569,9 +633,16 @@ showMilestone(basket);
     }
 
     function rollBothAndMaybeFlash(){
-      rollDie(0, cube1);
-      setTimeout(() => { rollDie(1, cube2); afterDiceRolled(); }, 0);
+  rollDie(0, cube1);
+  setTimeout(() => {
+    rollDie(1, cube2);
+    if (faces[0] === faces[1]) {
+      const val = faces[0] + 1;
+      onDouble(val);
     }
+  }, 0);
+}
+
 
     // roll when image changes (every 4s)
     setInterval(() => {
