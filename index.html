@@ -338,7 +338,83 @@
 }
 .join-badge.show{ opacity: 1; }
 
-    @media (max-width: 1024px) { .dice { left: 4vw; transform: scale(.9); } .dice2{ left: 7vw; } .stats{ right: 4vw; } .countdown-box{ right: 4vw; } }
+   
+/* ===== MOBILE (≤ 820px) OVERRIDES ===== */
+@media (max-width: 820px){
+
+  :root{ --band: 12vh; } /* a bit tighter top band on phones */
+
+  /* keep image exactly as-is */
+  .background-img{
+    max-width: 92vw;
+    max-height: 78vh;
+  }
+
+  /* put ELSIE CORP. small at top-left */
+  .hero-inner{ place-items: start; }
+  .text-flicker{
+    position: fixed;
+    top: calc(var(--band) - .2rem);
+    left: 5vw;
+    transform: none;
+    font-size: clamp(2rem, 9.5vw, 3.2rem);
+    text-align: left;
+    z-index: 9;
+  }
+
+  /* PLANNED ECONOMY to top-right */
+  .switcher{
+    top: calc(var(--band) - .2rem);
+    left: auto;
+    right: 5vw;
+    transform: none;
+    text-align: right;
+    font-size: clamp(1.2rem, 6vw, 2.4rem);
+    z-index: 9;
+  }
+  .anti-word{ font-size: clamp(1.6rem, 7vw, 2.8rem); }
+
+  /* DICE centered in the middle (stacked) */
+  .dice, .dice2{ display: block; left: 50%; transform: translateX(-50%); z-index: 12; }
+  .dice  { top: 46vh; }
+  .dice2 { top: 60vh; }
+  :root{ --dice: 84px; } /* a touch larger on phones */
+
+  /* Countdown bottom-left */
+  .countdown-box{
+    right: auto;
+    left: 5vw;
+    bottom: 10vh;
+    top: auto;
+    transform: none;
+    text-align: left;
+  }
+  .countdown-box .digits{
+    font-size: clamp(2rem, 10vw, 3.2rem);
+    letter-spacing: .02em;
+  }
+
+  /* PERFUMES / IN YOUR BASKET bottom-right (number on its own line) */
+  .stats{
+    left: auto; right: 5vw;
+    top: auto; bottom: 10vh;
+    text-align: right;
+  }
+  .stats .label{ font-size: .95rem; }
+  .stats .basket-line{ font-size: 1.05rem; margin-top: .2rem; }
+  .stats .basket-num{
+    display: block;            /* number on a new line */
+    margin-top: .25rem;
+    font-size: clamp(1.8rem, 10vw, 3.0rem); /* “numbers in the flicker” a bit bigger */
+  }
+
+  /* Put JOIN just under the text block on phones */
+  .text-block{ max-width: 86vw; margin: 0 auto; }
+  .join-badge{ position: static; display: inline-block; margin-top: 1.2rem; transform: none; }
+
+  /* Hide snake on mobile (prevents weird layering/perf) */
+  #snake-canvas{ display: none !important; }
+}
     
   </style>
 </head>
@@ -816,83 +892,6 @@ function pulseJoin(){
     requestAnimationFrame(step);
     computeFrame();
     primeTrail();
-
-/* ===== MOBILE (≤ 820px) OVERRIDES ===== */
-@media (max-width: 820px){
-
-  :root{ --band: 12vh; } /* a bit tighter top band on phones */
-
-  /* keep image exactly as-is */
-  .background-img{
-    max-width: 92vw;
-    max-height: 78vh;
-  }
-
-  /* put ELSIE CORP. small at top-left */
-  .hero-inner{ place-items: start; }
-  .text-flicker{
-    position: fixed;
-    top: calc(var(--band) - .2rem);
-    left: 5vw;
-    transform: none;
-    font-size: clamp(2rem, 9.5vw, 3.2rem);
-    text-align: left;
-    z-index: 9;
-  }
-
-  /* PLANNED ECONOMY to top-right */
-  .switcher{
-    top: calc(var(--band) - .2rem);
-    left: auto;
-    right: 5vw;
-    transform: none;
-    text-align: right;
-    font-size: clamp(1.2rem, 6vw, 2.4rem);
-    z-index: 9;
-  }
-  .anti-word{ font-size: clamp(1.6rem, 7vw, 2.8rem); }
-
-  /* DICE centered in the middle (stacked) */
-  .dice, .dice2{ display: block; left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 46vh; }
-  .dice2 { top: 60vh; }
-  :root{ --dice: 84px; } /* a touch larger on phones */
-
-  /* Countdown bottom-left */
-  .countdown-box{
-    right: auto;
-    left: 5vw;
-    bottom: 10vh;
-    top: auto;
-    transform: none;
-    text-align: left;
-  }
-  .countdown-box .digits{
-    font-size: clamp(2rem, 10vw, 3.2rem);
-    letter-spacing: .02em;
-  }
-
-  /* PERFUMES / IN YOUR BASKET bottom-right (number on its own line) */
-  .stats{
-    left: auto; right: 5vw;
-    top: auto; bottom: 10vh;
-    text-align: right;
-  }
-  .stats .label{ font-size: .95rem; }
-  .stats .basket-line{ font-size: 1.05rem; margin-top: .2rem; }
-  .stats .basket-num{
-    display: block;            /* number on a new line */
-    margin-top: .25rem;
-    font-size: clamp(1.8rem, 10vw, 3.0rem); /* “numbers in the flicker” a bit bigger */
-  }
-
-  /* Put JOIN just under the text block on phones */
-  .text-block{ max-width: 86vw; margin: 0 auto; }
-  .join-badge{ position: static; display: inline-block; margin-top: 1.2rem; transform: none; }
-
-  /* Hide snake on mobile (prevents weird layering/perf) */
-  #snake-canvas{ display: none !important; }
-}
 
   </script>
 </body>
