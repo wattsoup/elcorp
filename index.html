@@ -469,6 +469,14 @@ function step(now){
   ctx.shadowColor = 'rgba(255,255,255,1)';
   ctx.shadowBlur = 26;                             // a bit glowier
 
+  // guide: show the computed rectangle (helps debugging)
+ctx.save();
+ctx.globalAlpha = 0.18;
+ctx.lineWidth = 2;
+ctx.strokeStyle = '#fff';
+ctx.strokeRect(frame.left, frame.top, frame.right - frame.left, frame.bottom - frame.top);
+ctx.restore();
+
   // head
   ctx.fillStyle = '#fff';
   ctx.beginPath();
