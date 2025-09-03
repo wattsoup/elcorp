@@ -10,8 +10,9 @@
 
   <style>
     :root{
-      --px: 10;              /* thicker snake (was 8) */
-      --trail-steps: 170;    /* tail length in tiles */
+      --px: 10;            /* snake tile size (thicker) */
+      --trail-steps: 170;  /* tail length */
+      --band: 22vh;        /* height of the top snake strip */
     }
 
     html, body {
@@ -22,7 +23,12 @@
       font-family: 'Cormorant Garamond', serif;
       overflow-x: hidden;
       scroll-behavior: smooth;
+      /* prevents scroll anchoring jumps on load */
+      overflow-anchor: none;
     }
+
+    /* Keep content below the fixed snake band */
+    body { padding-top: var(--band); }
 
     /* Brighter background image */
     .background-img {
@@ -39,7 +45,6 @@
       transition: opacity 180ms linear;
     }
 
-    /* Black flicker between slides */
     .black-flicker {
       position: fixed;
       inset: 0;
@@ -50,21 +55,21 @@
       pointer-events: none;
     }
 
-    /* Snake lives in a shallow strip at the top */
+    /* Snake lives in a fixed shallow strip at the very top */
     #snake-canvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
-      height: 22vh;      /* band height */
+      height: var(--band);
       z-index: 5;
       pointer-events: none;
     }
 
-    /* "PLANNED / ECONOMY" */
+    /* PLANNED / ECONOMY — fixed inside the band, left-aligned */
     .switcher {
-      position: absolute;
-      top: 30%;
+      position: fixed;
+      top: calc(var(--band) * 0.55); /* roughly center of the band */
       left: 50%;
       transform: translate(-50%, -50%);
       font-family: Helvetica, Arial, sans-serif;
@@ -75,37 +80,31 @@
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      text-align: left; /* ensure left text alignment */
+      text-align: left;
     }
-    .anti-word {
-      visibility: hidden;
-      font-size: 4.5rem;
-      opacity: 0;
-      color: white;
-      transition: opacity 0.3s ease, color 0.3s ease;
-    }
+    .anti-word { visibility: hidden; font-size: 4.5rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
     .planned-word {
       display: flex;
       flex-direction: column;
-      align-items: flex-start; /* <<< LEFT aligned again */
+      align-items: flex-start; /* left aligned */
       line-height: 1.1;
-      text-align: left;        /* make sure both lines are left-aligned */
+      text-align: left;
     }
 
     .hero {
-      height: 100vh;
+      min-height: calc(100vh - var(--band));
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       position: relative;
-      z-index: 4;
+      z-index: 3;
     }
 
-    .hero-inner { display: flex; flex-direction: column; align-items: center; position: relative; margin-top: 60px; }
+    .hero-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
 
     .text-flicker {
       font-family: 'Cinzel', serif;
@@ -140,7 +139,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 3;
+      z-index: 2;
       position: relative;
       opacity: 0;
       transform: translateY(50px);
@@ -151,19 +150,15 @@
     }
     .content.visible { opacity: 1; transform: translateY(0); }
 
-    .text-block {
-      max-width: 560px;     /* <<< narrower text window */
-    }
+    .text-block { max-width: 560px; } /* narrower text window */
     .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
 
     @media (max-width: 768px) {
       .text-flicker { font-size: 3rem; text-shadow: 0 0 5px white, 0 0 10px white; }
-      .switcher { top: 20%; font-size: 1.2rem; flex-direction: column; gap: 0.3rem; transform: translate(-50%, -50%); }
       #enter-btn { font-size: 1rem; padding: 0.6rem 2rem; }
-      .hero-inner { margin-top: 3rem; }
       .content { font-size: 1rem; padding: 0 1.5rem; }
-      .anti-word { font-size: 2rem; }
       .text-block { max-width: 90vw; }
+      .switcher { top: calc(var(--band) * 0.6); font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -175,7 +170,7 @@
   <!-- Snake band -->
   <canvas id="snake-canvas"></canvas>
 
-  <!-- Top label -->
+  <!-- Label in the band -->
   <div class="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
     <div class="planned-word">
@@ -202,6 +197,10 @@
   </section>
 
   <script>
+    /* Ensure we start at the top (prevents weird initial offsets) */
+    try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e){}
+    window.addEventListener('load', () => window.scrollTo(0, 0));
+
     /* ---------------- UI: ENTER + reveal ---------------- */
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
@@ -249,7 +248,6 @@
     const BG = document.getElementById('bg-img');
     const FX = document.getElementById('black-fx');
 
-    // Your files (images.jpeg stays first)
     const IMAGES = [
       'images.jpeg',
       '01.png','02.png','02.jpg','03.png','03.jpg',
@@ -258,9 +256,8 @@
     ];
 
     const SHOW_MS = 4000; // 4 seconds per image
-    const FLICK_MS = 120; // black flash duration
+    const FLICK_MS = 120;
 
-    // Preload
     IMAGES.forEach(src => { const i = new Image(); i.src = src; });
 
     let idx = 1;
@@ -279,7 +276,9 @@
 
     function sizeCanvas() {
       cvs.width  = window.innerWidth;
-      cvs.height = Math.round(window.innerHeight * 0.22); // 22vh
+      cvs.height = Math.round(window.innerHeight * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--band')) / 100));
+      // simpler: cvs.height = Math.round(window.innerHeight * 0.22);
+      cvs.height = Math.round(window.innerHeight * 0.22);
     }
     sizeCanvas();
     window.addEventListener('resize', sizeCanvas);
@@ -287,8 +286,7 @@
     const TILE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
     const TRAIL_STEPS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
-    // Faster snake (lower ms), but still smooth
-    let speedMs = 90; // was 120 → faster
+    let speedMs = 90; // faster (lower is faster)
 
     const MARGIN = TILE * 2;
 
@@ -298,18 +296,18 @@
     let trail = [];
     let lastStep = 0;
 
-    // turn control for bigger, more global figures
-    const TURN_BASE = 0.06;   // lower base chance → longer straights
-    const STRAIGHT_MIN = 6;   // must travel at least N steps before another turn
+    // fewer turns → bigger figures
+    const TURN_BASE = 0.06;
+    const STRAIGHT_MIN = 6;
     let stepsSinceTurn = 0;
 
-    // scroll input → nudge snake only (no page scroll while locked)
+    // wheel affects snake only while locked
     let boostUntil = 0;
-    let turnBias = 0; // -1 prefer left, +1 prefer right
+    let turnBias = 0;
     window.addEventListener('wheel', (e) => {
-      if (scrollLocked) e.preventDefault();       // keep page still
-      boostUntil = performance.now() + 1200;      // temporary speed boost
-      turnBias = Math.sign(e.deltaY);             // bias direction
+      if (scrollLocked) e.preventDefault();
+      boostUntil = performance.now() + 1200;
+      turnBias = Math.sign(e.deltaY);
     }, { passive: false });
 
     function step(now) {
@@ -318,7 +316,6 @@
       if (now - lastStep < stepDelay) return;
       lastStep = now;
 
-      // bigger figures: fewer turns + minimum straight run
       stepsSinceTurn++;
       const extraBias = Math.abs(turnBias) ? 0.06 : 0;
       if (stepsSinceTurn >= STRAIGHT_MIN && Math.random() < (TURN_BASE + extraBias)) {
@@ -331,7 +328,7 @@
       let nx = head.x + dir.x;
       let ny = head.y + dir.y;
 
-      // bounce within the band (canvas bounds)
+      // bounce within the band
       if (nx < TILE/2)                 { nx = TILE/2;                 dir = { x: TILE,  y: 0 }; stepsSinceTurn = 0; }
       if (ny < TILE/2)                 { ny = TILE/2;                 dir = { x: 0,     y: TILE }; stepsSinceTurn = 0; }
       if (nx > cvs.width - TILE/2)     { nx = cvs.width - TILE/2;     dir = { x: -TILE, y: 0 }; stepsSinceTurn = 0; }
@@ -348,15 +345,15 @@
 
       // glow
       ctx.shadowColor = 'rgba(255,255,255,1)';
-      ctx.shadowBlur = 20; // a little stronger for thicker look
+      ctx.shadowBlur = 20;
 
-      // head (rounded & slightly larger with new TILE)
+      // head
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
       ctx.fill();
 
-      // body squares with fade
+      // body with fade
       for (let i = 1; i < trail.length; i++) {
         const t = i / trail.length;
         const alpha = Math.max(0, 1 - t * 1.1);
@@ -365,7 +362,6 @@
         ctx.globalAlpha = alpha;
         const bx = trail[i].x - TILE / 2;
         const by = trail[i].y - TILE / 2;
-
         ctx.fillStyle = '#fff';
         ctx.fillRect(bx, by, TILE, TILE);
 
@@ -378,7 +374,6 @@
       ctx.globalAlpha = 1;
       ctx.shadowBlur = 0;
 
-      // decay scroll bias
       if (Math.abs(turnBias) > 0.001) turnBias *= 0.92;
     }
     requestAnimationFrame(step);
