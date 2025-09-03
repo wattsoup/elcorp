@@ -12,7 +12,7 @@
     :root{
       --px: 12;            /* snake tile size */
       --trail-steps: 520;  /* long tail so it reads like a frame */
-      --band: 22vh;        /* spacing under fixed top overlay area */
+      --band: 18vh;        /* spacing under fixed top overlay area */
       --dice: 76px;        /* dice size */
     }
 
@@ -29,7 +29,7 @@
 
     body { padding-top: var(--band); }
 
-    /* Background slideshow */
+    /* Background slideshow (brighter) */
     .background-img {
       position: fixed;
       top: 50%;
@@ -53,26 +53,26 @@
       pointer-events: none;
     }
 
-    /* Snake layer */
+    /* Snake layer (on top of content) */
     #snake-canvas{
       position: fixed;
       inset: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 50;         /* above content, below red overlays */
+      z-index: 50;         /* above everything except overlays */
       pointer-events: none;
       opacity: 1;
     }
 
-    /* Label (hidden after ENTER) */
+    /* PLANNED ECONOMY label (hidden after ENTER/scroll) */
     .switcher {
       position: fixed;
-      top: calc(var(--band) + 1.2rem);
+      top: calc(var(--band) + 0.6rem);
       left: 50%;
       transform: translateX(-50%);
       font-family: Helvetica, Arial, sans-serif;
       font-weight: bold;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       z-index: 4;
       display: flex; gap: 1rem;
       text-align: left;
@@ -80,14 +80,14 @@
     }
     .switcher.is-hidden { opacity: 0; pointer-events: none; }
     .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
-    .anti-word { visibility: hidden; font-size: 4.5rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
+    .anti-word { visibility: hidden; font-size: 3.2rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
-    /* Dice (two) */
+    /* Dice (two) — spacing + reliable 3D view */
     .dice {
       position: fixed;
-      top: calc(var(--band) + 3rem);
+      top: calc(var(--band) + 2.5rem);
       left: 7vw;
       width: var(--dice);
       height: var(--dice);
@@ -96,7 +96,7 @@
       z-index: 7;
       filter: drop-shadow(0 10px 20px rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(255,255,255,.18));
     }
-    .dice2 { top: calc(var(--band) + 14rem); left: 10vw; }
+    .dice2 { top: calc(var(--band) + 13.5rem); left: 10vw; }
 
     .dice .gimbal{
       width:100%; height:100%;
@@ -123,12 +123,14 @@
     .dice .face{
       position: absolute; inset: 0;
       display: grid; grid-template: repeat(3,1fr) / repeat(3,1fr); place-items: center;
-      background: radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.9), rgba(230,230,230,.9) 60%, rgba(210,210,210,.85) 100%);
+      background:
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.95), rgba(230,230,230,.9) 60%, rgba(210,210,210,.85) 100%);
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,.08);
-      box-shadow: inset 0 0 30px rgba(255,255,255,0.35), inset 0 0 8px rgba(0,0,0,0.15);
+      box-shadow:
+        inset 0 0 30px rgba(255,255,255,0.35),
+        inset 0 0 8px rgba(0,0,0,0.15);
       backface-visibility: hidden;
-      transform: translateZ(0);
     }
     .dice .pip{
       width: calc(var(--dice) * 0.16);
@@ -143,48 +145,6 @@
     .dice .f4 { transform: rotateY(-90deg) translateZ(calc(var(--dice)/2)); }
     .dice .f5 { transform: rotateX(90deg) translateZ(calc(var(--dice)/2)); }
     .dice .f6 { transform: rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
-
-    /* Right-side panel */
-    .panel {
-      position: fixed;
-      top: calc(var(--band) + 0.5rem);
-      right: 6vw;
-      z-index: 9;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 0.8rem;
-      text-align: right;
-      user-select: none;
-    }
-    .panel .title {
-      font-family: Helvetica, Arial, sans-serif;
-      font-weight: 800;
-      letter-spacing: .15em;
-      font-size: clamp(12px, 1.1vw, 16px);
-      opacity: .85;
-    }
-    .panel .basket {
-      font-family: Helvetica, Arial, sans-serif;
-      font-weight: 800;
-      letter-spacing: .08em;
-      font-size: clamp(13px, 1.2vw, 18px);
-      opacity: .9;
-    }
-    /* Countdown */
-    .countdown {
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-weight: 900;
-      font-size: clamp(24px, 3.2vw, 42px);
-      letter-spacing: 0.08em;
-      color: #fff;
-      text-shadow: 0 0 14px rgba(255,255,255,.35);
-      transition: color .2s ease, text-shadow .2s ease;
-    }
-    .countdown.flash {
-      color: #c40000;
-      text-shadow: 0 0 22px rgba(255,60,60,.45);
-    }
 
     /* Red overlay for doubles */
     .combo-overlay{
@@ -204,6 +164,45 @@
       text-shadow: 0 0 24px rgba(255,255,255,.35);
     }
 
+    /* Right stats panel */
+    .stats{
+      position: fixed;
+      top: calc(var(--band) + 0.6rem);
+      right: 7vw;
+      text-align: right;
+      z-index: 7;
+      font-family: Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+    .stats .perfumes{
+      font-size: 0.95rem;
+      letter-spacing: .18em;
+      opacity: .9;
+      font-weight: 700;
+    }
+    .stats .basket{
+      margin-top: .4rem;
+      font-size: 1.05rem;      /* a bit bigger per your request */
+      letter-spacing: .18em;
+      font-weight: 800;
+      opacity: .95;
+    }
+    .stats .countdown{
+      margin-top: .9rem;
+      font-size: clamp(1.8rem, 4.2vw, 2.6rem); /* slightly smaller digits */
+      font-weight: 900;
+      letter-spacing: .15em;
+      text-shadow: 0 0 14px rgba(255,255,255,.25), 0 0 24px rgba(255,255,255,.15);
+      transition: transform 120ms ease;
+    }
+    .flash-red { color: #ff3b3b !important; text-shadow: 0 0 16px rgba(255,0,0,.5), 0 0 28px rgba(255,0,0,.3) !important; }
+    .tiny-bounce { animation: tinyBounce .22s ease; }
+    @keyframes tinyBounce {
+      0% { transform: translateY(0); }
+      40%{ transform: translateY(-2px); }
+      100%{ transform: translateY(0); }
+    }
+
     /* Hero + content */
     .hero { min-height: calc(100vh - var(--band)); display: grid; place-items: center; position: relative; z-index: 3; }
     .hero-inner { display: grid; place-items: center; }
@@ -217,14 +216,26 @@
     .text-block { max-width: 640px; }
     .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
 
-    @media (max-width: 1024px) {
-      .dice { left: 4vw; transform: scale(.9); }
-      .dice2{ left: 7vw; }
+    /* “JOIN” phantom button */
+    .join-badge{
+      margin-top: 1.6rem;
+      display: inline-block;
+      padding: .4rem 1.2rem;
+      border: 1px solid #fff;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .06em;
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
     }
-    @media (max-width: 820px)  {
-      .dice { display: none; }
-      .panel { right: 4vw; }
+    .join-badge.show{
+      opacity: 1;
+      transform: translateY(0);
     }
+
+    @media (max-width: 1024px) { .dice { left: 4vw; transform: scale(.9); } .dice2{ left: 7vw; } .stats{ right: 4vw; } }
+    @media (max-width: 820px)  { .dice { display: none; } }
   </style>
 </head>
 <body>
@@ -262,11 +273,11 @@
     </div>
   </div>
 
-  <!-- Right panel (title + basket + countdown) -->
-  <div class="panel" id="right-panel">
-    <div class="title">PERFUMES</div>
+  <!-- Right stats -->
+  <div class="stats" id="stats">
+    <div class="perfumes">PERFUMES</div>
     <div class="basket">IN YOUR BASKET: <span id="basket-count">0</span></div>
-    <div id="countdown" class="countdown" aria-live="polite">--:--:--</div>
+    <div class="countdown" id="countdown">00:00:00</div>
   </div>
 
   <!-- Red combo overlay -->
@@ -274,7 +285,7 @@
     <div class="big" id="combo-text"></div>
   </div>
 
-  <!-- Label (fades out after ENTER) -->
+  <!-- Label -->
   <div class="switcher" id="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
     <div class="planned-word">
@@ -297,6 +308,9 @@
       <p><strong>ELSIE CORP</strong> is a perfume salon.</p>
       <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
       <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
+
+      <!-- “JOIN” phantom button -->
+      <div class="join-badge" id="join-badge">JOIN</div>
     </div>
   </section>
 
@@ -320,11 +334,13 @@
       window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
     });
 
+    let contentVisible = false;
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
       if (rect.top < window.innerHeight) {
         reveal.classList.add('visible');
         switcher.classList.add('is-hidden');
+        contentVisible = true;
       }
     });
 
@@ -349,22 +365,24 @@
       setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
     })();
 
-    /* ===== Slideshow (4s) ===== */
+    /* Slideshow with black flicker (4s) */
     const BG = document.getElementById('bg-img');
     const FX = document.getElementById('black-fx');
+
     const IMAGES = [
       'images.jpeg',
       '01.png','02.png','02.jpg','03.png','03.jpg',
       '04.jpg','05.jpg','06.jpg','07.jpg','08.jpg',
       '09.jpg','010.jpg','011.jpg','012.jpg','013.jpg'
     ];
-    const SHOW_MS = 4000, FLICK_MS = 120;
     IMAGES.forEach(src => { const i = new Image(); i.src = src; });
 
-    /* ===== Dice ===== */
+    const SHOW_MS = 4000, FLICK_MS = 120;
+    let idx = 1;
+
+    /* ===== DICE + COUNTERS ===== */
     const cube1 = document.getElementById('cube1');
     const cube2 = document.getElementById('cube2');
-
     const POSES = [
       'rotateX(0deg) rotateY(0deg)',       // 1
       'rotateX(0deg) rotateY(180deg)',     // 2
@@ -373,82 +391,113 @@
       'rotateX(-90deg) rotateY(0deg)',     // 5
       'rotateX(90deg) rotateY(0deg)'       // 6
     ];
-
     let faces = [0, 0];
     function setFace(cube, idx){ cube.style.transform = POSES[idx]; }
     function rollDie(i, cube){
       let n; do { n = (Math.random() * 6) | 0; } while (n === faces[i]);
       faces[i] = n; setFace(cube, n);
     }
+    setFace(cube1, faces[0]); setFace(cube2, faces[1]);
 
-    /* ===== Right-side countdown & basket ===== */
-    const CD = document.getElementById('countdown');
-    const BASKET = document.getElementById('basket-count');
-    let basketCount = 0;
+    // basket / countdown UI
+    const basketEl = document.getElementById('basket-count');
+    const countdownEl = document.getElementById('countdown');
+    const overlay = document.getElementById('combo-overlay');
+    const comboText = document.getElementById('combo-text');
+    let basket = 0;
 
-    let cdSeconds = 0;
-    let cdTimerId = null;
-    function randCountdownSeconds() {
-      const min = 20, max = 8 * 3600; // 20s .. 8h
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+    function flashOverlay(val){
+      comboText.textContent = `${val}   ${val}`;
+      overlay.classList.add('show');
+      setTimeout(() => overlay.classList.remove('show'), 2000);
     }
-    function fmtTime(s) {
-      const h = Math.floor(s / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      const sec = s % 60;
-      return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-    }
-    function startNewCountdown(seconds) {
-      cdSeconds = (typeof seconds === 'number') ? seconds : randCountdownSeconds();
-      CD.textContent = fmtTime(cdSeconds);
-      CD.classList.add('flash');
-      setTimeout(() => CD.classList.remove('flash'), 1000);
-      if (cdTimerId) clearInterval(cdTimerId);
-      cdTimerId = setInterval(() => {
-        if (cdSeconds > 0) { cdSeconds -= 1; CD.textContent = fmtTime(cdSeconds); }
-      }, 1000);
-    }
-    startNewCountdown(randCountdownSeconds());
 
-    function flashIfDouble(){
-      if (faces[0] === faces[1]) {
-        // overlay
-        const overlay = document.getElementById('combo-overlay');
-        const text = document.getElementById('combo-text');
-        const v = faces[0] + 1;
-        text.textContent = `${v}   ${v}`;
-        overlay.classList.add('show');
-        setTimeout(() => overlay.classList.remove('show'), 1500);
+    function flickerBasket(){
+      basketEl.classList.add('flash-red');
+      setTimeout(() => basketEl.classList.remove('flash-red'), 1000);
+    }
 
-        // reseed countdown + increment basket
-        startNewCountdown();
-        basketCount++;
-        BASKET.textContent = basketCount;
+    // random countdown target, then tick every second
+    let cdTarget = new Date(Date.now() + 6*60*60*1000); // default 6h
+    function setRandomCountdown(){
+      const h = Math.floor(Math.random()*23); // 0..22
+      const m = Math.floor(Math.random()*59);
+      const s = Math.floor(Math.random()*59);
+      const now = new Date();
+      cdTarget = new Date(now.getTime() + ((h*3600 + m*60 + s) * 1000));
+
+      // red flash for one second on new sequence
+      countdownEl.classList.add('flash-red');
+      setTimeout(() => countdownEl.classList.remove('flash-red'), 1000);
+    }
+    function tickCountdown(){
+      const now = new Date();
+      let diff = Math.max(0, Math.floor((cdTarget - now)/1000));
+      const h = String(Math.floor(diff/3600)).padStart(2,'0');
+      diff %= 3600;
+      const m = String(Math.floor(diff/60)).padStart(2,'0');
+      const s = String(diff%60).padStart(2,'0');
+      countdownEl.textContent = `${h}:${m}:${s}`;
+      countdownEl.classList.remove('tiny-bounce');
+      // reflow to restart animation
+      void countdownEl.offsetWidth;
+      countdownEl.classList.add('tiny-bounce');
+    }
+    setInterval(tickCountdown, 1000);
+    setRandomCountdown();
+
+    // “JOIN” badge logic (randomly on dice shuffles when text is visible)
+    const joinBadge = document.getElementById('join-badge');
+    let joinWait = 1 + Math.floor(Math.random()*3); // 1..3
+    function maybeShowJoin(){
+      if (!contentVisible) return;
+      joinWait--;
+      if (joinWait <= 0){
+        joinBadge.classList.add('show');
+        setTimeout(() => joinBadge.classList.remove('show'), 1000);
+        joinWait = 1 + Math.floor(Math.random()*3);
       }
     }
 
-    function rollBothAndMaybeFlash(){
+    // doubles detection + updates
+    function afterDiceRolled(){
+      if (faces[0] === faces[1]) {
+        const val = faces[0] + 1;
+        basket += 1;
+        basketEl.textContent = basket;
+        flickerBasket();
+        flashOverlay(val);
+        setRandomCountdown();
+      }
+      maybeShowJoin();
+    }
+
+    function rollBoth(){
       rollDie(0, cube1);
       rollDie(1, cube2);
-      flashIfDouble();
+      afterDiceRolled();
     }
-    setFace(cube1, faces[0]); setFace(cube2, faces[1]);
 
-    // slideshow + dice roll each cycle
-    let idx = 1;
+    // Slideshow step every 4s — also roll dice in sync
     setInterval(() => {
       FX.style.opacity = '1';
       setTimeout(() => {
-        BG.src = IMAGES[idx % IMAGES.length]; idx++;
-        rollBothAndMaybeFlash();
+        BG.src = IMAGES[idx % IMAGES.length];
+        idx++;
+        rollBoth();                 // tie dice to the image change
         FX.style.opacity = '0';
       }, FLICK_MS);
     }, SHOW_MS);
 
-    /* ===== SNAKE =====
-       Starts by tracing a rectangle around the image area,
-       click any die to switch into "gravitate to mouse" mode.
-    */
+    // Also allow clicking dice to roll immediately (and trigger snake gravitation)
+    document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', (e) => {
+      e.stopPropagation();
+      rollBoth();
+      mode = 'grav';
+      gravStrength = 0;
+    }));
+
+    /* ===================== SNAKE ===================== */
     const cvs = document.getElementById('snake-canvas');
     const ctx = cvs.getContext('2d');
 
@@ -457,39 +506,29 @@
       cvs.height = window.innerHeight;
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       computeFrame();
-      if (!rafStarted) { rafStarted = true; requestAnimationFrame(step); }
     }
-    window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
-    BG.addEventListener('load', computeFrame);
+    window.addEventListener('resize', resizeCanvas);
 
     const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
     const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
+
     const MARGIN_FRAME = TILE * 2;
 
     let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
     function snap(v){ return Math.round(v / TILE) * TILE; }
 
+    // Centered square around the slideshow — robust and always visible
     function computeFrame(){
-      const r = BG.getBoundingClientRect();
-      let L = Math.max(0, r.left   - MARGIN_FRAME);
-      let T = Math.max(0, r.top    - MARGIN_FRAME);
-      let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
-      let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
-
-      const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8;
-      if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)) {
-        // fallback: centered square
-        const vw = window.innerWidth, vh = window.innerHeight;
-        const s = Math.round(0.70 * Math.min(vw, vh));
-        const L0 = Math.round((vw - s) / 2);
-        const T0 = Math.round((vh - s) / 2);
-        L = L0 - MARGIN_FRAME; T = T0 - MARGIN_FRAME; R = L0 + s + MARGIN_FRAME; B = T0 + s + MARGIN_FRAME;
-      }
-      frame.left   = snap(L);
-      frame.top    = snap(T);
-      frame.right  = snap(R);
-      frame.bottom = snap(B);
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const s  = Math.round(0.70 * Math.min(vw, vh)); // 70% of the smaller viewport side
+      const L0 = Math.round((vw - s) / 2);
+      const T0 = Math.round((vh - s) / 2);
+      frame.left   = snap(L0 - MARGIN_FRAME);
+      frame.top    = snap(T0 - MARGIN_FRAME);
+      frame.right  = snap(L0 + s + MARGIN_FRAME);
+      frame.bottom = snap(T0 + s + MARGIN_FRAME);
 
       if (mode === 'rect') {
         head.x = frame.left;
@@ -499,25 +538,20 @@
       }
     }
 
+    // snake state
     let head = { x: frame.left, y: frame.top };
     let dir  = { x: TILE, y: 0 };
     let trail = [];
     let lastStep = 0;
-    let rafStarted = false;
 
-    let mode = 'rect';               // 'rect' → perimeter; 'grav' → mouse
-    let rectEdge = 0;                // 0 top, 1 right, 2 bottom, 3 left
-    const RECT_STEP_MS = 60;
-    const GRAV_STEP_MS = 78;
-    let gravStrength = 0;
+    // modes: 'rect' (perimeter) -> 'grav' (mouse gravitation)
+    let mode = 'rect';
+    let rectEdge = 0;                      // 0 top, 1 right, 2 bottom, 3 left
+    const RECT_STEP_MS = 60;               // rectangle speed
+    const GRAV_STEP_MS = 78;               // gravitate speed
+    let gravStrength = 0;                  // grows after click
     let target = { x: window.innerWidth/2, y: window.innerHeight/2 };
-
-    window.addEventListener('mousemove', e => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
-    document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', e => {
-      e.stopPropagation();
-      mode = 'grav';
-      gravStrength = 0;
-    }));
+    window.addEventListener('mousemove', (e) => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
 
     function step(now){
       requestAnimationFrame(step);
@@ -526,25 +560,32 @@
       lastStep = now;
 
       if (mode === 'rect') {
-        let nx = head.x + dir.x, ny = head.y + dir.y;
+        let nx = head.x + dir.x;
+        let ny = head.y + dir.y;
+
         if (rectEdge === 0 && nx >= frame.right)      { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
         else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
         else if (rectEdge === 2 && nx <= frame.left)  { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
         else if (rectEdge === 3 && ny <= frame.top)   { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
+
         head = { x: nx, y: ny };
+
       } else {
+        // GRAVITATE toward mouse in Manhattan steps
         gravStrength = Math.min(1, gravStrength + 0.06);
         const dx = target.x - head.x, dy = target.y - head.y;
         const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
         if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
         else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
         else                                       dir = { x: 0, y: 0 };
+
         head = {
           x: Math.max(TILE/2, Math.min(window.innerWidth  - TILE/2, head.x + dir.x)),
           y: Math.max(TILE/2, Math.min(window.innerHeight - TILE/2, head.y + dir.y))
         };
       }
 
+      // trail buffer
       trail.unshift({ x: head.x, y: head.y });
       if (trail.length > TAIL) trail.pop();
 
@@ -561,19 +602,21 @@
       ctx.arc(head.x, head.y, TILE * 0.85, 0, Math.PI * 2);
       ctx.fill();
 
-      // body (grid-snapped pixels + inner pixel)
+      // body squares with fade (grid-snapped)
       for (let i = 1; i < trail.length; i++) {
         const t = i / trail.length;
         const alpha = Math.max(0, 1 - t * 1.05);
         if (alpha <= 0) continue;
 
         ctx.globalAlpha = alpha;
+
         const gx = Math.round(trail[i].x / TILE) * TILE;
         const gy = Math.round(trail[i].y / TILE) * TILE;
 
         ctx.fillStyle = '#fff';
         ctx.fillRect(gx - TILE/2, gy - TILE/2, TILE, TILE);
 
+        // subtle inner pixel
         ctx.globalAlpha = alpha * 0.35;
         const p = TILE / 4;
         ctx.fillRect(gx - TILE/2 + p, gy - TILE/2 + p, TILE - 2*p, TILE - 2*p);
@@ -583,13 +626,17 @@
       ctx.shadowBlur = 0;
     }
 
-    // seed initial tail
-    (function primeTrail(len = 24){
+    // Seed a visible tail
+    function primeTrail(len = 24){
       trail.length = 0;
       for (let i = 0; i < len; i++){
         trail.unshift({ x: frame.left - i*TILE, y: frame.top });
       }
-    })();
+    }
+
+    requestAnimationFrame(step);
+    computeFrame();
+    primeTrail();
   </script>
 </body>
 </html>
