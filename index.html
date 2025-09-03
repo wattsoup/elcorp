@@ -355,25 +355,50 @@
       }, FLICK_MS);
     }, SHOW_MS);
 
-    /* --- DICE: random face every 8s --- */
-    const cube = document.getElementById('cube');
-    const POSES = [
-      'rotateX(0deg) rotateY(0deg)',       // 1 front
-      'rotateX(0deg) rotateY(180deg)',     // 2 back
-      'rotateX(0deg) rotateY(-90deg)',     // 3 right
-      'rotateX(0deg) rotateY(90deg)',      // 4 left
-      'rotateX(-90deg) rotateY(0deg)',     // 5 top
-      'rotateX(90deg) rotateY(0deg)'       // 6 bottom
-    ];
-    let currentFace = 0;
-    function rollDice() {
-      let n;
-      do { n = Math.floor(Math.random() * 6); } while (n === currentFace);
-      currentFace = n;
-      cube.style.transform = POSES[n];
-    }
-    rollDice();
-    setInterval(rollDice, 8000);
+    /* --- TWO DICE: roll every 8s; flash red on doubles --- */
+const cube1 = document.getElementById('cube1');
+const cube2 = document.getElementById('cube2');
+const cubes = [cube1, cube2];
+
+// Pose order corresponds to face 1..6
+const POSES = [
+  'rotateX(0deg) rotateY(0deg)',       // 1
+  'rotateX(0deg) rotateY(180deg)',     // 2
+  'rotateX(0deg) rotateY(-90deg)',     // 3
+  'rotateX(0deg) rotateY(90deg)',      // 4
+  'rotateX(-90deg) rotateY(0deg)',     // 5
+  'rotateX(90deg) rotateY(0deg)'       // 6
+];
+
+let faces = [0,0]; // store as indices 0..5 (= 1..6)
+
+function rollDie(i){
+  let n;
+  do { n = Math.floor(Math.random()*6); } while (n === faces[i]);
+  faces[i] = n;
+  cubes[i].style.transform = POSES[n];
+}
+
+function checkComboAndFlash(){
+  if (faces[0] === faces[1]) {
+    const overlay = document.getElementById('combo-overlay');
+    const text = document.getElementById('combo-text');
+    const val = faces[0] + 1; // convert 0..5 -> 1..6
+    text.textContent = `${val}   ${val}`;
+    overlay.classList.add('show');
+    setTimeout(() => overlay.classList.remove('show'), 2000);
+  }
+}
+
+// initial pose
+rollDie(0); rollDie(1);
+
+// roll both every 8s (slightly staggered so they feel independent)
+setInterval(() => {
+  rollDie(0);
+  setTimeout(() => { rollDie(1); checkComboAndFlash(); }, 350);
+}, 8000);
+
 
     /* --- MOUSE-TIED SNAKE --- */
     const cvs = document.getElementById('snake-canvas');
