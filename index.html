@@ -4,339 +4,267 @@
 <meta charset="UTF-8" />
 <title>ELSIE CORP</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
 
 <style>
-  :root{
-    --px: 14;            /* snake tile size */
-    --trail-steps: 560;  /* snake tail length */
-    --band: 16vh;        /* space for the fixed top area */
-    --dice: 76px;        /* dice size */
-  }
+:root{
+  --px: 12;              /* snake tile size */
+  --trail-steps: 520;    /* long tail */
+  --band: 18vh;          /* top breathing room */
+  --dice: 76px;
+  --hud-right: 8vw;      /* HUD horizontal offset from right edge */
+  --hud-down: 8vh;       /* how far below viewport center the countdown sits */
+}
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    background: #000;
-    color: #fff;
-    font-family: 'Cormorant Garamond', serif;
-    overflow-x: hidden;
-    scroll-behavior: smooth;
-  }
+html, body{
+  margin:0;
+  padding:0;
+  background:#000;
+  color:#fff;
+  font-family:'Cormorant Garamond', serif;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
 
-  body { padding-top: var(--band); }
+body{ padding-top:var(--band); }
 
-  /* Background slideshow */
-  .background-img {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    max-height: 70%;
-    max-width: 70%;
-    opacity: 0.40;
-    pointer-events: none;
-    z-index: 0;
-    filter: contrast(120%) grayscale(60%) brightness(1.05);
-    transition: opacity 180ms linear;
-  }
-  .black-flicker {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    opacity: 0;
-    transition: opacity 120ms linear;
-    z-index: 999; /* below overlay, above canvas ok */
-    pointer-events: none;
-  }
+/* Background slideshow */
+.background-img{
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  max-width:70%;
+  max-height:70%;
+  opacity:.40;
+  pointer-events:none;
+  z-index:0;
+  filter:contrast(120%) grayscale(60%) brightness(1.05);
+  transition:opacity 180ms linear;
+}
+.black-flicker{
+  position:fixed; inset:0;
+  background:#000; opacity:0;
+  transition:opacity 120ms linear;
+  z-index:6; pointer-events:none;
+}
 
-  /* Snake sits above the background and below dice/stats */
-  #snake-canvas{
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 10;
-    pointer-events: none;
-  }
+/* Snake canvas */
+#snake-canvas{
+  position:fixed; inset:0;
+  width:100vw; height:100vh;
+  z-index:5;        /* below dice/HUD */
+  pointer-events:none;
+  opacity:1;
+}
 
-  /* LEFT: Dice */
-  .dice {
-    position: fixed;
-    top: calc(var(--band) + 2.6rem);
-    left: 6vw;
-    width: var(--dice);
-    height: var(--dice);
-    perspective: 900px;
-    z-index: 40;
-    filter: drop-shadow(0 10px 20px rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(255,255,255,.18));
-  }
-  .dice2 { top: calc(var(--band) + 13.3rem); left: 9vw; }
+/* LEFT: dice */
+.dice{
+  position:fixed;
+  top:calc(var(--band) + 2.2rem);
+  left:7vw;
+  width:var(--dice); height:var(--dice);
+  perspective:900px; perspective-origin:50% 50%;
+  z-index:7;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.45))
+         drop-shadow(0 0 18px rgba(255,255,255,.18));
+}
+.dice2{ top:calc(var(--band) + 14rem); left:10vw; }
 
-  .dice .gimbal{
-    width:100%; height:100%;
-    transform-style: preserve-3d;
-    transform-origin: 50% 50%;
-    transform: rotateX(-10deg) rotateY(24deg);
-    animation: wobble3d 6s ease-in-out infinite;
-  }
-  @keyframes wobble3d{
-    0%   { transform: rotateX(-10deg) rotateY(24deg); }
-    50%  { transform: rotateX(-6deg)  rotateY(28deg); }
-    100% { transform: rotateX(-10deg) rotateY(24deg); }
-  }
-  .dice, .dice .cube, .dice .face { transform-style: preserve-3d; }
-  .dice .cube{
-    position: relative; width: 100%; height: 100%;
-    transition: transform 900ms cubic-bezier(.2,.8,.2,1);
-    transform: translateZ(0);
-    cursor: pointer;
-  }
-  .dice .face{
-    position: absolute; inset: 0;
-    display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); place-items: center;
-    background: radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.92), rgba(235,235,235,.9) 60%, rgba(215,215,215,.85) 100%);
-    border-radius: 12px;
-    border: 1px solid rgba(0,0,0,.08);
-    box-shadow: inset 0 0 30px rgba(255,255,255,0.35), inset 0 0 8px rgba(0,0,0,0.15);
-    backface-visibility: hidden;
-  }
-  .dice .pip{
-    width: calc(var(--dice) * 0.16);
-    height: calc(var(--dice) * 0.16);
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #000 0 45%, #333 46% 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,.3), inset 0 1px 2px rgba(255,255,255,.25);
-  }
-  .dice .f1 { transform: translateZ(calc(var(--dice)/2)); }
-  .dice .f2 { transform: rotateY(180deg) translateZ(calc(var(--dice)/2)); }
-  .dice .f3 { transform: rotateY(90deg) translateZ(calc(var(--dice)/2)); }
-  .dice .f4 { transform: rotateY(-90deg) translateZ(calc(var(--dice)/2)); }
-  .dice .f5 { transform: rotateX(90deg) translateZ(calc(var(--dice)/2)); }
-  .dice .f6 { transform: rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
+.dice, .dice .cube, .dice .face{ transform-style:preserve-3d; }
+.dice .gimbal{
+  width:100%; height:100%;
+  transform-origin:50% 50%;
+  transform:rotateX(-10deg) rotateY(24deg);
+  animation:wobble3d 6s ease-in-out infinite;
+}
+@keyframes wobble3d{
+  0%{ transform:rotateX(-10deg) rotateY(24deg); }
+  50%{ transform:rotateX(-6deg) rotateY(28deg); }
+  100%{ transform:rotateX(-10deg) rotateY(24deg); }
+}
+.dice .cube{
+  position:relative; width:100%; height:100%;
+  transition:transform 900ms cubic-bezier(.2,.8,.2,1);
+  cursor:pointer;
+}
+.dice .face{
+  position:absolute; inset:0;
+  display:grid; grid-template:repeat(3,1fr)/repeat(3,1fr); place-items:center;
+  background:radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.9), rgba(230,230,230,.9) 60%, rgba(210,210,210,.85) 100%);
+  border-radius:12px; border:1px solid rgba(0,0,0,.08);
+  box-shadow: inset 0 0 30px rgba(255,255,255,.35), inset 0 0 8px rgba(0,0,0,.15);
+  backface-visibility:hidden;
+}
+.dice .pip{
+  width:calc(var(--dice)*.16); height:calc(var(--dice)*.16);
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #000 0 45%, #333 46% 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.3), inset 0 1px 2px rgba(255,255,255,.25);
+}
+.f1{ transform:translateZ(calc(var(--dice)/2)); }
+.f2{ transform:rotateY(180deg) translateZ(calc(var(--dice)/2)); }
+.f3{ transform:rotateY(90deg) translateZ(calc(var(--dice)/2)); }
+.f4{ transform:rotateY(-90deg) translateZ(calc(var(--dice)/2)); }
+.f5{ transform:rotateX(90deg) translateZ(calc(var(--dice)/2)); }
+.f6{ transform:rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
 
-  /* RIGHT: Stats */
-  .stats{
-    position: fixed;
-    right: 6vw;
-    top: calc(var(--band) + 0.3rem);
-    text-align: right;
-    z-index: 40;
-    user-select: none;
-  }
-  .stats .label{
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    letter-spacing: .14em;
-    font-size: .92rem;
-    opacity: .9;
-  }
-  .stats .basket-line{
-    margin-top: .3rem;
-    font-family: Helvetica, Arial, sans-serif;
-    letter-spacing: .14em;
-    font-weight: 800;
-    font-size: 1.08rem;
-    opacity: .95;
-  }
-  .stats .digits{
-    margin-top: .6rem;
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(1.8rem, 4.2vw, 2.8rem);
-    text-shadow: 0 0 14px rgba(255,255,255,.35), 0 0 26px rgba(255,255,255,.18);
-  }
-  .stats .basket-num{
-    font-family: 'Cinzel', serif;
-    font-weight: 700;
-    font-size: clamp(1.3rem, 3.2vw, 2.1rem);
-    text-shadow: 0 0 14px rgba(255,255,255,.35), 0 0 26px rgba(255,255,255,.18);
-    margin-left: .35rem;
-  }
+/* RIGHT: HUD */
+#hud{
+  position:fixed;
+  right:var(--hud-right);
+  top:calc(50% + var(--hud-down));
+  transform:translateY(-50%);
+  display:flex; flex-direction:column; gap:.35rem;
+  align-items:flex-end;
+  z-index:7;
+  font-family:'Inter', system-ui, -apple-system, Segoe UI, Arial, Helvetica, sans-serif;
+  text-shadow:0 0 18px rgba(255,255,255,.28);
+}
+.hud-title{
+  font-weight:800; letter-spacing:.18em; font-size:0.9rem;
+  opacity:.9;
+}
+.hud-sub{
+  font-weight:800; letter-spacing:.12em; font-size:1.05rem;
+  opacity:.95;
+}
+#basket-count{
+  font-weight:900;
+  margin-left:.4rem;
+}
+.countdown{
+  font-weight:900;
+  font-size: clamp(1.6rem, 3.1vw, 2.6rem);
+  line-height:1;
+  letter-spacing:.06em;
+  /* keep digits aligned: */
+  font-variant-numeric: tabular-nums lining-nums;
+  -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
+          font-feature-settings: "tnum" 1, "lnum" 1;
+}
 
-  /* One-off effects ONLY when a double happens */
-  .match-bounce { animation: matchBounce .25s ease-out; }
-  @keyframes matchBounce {
-    0%   { transform: translateY(0) scale(1); }
-    40%  { transform: translateY(-1px) scale(1.03); }
-    100% { transform: translateY(0) scale(1); }
-  }
-  .match-flash  { animation: matchFlash .45s ease-out; }
-  @keyframes matchFlash {
-    0%,100% { color: inherit; text-shadow: 0 0 14px rgba(255,255,255,.25), 0 0 24px rgba(255,255,255,.15); }
-    20%,60% { color: #ff3b3b; text-shadow: 0 0 18px rgba(255,0,0,.5), 0 0 28px rgba(255,0,0,.3); }
-  }
+/* Minimal hero */
+.hero{ min-height:calc(100vh - var(--band)); display:grid; place-items:center; position:relative; z-index:3; }
+.hero-inner{ display:grid; place-items:center; }
+.text-flicker{ font-family:'Cinzel', serif; font-size:5rem; text-align:center; text-shadow:0 0 10px #fff, 0 0 20px #fff; }
+#enter-btn{ margin-top:2rem; font:inherit; font-size:1.2rem; background:none; color:#fff; border:1px solid #fff; padding:.5rem 1.5rem; cursor:pointer; }
+#enter-btn:hover{ background:#fff; color:#000; }
 
-  /* Red overlay for doubles */
-  .combo-overlay{
-    position: fixed; inset: 0;
-    background: #c40000;
-    display: flex; align-items: center; justify-content: center;
-    opacity: 0; transition: opacity .08s ease;
-    z-index: 9999; pointer-events: none;
-  }
-  .combo-overlay.show{ opacity: 1; }
-  .combo-overlay .big{
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 900;
-    font-size: clamp(6rem, 22vw, 28rem);
-    color: #fff;
-    letter-spacing: .08em;
-    text-shadow: 0 0 24px rgba(255,255,255,.35);
-  }
+/* Content */
+.content{ font-size:1.6rem; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:0 10vw; }
+.text-block{ max-width:640px; }
+.text-block p{ margin:0 0 1rem 0; line-height:1.5; }
 
-  /* Center label (auto hides on enter/scroll) */
-  .switcher {
-    position: fixed;
-    top: calc(var(--band) + 1.0rem);
-    left: 50%;
-    transform: translateX(-50%);
-    font-family: Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    font-size: 2.3rem;
-    z-index: 20;
-    display: flex; gap: 1rem;
-    pointer-events: none;
-    transition: opacity .25s;
-  }
-  .switcher.is-hidden { opacity: 0; }
-  .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
+/* FX for doubles (apply briefly) */
+.flash-red{ color:#ff2a2a !important; text-shadow:0 0 24px rgba(255,0,0,.55); }
+.tiny-bounce{ animation:tinyBounce .22s ease-out; }
+@keyframes tinyBounce{
+  0%{ transform:translateY(0) scale(1); }
+  40%{ transform:translateY(-1px) scale(1.02); }
+  100%{ transform:translateY(0) scale(1); }
+}
 
-  /* Hero + content */
-  .hero { min-height: calc(100vh - var(--band)); display: grid; place-items: center; position: relative; z-index: 1; }
-  .hero-inner { display: grid; place-items: center; }
-  .text-flicker { font-family: 'Cinzel', serif; font-size: 5rem; text-align: center; animation: flicker 1s infinite; text-shadow: 0 0 10px white, 0 0 20px white; }
-  @keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:.4} }
-  #enter-btn { margin-top: 2rem; font: inherit; font-size: 1.2rem; background: none; color: #fff; border: 1px solid #fff; padding: .5rem 1.5rem; cursor: pointer; }
-  #enter-btn:hover { background: #fff; color: #000; }
+/* “JOIN” ghost label */
+#join-ghost{
+  position:relative;
+  margin-top:1.2rem;
+  width:max-content;
+  padding:.25rem 1rem;
+  border:1px solid rgba(255,255,255,.5);
+  font-family:'Cinzel', serif;
+  opacity:0; transform:translateY(4px);
+  transition:opacity .18s linear, transform .18s ease;
+}
+#join-ghost.show{ opacity:1; transform:translateY(0); }
 
-  .content { font-size: 1.7rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; position: relative; opacity: 0; transform: translateY(50px); transition: all 1.2s ease; padding: 0 10vw; text-align: left; }
-  .content.visible { opacity: 1; transform: translateY(0); }
-  .text-block { max-width: 640px; margin: 0 auto; }
-  .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
-
-  /* JOIN badge under the text section */
-  .join-badge{
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: -3.2rem;
-    padding: .3rem 1.2rem;
-    border: 1px solid #fff;
-    font-family: 'Cinzel', serif;
-    letter-spacing: .08em;
-    opacity: 0;
-    transition: opacity .18s ease;
-    pointer-events: none;
-  }
-  .join-badge.show{ opacity: 1; }
-
-  @media (max-width: 1024px) { .dice { left: 4vw; transform: scale(.9); } .dice2{ left: 7vw; } .stats{ right: 4vw; } }
-  @media (max-width: 820px)  { .dice { display: none; } }
+@media (max-width:1024px){ .dice{ left:4vw; transform:scale(.9); } .dice2{ left:7vw; } }
+@media (max-width:820px){ .dice{ display:none; } #hud{ right:6vw; } }
 </style>
 </head>
 <body>
-  <!-- Background slideshow -->
-  <img src="images.jpeg" alt="Background" class="background-img" id="bg-img">
-  <div class="black-flicker" id="black-fx"></div>
 
-  <!-- Snake layer -->
-  <canvas id="snake-canvas"></canvas>
+<!-- Background slideshow -->
+<img src="images.jpeg" alt="Background" class="background-img" id="bg-img">
+<div class="black-flicker" id="black-fx"></div>
 
-  <!-- LEFT: DICE (two) -->
-  <div class="dice dice1">
-    <div class="gimbal">
-      <div class="cube" id="cube1">
-        <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
-        <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-      </div>
+<!-- Snake -->
+<canvas id="snake-canvas"></canvas>
+
+<!-- DICE -->
+<div class="dice dice1">
+  <div class="gimbal">
+    <div class="cube" id="cube1">
+      <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
+      <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
     </div>
   </div>
-  <div class="dice dice2">
-    <div class="gimbal">
-      <div class="cube" id="cube2">
-        <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
-        <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-        <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
-      </div>
+</div>
+
+<div class="dice dice2">
+  <div class="gimbal">
+    <div class="cube" id="cube2">
+      <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
+      <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+      <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
     </div>
   </div>
+</div>
 
-  <!-- RIGHT: Stats -->
-  <aside class="stats">
-    <div class="label">PERFUMES</div>
-    <div class="basket-line">IN YOUR BASKET:
-      <span id="basket-num" class="basket-num">0</span>
-    </div>
-    <div id="countdown" class="digits">00:00:00</div>
-  </aside>
+<!-- RIGHT HUD -->
+<aside id="hud">
+  <div class="hud-title">PERFUMES</div>
+  <div class="hud-sub">IN YOUR BASKET: <span id="basket-count">0</span></div>
+  <div class="countdown" id="countdown">00:00:00</div>
+</aside>
 
-  <!-- Red combo overlay -->
-  <div class="combo-overlay" id="combo-overlay">
-    <div class="big" id="combo-text"></div>
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="text-flicker" id="title">ELSIE CORP.</div>
+    <button id="enter-btn">ENTER</button>
+
+    <!-- join ghost (only in text section, but we can reuse here too) -->
+    <div id="join-ghost">JOIN</div>
   </div>
+</section>
 
-  <!-- Center label -->
-  <div class="switcher" id="switcher">
-    <div class="planned-word">
-      <span class="line">PLANNED</span>
-      <span class="line">ECONOMY</span>
-    </div>
+<!-- Content -->
+<section class="content" id="reveal">
+  <div class="text-block">
+    <p><strong>ELSIE CORP</strong> is a perfume salon.</p>
+    <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
+    <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
   </div>
-
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-inner">
-      <div class="text-flicker" id="title">ELSIE CORP.</div>
-      <button id="enter-btn">ENTER</button>
-    </div>
-  </section>
-
-  <!-- Content -->
-  <section class="content" id="reveal">
-    <div class="text-block">
-      <p><strong>ELSIE CORP</strong> is a perfume salon.</p>
-      <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
-      <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
-      <div id="join-badge" class="join-badge">JOIN</div>
-    </div>
-  </section>
+</section>
 
 <script>
-/* ===== Basic UI ===== */
-try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e){}
-window.addEventListener('load', () => window.scrollTo(0, 0));
+/* ===== top-of-page niceties ===== */
+try{ if('scrollRestoration' in history) history.scrollRestoration='manual'; }catch(e){}
+window.addEventListener('load', () => window.scrollTo(0,0));
 
+/* ===== enter button ===== */
 const enterBtn = document.getElementById('enter-btn');
-const title = document.getElementById('title');
-const reveal = document.getElementById('reveal');
-const switcher = document.getElementById('switcher');
-
+const reveal   = document.getElementById('reveal');
 enterBtn.addEventListener('click', () => {
-  title.style.animation = 'none';
-  title.style.opacity = '1';
-  enterBtn.style.display = 'none';
-  switcher.classList.add('is-hidden');
+  enterBtn.style.display='none';
   window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
 });
-window.addEventListener('scroll', () => {
-  const rect = reveal.getBoundingClientRect();
-  if (rect.top < window.innerHeight) {
-    reveal.classList.add('visible');
-    switcher.classList.add('is-hidden');
-  }
-});
 
-/* ===== Slideshow (4s) ===== */
+/* ===== slideshow + dice (sync every 4s) ===== */
 const BG = document.getElementById('bg-img');
 const FX = document.getElementById('black-fx');
+
 const IMAGES = [
   'images.jpeg',
   '01.png','02.png','02.jpg','03.png','03.jpg',
@@ -345,10 +273,7 @@ const IMAGES = [
 ];
 IMAGES.forEach(src => { const i = new Image(); i.src = src; });
 
-const SHOW_MS = 4000, FLICK_MS = 120;
-let idx = 1;
-
-/* ===== Dice ===== */
+/* dice setup */
 const cube1 = document.getElementById('cube1');
 const cube2 = document.getElementById('cube2');
 const POSES = [
@@ -359,225 +284,162 @@ const POSES = [
   'rotateX(-90deg) rotateY(0deg)',     // 5
   'rotateX(90deg) rotateY(0deg)'       // 6
 ];
-let faces = [0,0];
-function setFace(cube, idx){ cube.style.transform = POSES[idx]; }
-function rollDie(i, cube){
-  let n; do { n = (Math.random()*6)|0; } while (n === faces[i]);
-  faces[i] = n; setFace(cube, n);
+let faces=[0,0];
+function setFace(c, idx){ c.style.transform = POSES[idx]; }
+function rollDie(i, c){
+  let n; do{ n=(Math.random()*6)|0; } while(n===faces[i]);
+  faces[i]=n; setFace(c, n);
 }
 setFace(cube1, faces[0]); setFace(cube2, faces[1]);
 
-/* ===== Stats (basket + countdown) ===== */
-const basketEl    = document.getElementById('basket-num');
-const countdownEl = document.getElementById('countdown');
-const joinBadge   = document.getElementById('join-badge');
-const overlay     = document.getElementById('combo-overlay');
-const comboText   = document.getElementById('combo-text');
+/* HUD bits */
+const basketEl   = document.getElementById('basket-count');
+const countdownEl= document.getElementById('countdown');
+let basketCount  = 0;
 
-let basket = 0;
-function flashAndBounce(el){
-  el.classList.remove('match-flash','match-bounce');
-  void el.offsetWidth;
-  el.classList.add('match-flash','match-bounce');
-  setTimeout(() => el.classList.remove('match-flash','match-bounce'), 480);
-}
-function flashOverlay(v){
-  comboText.textContent = `${v}   ${v}`;
-  overlay.classList.add('show');
-  setTimeout(() => overlay.classList.remove('show'), 420);
-}
-
-let cdTarget = new Date(Date.now() + 2*3600*1000);
+/* countdown helpers (tabular, no per-second bounce) */
+let cdTarget = new Date(Date.now()+2*3600*1000);  // init
 function setRandomCountdown(){
-  const h = (Math.random()*7|0)+1;     // 1..7 hours
-  const m = Math.random()*60|0;
-  const s = (Math.random()*50|0)+10;   // 10..59
-  cdTarget = new Date(Date.now() + (h*3600+m*60+s)*1000);
-  countdownEl.textContent = [h,m,s].map(v=>String(v).padStart(2,'0')).join(':');
+  // random between 1h..8h
+  const h = 1 + Math.floor(Math.random()*8);
+  const m = Math.floor(Math.random()*60);
+  const s = Math.floor(Math.random()*60);
+  cdTarget = new Date(Date.now() + ((h*3600+m*60+s)*1000));
 }
 function tickCountdown(){
   const now = new Date();
-  let diff = Math.max(0, ((cdTarget - now)/1000)|0);
-  const h = String((diff/3600)|0).padStart(2,'0'); diff %= 3600;
-  const m = String((diff/60)|0).padStart(2,'0');
+  let diff = Math.max(0, Math.floor((cdTarget-now)/1000));
+  const h = String(Math.floor(diff/3600)).padStart(2,'0'); diff%=3600;
+  const m = String(Math.floor(diff/60)).padStart(2,'0');
   const s = String(diff%60).padStart(2,'0');
   countdownEl.textContent = `${h}:${m}:${s}`;
 }
-setRandomCountdown();
 setInterval(tickCountdown, 1000);
+setRandomCountdown(); tickCountdown();
 
-/* Doubles => update basket, flicker/bounce both numbers, reseed countdown, overlay, show JOIN randomly */
-function afterDiceRolled(){
-  if (faces[0] === faces[1]) {
-    const val = faces[0] + 1;
-    basket += 1;
-    basketEl.textContent = String(basket);
-    flashAndBounce(basketEl);
-    flashAndBounce(countdownEl);
-    setRandomCountdown();
-    flashOverlay(val);
-    if (Math.random() < 0.5) { // sometimes show JOIN
-      joinBadge.classList.add('show');
-      setTimeout(() => joinBadge.classList.remove('show'), 1000);
-    }
+/* doubles -> basket + fx + new countdown */
+function onDoubles(){
+  basketCount++; basketEl.textContent = basketCount;
+
+  // Flash + tiny bounce on BOTH the number & the countdown
+  [basketEl, countdownEl].forEach(el=>{
+    el.classList.remove('flash-red','tiny-bounce'); void el.offsetWidth;
+    el.classList.add('flash-red','tiny-bounce');
+    setTimeout(()=>el.classList.remove('flash-red'), 180);
+  });
+
+  setRandomCountdown(); tickCountdown();
+
+  // Randomly show the JOIN ghost (50% chance)
+  if (Math.random() < 0.5){
+    const j = document.getElementById('join-ghost');
+    j.classList.add('show');
+    setTimeout(()=>j.classList.remove('show'), 900);
   }
 }
-function rollBothAndMaybeFlash(){
-  rollDie(0, cube1);
-  rollDie(1, cube2);
-  afterDiceRolled();
-}
 
-/* Roll in sync with image switch */
-setInterval(() => {
-  FX.style.opacity = '1';
-  setTimeout(() => {
-    BG.src = IMAGES[idx % IMAGES.length];
-    idx++;
-    rollBothAndMaybeFlash();
-    FX.style.opacity = '0';
+/* change image + roll dice in sync every 4s */
+const SHOW_MS=4000, FLICK_MS=120;
+let idx=1;
+setInterval(()=>{
+  FX.style.opacity='1';
+  setTimeout(()=>{
+    BG.src = IMAGES[idx % IMAGES.length]; idx++;
+    rollDie(0, cube1);
+    rollDie(1, cube2);
+    if (faces[0]===faces[1]) onDoubles();
+    FX.style.opacity='0';
   }, FLICK_MS);
 }, SHOW_MS);
 
-/* Click dice to roll immediately (and switch snake to gravitate mode) */
-document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', () => {
-  rollBothAndMaybeFlash();
-  mode = 'grav'; gravStrength = 0;
-}));
-
-/* ===== SNAKE (fixed rectangle, then optional gravitation) ===== */
+/* ======= SNAKE (frame around image; reliable) ======= */
 const cvs = document.getElementById('snake-canvas');
 const ctx = cvs.getContext('2d');
 
-function resizeCanvas() {
+function resizeCanvas(){
   cvs.width  = window.innerWidth;
   cvs.height = window.innerHeight;
+  ctx.setTransform(1,0,0,1,0,0);
   computeFrame();
 }
 window.addEventListener('resize', resizeCanvas);
-BG.addEventListener('load', computeFrame);
 resizeCanvas();
 
-const TILE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
-const TAIL = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
-const MARGIN_FRAME = TILE * 2.2;
+const TILE = 12;                         // use fixed to be safe
+const TAIL = 520;
+const MARGIN = TILE*2;
+let mode='rect', rectEdge=0;
+let head={x:80,y:80}, dir={x:TILE,y:0}, trail=[], lastStep=0;
+let frame={left:80, top:80, right:window.innerWidth-80, bottom:window.innerHeight-80};
 
-let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
-function snap(v){ return Math.round(v / TILE) * TILE; }
-function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+function snap(v){ return Math.round(v/TILE)*TILE; }
 
+/* compute a rectangle just outside the visible image */
 function computeFrame(){
   const r = BG.getBoundingClientRect();
-  let L = r.left   - MARGIN_FRAME;
-  let T = r.top    - MARGIN_FRAME;
-  let R = r.right  + MARGIN_FRAME;
-  let B = r.bottom + MARGIN_FRAME;
-
-  const tooSmall = (R - L) < TILE*12 || (B - T) < TILE*12 || !isFinite(L);
-  if (tooSmall) {
-    const vw = innerWidth, vh = innerHeight;
-    const s  = Math.round(0.70 * Math.min(vw, vh));
-    const L0 = Math.round((vw - s) / 2);
-    const T0 = Math.round((vh - s) / 2);
-    L = L0 - MARGIN_FRAME; T = T0 - MARGIN_FRAME; R = L0 + s + MARGIN_FRAME; B = T0 + s + MARGIN_FRAME;
+  let L = Math.max(0, r.left   - MARGIN);
+  let T = Math.max(0, r.top    - MARGIN);
+  let R = Math.min(window.innerWidth,  r.right  + MARGIN);
+  let B = Math.min(window.innerHeight, r.bottom + MARGIN);
+  const tooSmall = (R-L) < TILE*8 || (B-T) < TILE*8;
+  if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)){
+    // fallback: centered square
+    const vw=innerWidth, vh=innerHeight, s=Math.round(0.7*Math.min(vw,vh));
+    const L0=Math.round((vw-s)/2), T0=Math.round((vh-s)/2);
+    L=L0-MARGIN; T=T0-MARGIN; R=L0+s+MARGIN; B=T0+s+MARGIN;
   }
+  frame.left=snap(L); frame.top=snap(T); frame.right=snap(R); frame.bottom=snap(B);
 
-  frame.left   = snap(clamp(L, 8, innerWidth  - 8));
-  frame.top    = snap(clamp(T, 8, innerHeight - 8));
-  frame.right  = snap(clamp(R, frame.left+TILE*4, innerWidth  - 8));
-  frame.bottom = snap(clamp(B, frame.top +TILE*4, innerHeight - 8));
-
-  if (mode === 'rect') {
-    head.x = frame.left;
-    head.y = frame.top;
-    dir = { x: TILE, y: 0 };
-    rectEdge = 0;
-  }
+  // reset head for perimeter walk
+  head.x=frame.left; head.y=frame.top; dir={x:TILE,y:0}; rectEdge=0;
 }
+BG.addEventListener('load', computeFrame);
+computeFrame();
 
-/* snake state */
-let head = { x: frame.left, y: frame.top };
-let dir  = { x: TILE, y: 0 };
-let trail = [];
-let lastStep = 0;
-
-let mode = 'rect';       // 'rect' -> 'grav' after dice click
-let rectEdge = 0;        // 0 top, 1 right, 2 bottom, 3 left
-const RECT_STEP_MS = 56; // perimeter speed
-const GRAV_STEP_MS = 74; // gravitate speed
-let gravStrength = 0;
-let target = { x: innerWidth/2, y: innerHeight/2 };
-window.addEventListener('mousemove', e => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
-
+/* draw loop */
+const RECT_STEP_MS=60;
 function step(now){
   requestAnimationFrame(step);
-  const ms = (mode === 'rect') ? RECT_STEP_MS : GRAV_STEP_MS;
-  if (now - lastStep < ms) return;
-  lastStep = now;
+  if (now-lastStep<RECT_STEP_MS) return;
+  lastStep=now;
 
-  if (mode === 'rect') {
-    let nx = head.x + dir.x, ny = head.y + dir.y;
-    if (rectEdge === 0 && nx >= frame.right)      { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
-    else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
-    else if (rectEdge === 2 && nx <= frame.left)  { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
-    else if (rectEdge === 3 && ny <= frame.top)   { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
-    head = { x: nx, y: ny };
-  } else {
-    gravStrength = Math.min(1, gravStrength + 0.06);
-    const dx = target.x - head.x, dy = target.y - head.y;
-    const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
-    if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
-    else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
-    else                                       dir = { x: 0, y: 0 };
-    head = {
-      x: clamp(head.x + dir.x, TILE/2, innerWidth  - TILE/2),
-      y: clamp(head.y + dir.y, TILE/2, innerHeight - TILE/2)
-    };
-  }
+  // advance around rectangle
+  let nx=head.x+dir.x, ny=head.y+dir.y;
+  if (rectEdge===0 && nx>=frame.right){ nx=frame.right; dir={x:0,y:TILE}; rectEdge=1; }
+  else if(rectEdge===1 && ny>=frame.bottom){ ny=frame.bottom; dir={x:-TILE,y:0}; rectEdge=2; }
+  else if(rectEdge===2 && nx<=frame.left){ nx=frame.left; dir={x:0,y:-TILE}; rectEdge=3; }
+  else if(rectEdge===3 && ny<=frame.top){ ny=frame.top; dir={x:TILE,y:0}; rectEdge=0; }
+  head={x:nx,y:ny};
 
-  trail.unshift({ x: head.x, y: head.y });
-  if (trail.length > TAIL) trail.pop();
+  trail.unshift({x:head.x, y:head.y});
+  if (trail.length>TAIL) trail.pop();
 
-  // draw
-  ctx.clearRect(0, 0, cvs.width, cvs.height);
+  ctx.clearRect(0,0,cvs.width,cvs.height);
 
-  // glow
-  ctx.shadowColor = 'rgba(255,255,255,1)';
-  ctx.shadowBlur = 26;
+  // big glow
+  ctx.shadowColor='rgba(255,255,255,1)';
+  ctx.shadowBlur=26;
 
   // head
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(head.x, head.y, TILE * 0.9, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.beginPath(); ctx.arc(head.x, head.y, TILE*.85, 0, Math.PI*2); ctx.fill();
 
-  // body squares with fade (grid-snapped)
-  for (let i = 1; i < trail.length; i++) {
-    const t = i / trail.length;
-    const alpha = Math.max(0, 1 - t * 1.05);
-    if (alpha <= 0) continue;
-    ctx.globalAlpha = alpha;
-    const gx = Math.round(trail[i].x / TILE) * TILE;
-    const gy = Math.round(trail[i].y / TILE) * TILE;
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(gx - TILE/2, gy - TILE/2, TILE, TILE);
-    ctx.globalAlpha = alpha * 0.35;
-    const p = TILE / 4;
-    ctx.fillRect(gx - TILE/2 + p, gy - TILE/2 + p, TILE - 2*p, TILE - 2*p);
+  // body pixels
+  for (let i=1;i<trail.length;i++){
+    const t=i/trail.length;
+    const a=Math.max(0,1-t*1.05); if (a<=0) continue;
+    ctx.globalAlpha=a;
+    const gx=Math.round(trail[i].x/TILE)*TILE;
+    const gy=Math.round(trail[i].y/TILE)*TILE;
+    ctx.fillStyle='#fff';
+    ctx.fillRect(gx-TILE/2, gy-TILE/2, TILE, TILE);
+    ctx.globalAlpha=a*.35;
+    const p=TILE/4;
+    ctx.fillRect(gx-TILE/2+p, gy-TILE/2+p, TILE-2*p, TILE-2*p);
   }
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
+  ctx.globalAlpha=1; ctx.shadowBlur=0;
 }
-
-/* prime visible tail and start */
-(function primeTrail(len = 28){
-  trail.length = 0;
-  for (let i = 0; i < len; i++){
-    trail.unshift({ x: frame.left - i*TILE, y: frame.top });
-  }
-})();
 requestAnimationFrame(step);
-computeFrame();
 </script>
 </body>
 </html>
