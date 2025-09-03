@@ -216,6 +216,39 @@
       text-shadow: 0 0 24px rgba(255,255,255,.35);
     }
 
+    /* ===== MILESTONES ===== */
+.milestone{
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,.95);          /* replaced in JS per milestone */
+  z-index: 10001;
+  opacity: 0; pointer-events: none;
+  transition: opacity .18s ease;
+}
+.milestone.show{ opacity: 1; }
+
+.milestone .inner{
+  text-align: center;
+  color: #fff;
+  line-height: 1.1;
+  white-space: pre-line;                 /* honor \n in text */
+  font-family: Helvetica, Arial, sans-serif;
+  text-transform: none;
+  text-shadow: 0 0 18px rgba(255,255,255,.25);
+  padding: 4vmin 6vmin;
+}
+
+/* size presets */
+.ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
+.ms-big    { font-weight: 900; font-size: clamp(2.6rem, 10vw, 10rem); }
+.ms-medium { font-weight: 800; font-size: clamp(1.4rem, 4vw, 3rem); }
+.ms-small  { font-weight: 600; font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.35; }
+
+/* modifiers */
+.ms-italic    { font-style: italic; }
+.ms-lowercase { text-transform: lowercase; }
+
+
     /* Label (center) */
     .switcher {
       position: fixed;
@@ -321,6 +354,12 @@
   <div class="combo-overlay" id="combo-overlay">
     <div class="big" id="combo-text"></div>
   </div>
+  
+  <!-- Milestone overlay (big messages on color backgrounds) -->
+<div id="milestone" class="milestone">
+  <div id="milestone-inner" class="inner ms-big"></div>
+</div>
+
 
   <!-- Center label -->
   <div class="switcher" id="switcher">
@@ -482,6 +521,37 @@
         setTimeout(() => joinBadge.classList.remove('show'), 1000);
       }
     }
+ /* ===== MILESTONE MESSAGES ===== */
+  const milestoneEl = document.getElementById('milestone');
+  const milestoneInner = document.getElementById('milestone-inner');
+
+  const MILESTONES = {
+    5:  { bg:'#0d8f4a', text:'WAGMI',                         cls:'ms-huge',                 dur:1400 },
+    10: { bg:'#c40000', text:'ily\nsometimes',                cls:'ms-huge ms-lowercase',    dur:1500 },
+    15: { bg:'#000000', text:'WAGMI\nWAGMI\nWAGMI',           cls:'ms-huge',                 dur:1400 },
+    20: { bg:'#c40000', text:'its was all planned\nTHANK YOU FOR PLAYING', cls:'ms-big',    dur:1800 },
+    25: { bg:'#0d8f4a', text:`I'm thinking of art as an inversion of apocalypse, art as an inversion of revelation, art as obscuration of, not necessarily truth, maybe that's the thing, because Heidegger is talking about, what is his term that he is using, coming into being, what is his term, but he basically resorts to pre-socraticism, this process of revealing, revealing, yeah, he's talking about revealing via technology, and it's apocalyptic also, he's like also an apocalyptic thinker, Hegelian is also an apocalyptic thinker, but I'm thinking, yeah, like in some parts, art still needs this revelation, because there is things to reveal still, there are things to learn from, but art bubble definitely does not need any revelation, they need something else, but global, like a more globalized, like Normie, you know, Normies need revelation, art hosts don't need revelation, so there should be like a systematic overview of like strategic tasking for a contemporary artist, which is taking into consideration the complex, layered environments that, where some of them require apocalypse, and some of them don't.`,
+         cls:'ms-small', dur:6500 },
+    30: { bg:'#c40000', text:'They made all the roses transparent. Toss a coin! They put on soundcloud mysticism. They were imposing “DJ BERKLEY” upon us. Toss a coin! GO ON',
+         cls:'ms-medium', dur:3200 },
+    35: { bg:'#c40000', text:'GO ON',                        cls:'ms-huge',                 dur:1500 },
+    40: { bg:'#0d8f4a', text:'A LITTLE MORE',                cls:'ms-huge',                 dur:1500 },
+    50: { bg:'#c40000', text:'Redistribution of the..\nsensible-financial',
+         cls:'ms-big ms-italic',                              dur:2000 },
+    60: { bg:'#7a0000', text:'secret',                        cls:'ms-huge',                 dur:1600 },
+    70: { bg:'#000000', text:'sorry. forgive me. forgive me', cls:'ms-big ms-lowercase',     dur:2000 },
+  };
+
+  function showMilestone(n){
+    const ms = MILESTONES[n];
+    if (!ms) return;
+    milestoneEl.style.background = ms.bg;
+    milestoneInner.className = 'inner ' + ms.cls;
+    milestoneInner.textContent = ms.text;
+    milestoneEl.classList.add('show');
+    setTimeout(() => milestoneEl.classList.remove('show'), ms.dur || 1600);
+  }
+
 
     function afterDiceRolled(){
       if (faces[0] === faces[1]) {
@@ -493,6 +563,8 @@
         setRandomCountdown();
         flashOverlay(val);
         maybeShowJoin();
+// NEW: milestone screen at specific basket totals
+showMilestone(basket);
       }
     }
 
