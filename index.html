@@ -342,61 +342,78 @@
 /* ===== PHONE LAYOUT (≤ 820px) ===== */
 @media (max-width: 820px){
 
-  :root{ --band: 12vh; } /* tighter top band on phones */
+  :root{ --band: 12vh; --dice: 84px; } /* tighter band + phone dice size */
 
-  /* keep image dimensions you liked */
-  .background-img{
-    max-width: 92vw;
-    max-height: 78vh;
-  }
+  /* keep the image sizing you liked */
+  .background-img{ max-width: 92vw; max-height: 78vh; }
 
   /* --- Top typography --- */
-  /* ELSIE CORP. — centered & bigger */
-  .hero-inner{ place-items: center; } /* no effect once we fix-position, but harmless */
+  /* ELSIE CORP. — one line, centered, bigger */
   .text-flicker{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 0.8rem);
+    top: calc(env(safe-area-inset-top, 0) + 0.6rem);
     left: 50%;
     transform: translateX(-50%);
+    width: 92vw;
     text-align: center;
-    font-size: clamp(2.6rem, 10.2vw, 3.6rem);
+    white-space: nowrap;
+    font-size: clamp(2.4rem, 9.6vw, 3.4rem);
     z-index: 9;
   }
 
-  /* ANTI-/PLANNED ECONOMY — centered right under title, same size */
+  /* ANTI- PLANNED ECONOMY — one line under it, same size */
   .switcher{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 0.8rem + 3.9rem); /* just below the title */
+    top: calc(env(safe-area-inset-top, 0) + 3.9rem);
     left: 50%;
     transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    white-space: nowrap;
     text-align: center;
-    font-size: clamp(1.4rem, 6.8vw, 2.6rem);
+    font-size: clamp(1.4rem, 6.6vw, 2.4rem);
     z-index: 9;
   }
-  .switcher .anti-word{ font-size: inherit; } /* make ANTI same size as PLANNED/ECONOMY */
+  .switcher .anti-word{ font-size: inherit; }   /* ANTI same size */
+  .planned-word{
+    display: flex;               /* make words sit in one row */
+    flex-direction: row;
+    gap: .35rem;
+    line-height: 1;
+  }
+  .planned-word .line{ display: inline-block; }
 
-  /* --- Dice — higher, slight diagonal (almost horizontal) --- */
-  :root{ --dice: 84px; }
-  .dice, .dice2{ display: block; transform: none; z-index: 12; }
-  .dice  { top: 44vh; left: 36vw; } /* upper, a bit left */
-  .dice2 { top: 49vh; left: 64vw; } /* lower, a bit right */
+  /* --- Dice: centered as a pair --- */
+  .dice{
+    top: 44vh;
+    left: calc(50% - calc(var(--dice) * 0.9));  /* left cube */
+    transform: none;
+    z-index: 12;
+  }
+  .dice2{
+    top: 44vh;
+    left: calc(50% + calc(var(--dice) * 0.9));  /* right cube */
+    transform: none;
+    z-index: 12;
+  }
 
-  /* --- Bottom metrics --- */
+  /* --- Bottom metrics (aligned) --- */
   /* Countdown bottom-left */
   .countdown-box{
-    left: 5vw; right: auto;
+    left: 6vw; right: auto;
     bottom: 9vh; top: auto;
     transform: none;
     text-align: left;
   }
   .countdown-box .digits{
-    font-size: clamp(1.6rem, 8.6vw, 2.6rem); /* slightly smaller */
+    font-size: clamp(1.9rem, 8.6vw, 2.6rem);  /* matches basket-num below */
     letter-spacing: .02em;
   }
 
-  /* Basket bottom-right (same size as countdown) */
+  /* Basket bottom-right (label above, number aligned to countdown) */
   .stats{
-    right: 5vw; left: auto;
+    right: 6vw; left: auto;
     bottom: 9vh; top: auto;
     text-align: right;
   }
@@ -405,16 +422,18 @@
   .stats .basket-num{
     display: block;              /* number on its own line */
     margin-top: .25rem;
-    font-size: clamp(1.6rem, 8.6vw, 2.6rem); /* match countdown */
+    line-height: 1;
+    font-size: clamp(1.9rem, 8.6vw, 2.6rem); /* same as countdown */
   }
 
-  /* Text section width + JOIN chip below the text on phones */
+  /* Text width + JOIN chip positioning on phones */
   .text-block{ position: relative; max-width: 86vw; margin: 0 auto; }
   .join-badge{ position: static; display: inline-block; margin-top: 1.2rem; transform: none; }
 
-  /* If the snake bothered mobile, keep it off there */
+  /* If the snake causes layering/perf on phones, keep it off */
   #snake-canvas{ display: none !important; }
 }
+
 
     
   </style>
