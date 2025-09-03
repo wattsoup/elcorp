@@ -227,6 +227,17 @@
       text-shadow: 0 0 24px rgba(255,255,255,.35);
     }
 
+    .white-flash{
+  position: fixed; inset: 0;
+  background:#fff;
+  opacity:0;
+  transition: opacity .06s linear;
+  z-index:10002;           /* above red pair and milestone */
+  pointer-events:none;
+}
+.white-flash.show{ opacity:1; }
+
+
     /* ===== MILESTONES ===== */
 .milestone{
   position:fixed; inset:0;
@@ -372,6 +383,8 @@
   <div class="combo-overlay" id="combo-overlay">
     <div class="big" id="combo-text"></div>
   </div>
+
+  <div id="white-flash" class="white-flash"></div>
   
   <!-- Milestone overlay (big messages on color backgrounds) -->
 <div id="milestone" class="milestone">
@@ -545,8 +558,9 @@ function flashOverlay(val, showMs = 260){
   });
 }
     function whiteFlash(ms = 70){
+  const wf = document.getElementById('white-flash');
+  if (!wf) return Promise.resolve();  // fail-safe
   return new Promise(resolve => {
-    const wf = document.getElementById('white-flash');
     wf.classList.add('show');
     setTimeout(() => {
       wf.classList.remove('show');
@@ -554,6 +568,7 @@ function flashOverlay(val, showMs = 260){
     }, ms);
   });
 }
+
 
 
     function maybeShowJoin(){
