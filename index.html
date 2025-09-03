@@ -309,24 +309,34 @@
 
     .content { font-size: 1.7rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 2; position: relative; opacity: 0; transform: translateY(50px); transition: all 1.2s ease; padding: 0 10vw; text-align: left; background: #000; }
     .content.visible { opacity: 1; transform: translateY(0); }
-    .text-block { max-width: 640px; margin: 0 auto; }
-    .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
+    /* replace your current rules with these */
+.text-block {
+  position: relative;          /* ← add this */
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.text-block p {
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
 
     /* JOIN badge under text section (appears briefly on doubles, random) */
     .join-badge{
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: -3.2rem;
-      padding: .3rem 1.2rem;
-      border: 1px solid #fff;
-      font-family: 'Cinzel', serif;
-      letter-spacing: .08em;
-      opacity: 0;
-      transition: opacity .18s ease;
-      pointer-events: none;
-    }
-    .join-badge.show{ opacity: 1; }
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 1rem);  /* 1rem below the end of .text-block */
+  padding: .3rem 1.2rem;
+  border: 1px solid #fff;
+  font-family: 'Cinzel', serif;
+  letter-spacing: .08em;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events: none;
+}
+.join-badge.show{ opacity: 1; }
 
     @media (max-width: 1024px) { .dice { left: 4vw; transform: scale(.9); } .dice2{ left: 7vw; } .stats{ right: 4vw; } .countdown-box{ right: 4vw; } }
     @media (max-width: 820px)  { .dice { display: none; } }
@@ -444,6 +454,7 @@
       if (rect.top < window.innerHeight) {
         reveal.classList.add('visible');
         switcher.classList.add('is-hidden');
+        contentVisible = true;     
       }
     });
 
@@ -509,6 +520,10 @@
     const countdownEl = document.getElementById('countdown');
     const joinBadge   = document.getElementById('join-badge');
 
+    
+let rollCount = 0;
+let contentVisible = false; // only show JOIN when text screen is visible
+
     function flashOnce(el){
       el.classList.remove('match-flash','match-bounce');
       void el.offsetWidth; // reflow
@@ -571,12 +586,7 @@ function flashOverlay(val, showMs = 260){
 
 
 
-    function maybeShowJoin(){
-      if (Math.random() < 0.55) {
-        joinBadge.classList.add('show');
-        setTimeout(() => joinBadge.classList.remove('show'), 1000);
-      }
-    }
+    
  /* ===== MILESTONE MESSAGES ===== */
   const milestoneEl = document.getElementById('milestone');
   const milestoneInner = document.getElementById('milestone-inner');
@@ -631,9 +641,14 @@ async function onDouble(val){
   maybeShowJoin();
 }
 
-
+function pulseJoin(){
+  if (!contentVisible) return;
+  joinBadge.classList.add('show');
+  setTimeout(() => joinBadge.classList.remove('show'), 1000);
+}
     
     function rollBothAndMaybeFlash(){
+  rollCount++;
   rollDie(0, cube1);
   setTimeout(() => {
     rollDie(1, cube2);
@@ -641,6 +656,7 @@ async function onDouble(val){
       const val = faces[0] + 1;
       onDouble(val);
     }
+    if (rollCount % 2 === 0) pulseJoin();  // ← every second roll
   }, 0);
 }
 
