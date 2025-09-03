@@ -11,7 +11,7 @@
   <style>
     :root{
       --px: 10;            /* snake tile size (thicker) */
-      --trail-steps: 170;  /* tail length */
+      --trail-steps: 360;  /* MUCH longer tail */
       --band: 22vh;        /* height of the top snake strip */
     }
 
@@ -23,7 +23,6 @@
       font-family: 'Cormorant Garamond', serif;
       overflow-x: hidden;
       scroll-behavior: smooth;
-      /* prevents scroll anchoring jumps on load */
       overflow-anchor: none;
     }
 
@@ -66,12 +65,12 @@
       pointer-events: none;
     }
 
-    /* PLANNED / ECONOMY — fixed inside the band, left-aligned */
+    /* PLANNED / ECONOMY — placed just BELOW the band, left-aligned */
     .switcher {
       position: fixed;
-      top: calc(var(--band) * 0.55); /* roughly center of the band */
+      top: calc(var(--band) + 1.2rem); /* moved down so it's not too high */
       left: 50%;
-      transform: translate(-50%, -50%);
+      transform: translateX(-50%);
       font-family: Helvetica, Arial, sans-serif;
       font-weight: bold;
       font-size: 2.5rem;
@@ -96,15 +95,13 @@
 
     .hero {
       min-height: calc(100vh - var(--band));
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+      display: grid;              /* perfect centering */
+      place-items: center;
       position: relative;
       z-index: 3;
     }
 
-    .hero-inner { display: flex; flex-direction: column; align-items: center; position: relative; }
+    .hero-inner { display: grid; place-items: center; }
 
     .text-flicker {
       font-family: 'Cinzel', serif;
@@ -158,7 +155,7 @@
       #enter-btn { font-size: 1rem; padding: 0.6rem 2rem; }
       .content { font-size: 1rem; padding: 0 1.5rem; }
       .text-block { max-width: 90vw; }
-      .switcher { top: calc(var(--band) * 0.6); font-size: 1.2rem; }
+      .switcher { top: calc(var(--band) + .8rem); font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -170,7 +167,7 @@
   <!-- Snake band -->
   <canvas id="snake-canvas"></canvas>
 
-  <!-- Label in the band -->
+  <!-- Label below band -->
   <div class="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
     <div class="planned-word">
@@ -197,7 +194,7 @@
   </section>
 
   <script>
-    /* Ensure we start at the top (prevents weird initial offsets) */
+    /* Start at top to avoid odd offsets */
     try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e){}
     window.addEventListener('load', () => window.scrollTo(0, 0));
 
@@ -232,151 +229,4 @@
           setTimeout(() => {
             antiText.className = 'anti-word';
             setTimeout(() => {
-              antiText.className = 'anti-word visible-white';
-              setTimeout(() => { antiText.className = 'anti-word'; }, 200);
-            }, 200);
-          }, 120);
-        }, 120);
-      }, 120);
-    }
-    (function loopAntiFlicker() {
-      const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
-    })();
-
-    /* ---------------- Background slideshow ---------------- */
-    const BG = document.getElementById('bg-img');
-    const FX = document.getElementById('black-fx');
-
-    const IMAGES = [
-      'images.jpeg',
-      '01.png','02.png','02.jpg','03.png','03.jpg',
-      '04.jpg','05.jpg','06.jpg','07.jpg','08.jpg',
-      '09.jpg','010.jpg','011.jpg','012.jpg','013.jpg'
-    ];
-
-    const SHOW_MS = 4000; // 4 seconds per image
-    const FLICK_MS = 120;
-
-    IMAGES.forEach(src => { const i = new Image(); i.src = src; });
-
-    let idx = 1;
-    setInterval(() => {
-      FX.style.opacity = '1';
-      setTimeout(() => {
-        BG.src = IMAGES[idx % IMAGES.length];
-        idx++;
-        FX.style.opacity = '0';
-      }, FLICK_MS);
-    }, SHOW_MS);
-
-    /* ---------------- Snake in top band (canvas) ---------------- */
-    const cvs = document.getElementById('snake-canvas');
-    const ctx = cvs.getContext('2d');
-
-    function sizeCanvas() {
-      cvs.width  = window.innerWidth;
-      cvs.height = Math.round(window.innerHeight * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--band')) / 100));
-      // simpler: cvs.height = Math.round(window.innerHeight * 0.22);
-      cvs.height = Math.round(window.innerHeight * 0.22);
-    }
-    sizeCanvas();
-    window.addEventListener('resize', sizeCanvas);
-
-    const TILE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
-    const TRAIL_STEPS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
-
-    let speedMs = 90; // faster (lower is faster)
-
-    const MARGIN = TILE * 2;
-
-    // snake state
-    let head = { x: MARGIN, y: MARGIN };   // start top-left
-    let dir  = { x: TILE, y: 0 };          // moving right
-    let trail = [];
-    let lastStep = 0;
-
-    // fewer turns → bigger figures
-    const TURN_BASE = 0.06;
-    const STRAIGHT_MIN = 6;
-    let stepsSinceTurn = 0;
-
-    // wheel affects snake only while locked
-    let boostUntil = 0;
-    let turnBias = 0;
-    window.addEventListener('wheel', (e) => {
-      if (scrollLocked) e.preventDefault();
-      boostUntil = performance.now() + 1200;
-      turnBias = Math.sign(e.deltaY);
-    }, { passive: false });
-
-    function step(now) {
-      requestAnimationFrame(step);
-      const stepDelay = (boostUntil > now ? speedMs * 0.55 : speedMs);
-      if (now - lastStep < stepDelay) return;
-      lastStep = now;
-
-      stepsSinceTurn++;
-      const extraBias = Math.abs(turnBias) ? 0.06 : 0;
-      if (stepsSinceTurn >= STRAIGHT_MIN && Math.random() < (TURN_BASE + extraBias)) {
-        const turnRight = Math.random() < (turnBias > 0 ? 0.7 : (turnBias < 0 ? 0.3 : 0.5));
-        dir = turnRight ? { x:  dir.y, y: -dir.x } : { x: -dir.y, y:  dir.x };
-        stepsSinceTurn = 0;
-      }
-
-      // move one tile
-      let nx = head.x + dir.x;
-      let ny = head.y + dir.y;
-
-      // bounce within the band
-      if (nx < TILE/2)                 { nx = TILE/2;                 dir = { x: TILE,  y: 0 }; stepsSinceTurn = 0; }
-      if (ny < TILE/2)                 { ny = TILE/2;                 dir = { x: 0,     y: TILE }; stepsSinceTurn = 0; }
-      if (nx > cvs.width - TILE/2)     { nx = cvs.width - TILE/2;     dir = { x: -TILE, y: 0 }; stepsSinceTurn = 0; }
-      if (ny > cvs.height - TILE/2)    { ny = cvs.height - TILE/2;    dir = { x: 0,     y: -TILE }; stepsSinceTurn = 0; }
-
-      head = { x: nx, y: ny };
-
-      // trail
-      trail.unshift({ x: head.x, y: head.y });
-      if (trail.length > TRAIL_STEPS) trail.pop();
-
-      // draw
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      // glow
-      ctx.shadowColor = 'rgba(255,255,255,1)';
-      ctx.shadowBlur = 20;
-
-      // head
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
-      ctx.fill();
-
-      // body with fade
-      for (let i = 1; i < trail.length; i++) {
-        const t = i / trail.length;
-        const alpha = Math.max(0, 1 - t * 1.1);
-        if (alpha <= 0) continue;
-
-        ctx.globalAlpha = alpha;
-        const bx = trail[i].x - TILE / 2;
-        const by = trail[i].y - TILE / 2;
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(bx, by, TILE, TILE);
-
-        // subtle inner pixel
-        ctx.globalAlpha = alpha * 0.35;
-        const p = TILE / 4;
-        ctx.fillRect(bx + p, by + p, TILE - 2 * p, TILE - 2 * p);
-      }
-
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
-
-      if (Math.abs(turnBias) > 0.001) turnBias *= 0.92;
-    }
-    requestAnimationFrame(step);
-  </script>
-</body>
-</html>
+              antiText.className = 'anti-word visible
