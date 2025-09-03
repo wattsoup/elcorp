@@ -11,7 +11,7 @@
   <style>
     :root{
       --px: 12;            /* snake tile size */
-      --trail-steps: 480;  /* long tail so it reads like a frame */
+      --trail-steps: 520;  /* long tail so it reads like a frame */
       --band: 22vh;        /* spacing under fixed top overlay area */
       --dice: 76px;        /* dice size */
     }
@@ -60,7 +60,7 @@
       inset: 0;
       width: 100vw;
       height: 100vh;
-      z-index: 8;
+      z-index: 50;         /* high enough to be visible, below red overlay */
       pointer-events: none;
       opacity: 1;
     }
@@ -361,7 +361,7 @@
     const cvs = document.getElementById('snake-canvas');
     const ctx = cvs.getContext('2d');
 
-    // 1:1 canvas (no DPR scaling, avoids Safari/WebKit issues)
+    // 1:1 canvas (no DPR scaling)
     function resizeCanvas() {
       cvs.width  = window.innerWidth;
       cvs.height = window.innerHeight;
@@ -370,13 +370,16 @@
     }
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-    BG.addEventListener('load', () => { computeFrame(); });
 
     const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
     const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
-    // distance from image edges
-    const MARGIN_FRAME = TILE * 1.8;
+    /* --- Frame source toggle ---
+       If you want the snake to hug the image rectangle again later, change this to true. */
+    const USE_BG_FRAME = false;
+
+    // distance outside the square/image frame
+    const MARGIN_FRAME = TILE * 2;
 
     // frame defaults (updated by computeFrame)
     let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
@@ -384,26 +387,25 @@
     function snap(v){ return Math.round(v / TILE) * TILE; }
 
     function computeFrame(){
-      const r = BG.getBoundingClientRect();
-
-      // proposed frame around the image
-      let L = Math.max(0, r.left   - MARGIN_FRAME);
-      let T = Math.max(0, r.top    - MARGIN_FRAME);
-      let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
-      let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
-
-      // Fallback if the image isn't ready (too thin/small)
-      const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8 || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B);
-      if (tooSmall) {
-        const pad = Math.round(Math.min(innerWidth, innerHeight) * 0.12);
-        L = pad; T = pad; R = innerWidth - pad; B = innerHeight - pad;
+      if (USE_BG_FRAME) {
+        // Use actual image rect (may be 0 if image not ready)
+        const r = BG.getBoundingClientRect();
+        let L = Math.max(0, r.left   - MARGIN_FRAME);
+        let T = Math.max(0, r.top    - MARGIN_FRAME);
+        let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
+        let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
+        const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8;
+        if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)) {
+          computeCenteredSquareFrame();  // fallback to centered square
+        } else {
+          frame.left   = snap(L);
+          frame.top    = snap(T);
+          frame.right  = snap(R);
+          frame.bottom = snap(B);
+        }
+      } else {
+        computeCenteredSquareFrame();
       }
-
-      // snap to grid
-      frame.left   = snap(L);
-      frame.top    = snap(T);
-      frame.right  = snap(R);
-      frame.bottom = snap(B);
 
       // reset head only in rectangle mode
       if (mode === 'rect') {
@@ -412,6 +414,18 @@
         dir = { x: TILE, y: 0 };
         rectEdge = 0;
       }
+    }
+
+    function computeCenteredSquareFrame(){
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const s  = Math.round(0.70 * Math.min(vw, vh)); // 70% of the smaller viewport side
+      const L0 = Math.round((vw - s) / 2);
+      const T0 = Math.round((vh - s) / 2);
+      frame.left   = snap(L0 - MARGIN_FRAME);
+      frame.top    = snap(T0 - MARGIN_FRAME);
+      frame.right  = snap(L0 + s + MARGIN_FRAME);
+      frame.bottom = snap(T0 + s + MARGIN_FRAME);
     }
 
     // snake state
@@ -446,10 +460,10 @@
         let nx = head.x + dir.x;
         let ny = head.y + dir.y;
 
-        if (rectEdge === 0 && nx >= frame.right)     { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
+        if (rectEdge === 0 && nx >= frame.right)      { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
         else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
-        else if (rectEdge === 2 && nx <= frame.left) { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
-        else if (rectEdge === 3 && ny <= frame.top)  { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
+        else if (rectEdge === 2 && nx <= frame.left)  { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
+        else if (rectEdge === 3 && ny <= frame.top)   { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
 
         head = { x: nx, y: ny };
 
@@ -457,7 +471,6 @@
         // GRAVITATE toward mouse in Manhattan steps (snake vibe)
         gravStrength = Math.min(1, gravStrength + 0.06);
         const dx = target.x - head.x, dy = target.y - head.y;
-
         const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
         if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
         else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
@@ -480,19 +493,10 @@
       ctx.shadowColor = 'rgba(255,255,255,1)';
       ctx.shadowBlur = 26;
 
-      // (optional) faint frame guide — comment out if you don't want it
-      // ctx.save();
-      // ctx.globalAlpha = 0.18;
-      // ctx.setLineDash([8,8]);
-      // ctx.lineWidth = 2;
-      // ctx.strokeStyle = '#fff';
-      // ctx.strokeRect(frame.left, frame.top, frame.right - frame.left, frame.bottom - frame.top);
-      // ctx.restore();
-
-      // head
+      // head (round, bright)
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
+      ctx.arc(head.x, head.y, TILE * 0.85, 0, Math.PI * 2);
       ctx.fill();
 
       // body squares with fade (grid-snapped)
@@ -528,10 +532,8 @@
     }
 
     requestAnimationFrame(step);
-    computeFrame();
-    primeTrail();
-    // extra layout kick (in case image rect was 0 on first pass)
-    setTimeout(() => { resizeCanvas(); computeFrame(); }, 0);
+    computeFrame();   // compute the centered square frame
+    primeTrail();     // show something immediately
   </script>
 </body>
 </html>
