@@ -91,50 +91,65 @@
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
     .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; text-align: left; }
 
-    /* Dice — fixed left of the hero area */
-    .dice {
-      position: fixed;
-      top: calc(var(--band) + 3rem);
-      left: 8vw;
-      width: var(--dice);
-      height: var(--dice);
-      perspective: 600px;
-      z-index: 4;
-      filter: drop-shadow(0 10px 20px rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(255,255,255,.25));
-    }
-    .dice .cube {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      transform-style: preserve-3d;
-      transition: transform 900ms cubic-bezier(.2,.8,.2,1);
-    }
-    .dice .face {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      grid-template: repeat(3,1fr) / repeat(3,1fr);
-      place-items: center;
-      background: linear-gradient(145deg, #ffffff, #e7e7e7);
-      border-radius: 12px;
-      box-shadow:
-        inset 0 0 30px rgba(255,255,255,0.35),
-        inset 0 0 6px rgba(0,0,0,0.15);
-    }
-    .dice .pip {
-      width: calc(var(--dice) * 0.16);
-      height: calc(var(--dice) * 0.16);
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #fff 0 45%, #d8d8d8 46% 100%);
-      box-shadow: 0 0 10px rgba(255,255,255,.6);
-    }
-    /* place the faces in 3D */
-    .dice .f1 { transform: translateZ(calc(var(--dice)/2)); }
-    .dice .f2 { transform: rotateY(180deg) translateZ(calc(var(--dice)/2)); }
-    .dice .f3 { transform: rotateY(90deg) translateZ(calc(var(--dice)/2)); }
-    .dice .f4 { transform: rotateY(-90deg) translateZ(calc(var(--dice)/2)); }
-    .dice .f5 { transform: rotateX(90deg) translateZ(calc(var(--dice)/2)); }
-    .dice .f6 { transform: rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
+   .dice {
+  position: fixed;
+  top: calc(var(--band) + 3rem); /* first die */
+  left: 8vw;
+  width: var(--dice);
+  height: var(--dice);
+  perspective: 600px;
+  z-index: 7;
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(255,255,255,.25));
+}
+.dice2 { top: calc(var(--band) + 9.5rem); } /* second die lower */
+
+.dice .cube {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 900ms cubic-bezier(.2,.8,.2,1);
+}
+.dice .face {
+  position: absolute; inset: 0;
+  display: grid; grid-template: repeat(3,1fr) / repeat(3,1fr); place-items: center;
+  background: linear-gradient(145deg, #ffffff, #e7e7e7);
+  border-radius: 12px;
+  box-shadow: inset 0 0 30px rgba(255,255,255,0.35), inset 0 0 6px rgba(0,0,0,0.15);
+}
+/* BLACK pips */
+.dice .pip{
+  width: calc(var(--dice) * 0.16);
+  height: calc(var(--dice) * 0.16);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #000 0 45%, #333 46% 100%);
+  box-shadow: 0 1px 0 rgba(255,255,255,.3), inset 0 1px 2px rgba(255,255,255,.25);
+}
+/* faces in 3D */
+.dice .f1 { transform: translateZ(calc(var(--dice)/2)); }
+.dice .f2 { transform: rotateY(180deg) translateZ(calc(var(--dice)/2)); }
+.dice .f3 { transform: rotateY(90deg) translateZ(calc(var(--dice)/2)); }
+.dice .f4 { transform: rotateY(-90deg) translateZ(calc(var(--dice)/2)); }
+.dice .f5 { transform: rotateX(90deg) translateZ(calc(var(--dice)/2)); }
+.dice .f6 { transform: rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
+
+    /* Red overlay for doubles */
+.combo-overlay{
+  position: fixed; inset: 0;
+  background: #c40000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .15s ease;
+  z-index: 9999; pointer-events: none;
+}
+.combo-overlay.show{ opacity: 1; }
+.combo-overlay .big{
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 900;
+  font-size: clamp(6rem, 22vw, 28rem);
+  color: #fff;
+  letter-spacing: .08em;
+  text-shadow: 0 0 24px rgba(255,255,255,.35);
+}
+
+
 
     /* Hero centered perfectly */
     .hero {
