@@ -210,49 +210,34 @@
   <canvas id="snake-canvas"></canvas>
 
   <!-- Dice -->
-  <div class="dice" id="dice" aria-hidden="true">
-    <div class="cube" id="cube">
-      <!-- 1 -->
-      <div class="face f1">
-        <span class="pip" style="grid-area:2/2;"></span>
-      </div>
-      <!-- 2 -->
-      <div class="face f2">
-        <span class="pip" style="grid-area:1/1;"></span>
-        <span class="pip" style="grid-area:3/3;"></span>
-      </div>
-      <!-- 3 -->
-      <div class="face f3">
-        <span class="pip" style="grid-area:1/1;"></span>
-        <span class="pip" style="grid-area:2/2;"></span>
-        <span class="pip" style="grid-area:3/3;"></span>
-      </div>
-      <!-- 4 -->
-      <div class="face f4">
-        <span class="pip" style="grid-area:1/1;"></span>
-        <span class="pip" style="grid-area:1/3;"></span>
-        <span class="pip" style="grid-area:3/1;"></span>
-        <span class="pip" style="grid-area:3/3;"></span>
-      </div>
-      <!-- 5 -->
-      <div class="face f5">
-        <span class="pip" style="grid-area:1/1;"></span>
-        <span class="pip" style="grid-area:1/3;"></span>
-        <span class="pip" style="grid-area:2/2;"></span>
-        <span class="pip" style="grid-area:3/1;"></span>
-        <span class="pip" style="grid-area:3/3;"></span>
-      </div>
-      <!-- 6 -->
-      <div class="face f6">
-        <span class="pip" style="grid-area:1/1;"></span>
-        <span class="pip" style="grid-area:2/1;"></span>
-        <span class="pip" style="grid-area:3/1;"></span>
-        <span class="pip" style="grid-area:1/3;"></span>
-        <span class="pip" style="grid-area:2/3;"></span>
-        <span class="pip" style="grid-area:3/3;"></span>
-      </div>
-    </div>
+  <!-- DICE (two of them) -->
+<div class="dice dice1">
+  <div class="cube" id="cube1">
+    <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
+    <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
   </div>
+</div>
+
+<div class="dice dice2">
+  <div class="cube" id="cube2">
+    <div class="face f1"><span class="pip" style="grid-area:2/2;"></span></div>
+    <div class="face f2"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f3"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f4"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f5"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/2;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+    <div class="face f6"><span class="pip" style="grid-area:1/1;"></span><span class="pip" style="grid-area:2/1;"></span><span class="pip" style="grid-area:3/1;"></span><span class="pip" style="grid-area:1/3;"></span><span class="pip" style="grid-area:2/3;"></span><span class="pip" style="grid-area:3/3;"></span></div>
+  </div>
+</div>
+
+<!-- Red combo overlay (keep near top of body is fine) -->
+<div class="combo-overlay" id="combo-overlay">
+  <div class="big" id="combo-text"></div>
+</div>
+
 
   <!-- Label (fades out after ENTER) -->
   <div class="switcher" id="switcher">
