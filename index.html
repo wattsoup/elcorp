@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
   <style>
     html, body {
       margin: 0;
@@ -38,34 +39,36 @@
       transform: translateX(-50%);
       z-index: 3;
       pointer-events: none;
+      /* allow glow to spill out */
+      overflow: visible;
     }
 
+    /* --- NEW: glowing, fading snake segment --- */
     .snake-trail {
       position: absolute;
-      width: 12px;
-      height: 12px;
-      border-radius: 2px;
-      background-color: white;
-      background-image: 
-        linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px);
-      background-size: 3px 3px;
-      box-shadow: 
-        0 0 4px rgba(255, 255, 255, 0.3),
-        0 0 12px rgba(255, 255, 255, 0.15);
-      animation: fadeout 15s ease-out forwards, pixelpulse 1.2s ease-in-out infinite alternate;
+      width: 28px;
+      height: 6px;
+      border-radius: 999px;
+      /* bright core + soft edges */
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.85) 50%, transparent 100%);
+      mix-blend-mode: screen;
+      box-shadow:
+        0 0 6px rgba(255,255,255,0.7),
+        0 0 14px rgba(255,255,255,0.35),
+        0 0 36px rgba(255,255,255,0.18);
+      animation: snakeFade 1.9s ease-out forwards;
       pointer-events: none;
       z-index: 3;
-      opacity: 0.18;
+      opacity: 0.85;
+      transform-origin: 50% 50%;
+      will-change: transform, opacity, filter;
+      filter: blur(0.2px) brightness(1.05);
     }
 
-    @keyframes pixelpulse {
-      from { filter: brightness(1); }
-      to   { filter: brightness(1.4); }
-    }
-
-    @keyframes fadeout {
-      to { opacity: 0; }
+    @keyframes snakeFade {
+      0%   { opacity: 0; transform: scaleX(0.6); filter: blur(0.6px) brightness(1.3); }
+      20%  { opacity: 1; transform: scaleX(1);   filter: blur(0.2px) brightness(1.1); }
+      100% { opacity: 0; transform: scaleX(1.4); filter: blur(1.2px) brightness(0.9); }
     }
 
     .overlay {
@@ -172,7 +175,8 @@
     }
 
     .text-flicker {
-      font-size: 7rem;
+      font-family: 'Cinzel', serif; /* or 'Bebas Neue', 'Unica One', 'Cormorant Garamond' */
+      font-size: 5rem;
       text-align: center;
       animation: flicker 1s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
@@ -180,12 +184,8 @@
     }
 
     @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-        opacity: 1;
-      }
-      20%, 24%, 55% {
-        opacity: 0.4;
-      }
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.4; }
     }
 
     #enter-btn {
@@ -248,32 +248,17 @@
         text-align: center;
       }
 
-      .planned-word {
-        align-items: center;
-        font-size: 2rem;
-      }
+      .planned-word { align-items: center; font-size: 2rem; }
 
-      #enter-btn {
-        font-size: 1rem;
-        padding: 0.6rem 2rem;
-      }
+      #enter-btn { font-size: 1rem; padding: 0.6rem 2rem; }
 
-      .hero-inner {
-        margin-top: 3rem;
-      }
+      .hero-inner { margin-top: 3rem; }
 
-      .content {
-        font-size: 1rem;
-        padding: 0 1.5rem;
-        text-align: left;
-      }
+      .content { font-size: 1rem; padding: 0 1.5rem; text-align: left; }
 
-      .anti-word {
-        font-size: 2rem;
-      }
+      .anti-word { font-size: 2rem; }
 
       .snake-frame {
-        
         width: 80vw;
         height: 80vh;
         top: 5%;
@@ -282,11 +267,7 @@
         margin: 0;
       }
 
-      .flicker-text {
-        font-size: 2.5rem;
-        padding: 0 1rem;
-        line-height: 1.2;
-      }
+      .flicker-text { font-size: 2.5rem; padding: 0 1rem; line-height: 1.2; }
     }
   </style>
 </head>
@@ -361,76 +342,86 @@
       }, 100);
     }
 
-    function loopAntiFlicker() {
+    (function loopAntiFlicker() {
       const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => {
-        complexFlickerAnti();
-        loopAntiFlicker();
-      }, interval);
-    }
-    loopAntiFlicker();
+      setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
+    })();
 
     function flickerRed() {
       flickerOverlay.style.opacity = 1;
-      setTimeout(() => {
-        flickerOverlay.style.opacity = 0;
-      }, 250);
+      setTimeout(() => { flickerOverlay.style.opacity = 0; }, 250);
     }
 
-    function randomFlickerLoop() {
+    (function randomFlickerLoop() {
       const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => {
-        flickerRed();
-        randomFlickerLoop();
-      }, interval);
+      setTimeout(() => { flickerRed(); randomFlickerLoop(); }, interval);
+    })();
+
+    // --- NEW: snake motion with sine wobble + glow segments ---
+    let pos = 0;            // distance along current edge
+    let direction = 0;      // 0:top→right, 1:right→down, 2:bottom→left, 3:left→up
+    const baseSpeed = 1.6;  // pixels per frame
+    const margin = 6;       // inset from frame edges
+
+    // wobble settings
+    const amp = 5.5;        // wobble amplitude (px) – adjust "snakiness"
+    const freq = 0.065;     // wobble frequency along edge
+    const timeFreq = 0.003; // wobble drift over time
+
+    function spawnTrail(x, y, angleRad) {
+      const seg = document.createElement('div');
+      seg.className = 'snake-trail';
+      seg.style.left = `${x}px`;
+      seg.style.top  = `${y}px`;
+      seg.style.transform = `translate(-50%, -50%) rotate(${angleRad}rad)`;
+      document.body.appendChild(seg);
+      // lifetime matches CSS animation (1.9s), remove after
+      setTimeout(() => seg.remove(), 2000);
     }
-    randomFlickerLoop();
 
-    let pos = 0;
-    let direction = 0;
-    const speed = 1;
-
-    function spawnTrail(x, y) {
-      const dot = document.createElement('div');
-      dot.className = 'snake-trail';
-      dot.style.left = `${x - 6}px`;
-      dot.style.top = `${y - 6}px`;
-      document.body.appendChild(dot);
-      setTimeout(() => dot.remove(), 15000);
-    }
-
-    function animateSnake() {
-      const margin = 6;
+    function animateSnake(now) {
       const box = snakeFrame.getBoundingClientRect();
       const w = box.width;
       const h = box.height;
       const x0 = box.left + window.scrollX;
       const y0 = box.top + window.scrollY;
 
-      let x, y;
-      if (direction === 0) {
-        x = x0 + margin + pos;
-        y = y0 + margin;
-      } else if (direction === 1) {
-        x = x0 + w - margin;
-        y = y0 + margin + pos;
-      } else if (direction === 2) {
-        x = x0 + w - margin - pos;
-        y = y0 + h - margin;
-      } else if (direction === 3) {
-        x = x0 + margin;
-        y = y0 + h - margin - pos;
+      // base point on the current edge
+      let bx, by, nx, ny, angle; // base coords, outward normal, and tangent angle
+      if (direction === 0) {      // top edge, left→right
+        bx = x0 + margin + pos;
+        by = y0 + margin;
+        nx = 0;  ny = -1; // normal upwards (screen space)
+        angle = 0;
+      } else if (direction === 1) { // right edge, top→bottom
+        bx = x0 + w - margin;
+        by = y0 + margin + pos;
+        nx = 1;  ny = 0;
+        angle = Math.PI / 2;
+      } else if (direction === 2) { // bottom edge, right→left
+        bx = x0 + w - margin - pos;
+        by = y0 + h - margin;
+        nx = 0;  ny = 1;
+        angle = Math.PI;
+      } else { // left edge, bottom→top
+        bx = x0 + margin;
+        by = y0 + h - margin - pos;
+        nx = -1; ny = 0;
+        angle = -Math.PI / 2;
       }
 
-      spawnTrail(x - 6, y - 6);
-      pos += speed;
+      // sine wobble perpendicular to the edge, drifting slowly over time
+      const t = now || performance.now();
+      const wobble = amp * Math.sin(freq * pos + timeFreq * t);
+      const x = bx + nx * wobble;
+      const y = by + ny * wobble;
 
-      if (
-        (direction === 0 && pos >= w - 2 * margin) ||
-        (direction === 1 && pos >= h - 2 * margin) ||
-        (direction === 2 && pos >= w - 2 * margin) ||
-        (direction === 3 && pos >= h - 2 * margin)
-      ) {
+      spawnTrail(x, y, angle);
+
+      pos += baseSpeed;
+
+      const maxRun = (direction % 2 === 0) ? (w - 2 * margin) : (h - 2 * margin);
+      if (pos >= maxRun) {
         pos = 0;
         direction = (direction + 1) % 4;
       }
@@ -438,8 +429,9 @@
       requestAnimationFrame(animateSnake);
     }
 
-    animateSnake();
+    requestAnimationFrame(animateSnake);
   </script>
 </body>
 </html>
+
 
