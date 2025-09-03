@@ -10,8 +10,8 @@
 
   <style>
     :root{
-      --px: 10;            /* snake tile size */
-      --trail-steps: 420;  /* long tail so it reads like a frame */
+      --px: 12;            /* snake tile size */
+      --trail-steps: 480;  /* long tail so it reads like a frame */
       --band: 22vh;        /* spacing under fixed top overlay area */
       --dice: 76px;        /* dice size */
     }
@@ -54,17 +54,16 @@
       pointer-events: none;
     }
 
-    
-#snake-canvas{
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 8;          /* was 5 — put it above hero/labels */
-  pointer-events: none;
-  opacity: 1;          /* ensure not faded */
-}
-
+    /* Snake layer (on top of content) */
+    #snake-canvas{
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 8;
+      pointer-events: none;
+      opacity: 1;
+    }
 
     /* Label (hidden after ENTER) */
     .switcher {
@@ -86,19 +85,19 @@
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
-    /* Dice (two) — more space + reliable 3D view */
+    /* Dice (two) — spacing + reliable 3D view */
     .dice {
       position: fixed;
       top: calc(var(--band) + 3rem);
-      left: 7vw;                       /* a bit tighter to the left */
+      left: 7vw;
       width: var(--dice);
       height: var(--dice);
-      perspective: 900px;              /* deeper perspective for Safari */
+      perspective: 900px;
       perspective-origin: 50% 50%;
       z-index: 7;
       filter: drop-shadow(0 10px 20px rgba(0,0,0,.45)) drop-shadow(0 0 18px rgba(255,255,255,.18));
     }
-    .dice2 { top: calc(var(--band) + 14rem); left: 10vw; } /* more vertical + slight horizontal offset */
+    .dice2 { top: calc(var(--band) + 14rem); left: 10vw; }
 
     /* Gimbal holds static tilt + idle wobble */
     .dice .gimbal{
@@ -128,7 +127,7 @@
       position: absolute; inset: 0;
       display: grid; grid-template: repeat(3,1fr) / repeat(3,1fr); place-items: center;
       background:
-        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.9), rgba(230,230,230,.9) 60%, rgba(210,210,210,.85) 100%); /* softer light */
+        radial-gradient(120% 120% at 30% 25%, rgba(255,255,255,.9), rgba(230,230,230,.9) 60%, rgba(210,210,210,.85) 100%);
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,.08);
       box-shadow:
@@ -153,7 +152,7 @@
     .dice .f5 { transform: rotateX(90deg) translateZ(calc(var(--dice)/2)); }
     .dice .f6 { transform: rotateX(-90deg) translateZ(calc(var(--dice)/2)); }
 
-    /* Red overlay for doubles (a touch quicker) */
+    /* Red overlay for doubles */
     .combo-overlay{
       position: fixed; inset: 0;
       background: #c40000;
@@ -358,162 +357,181 @@
       setTimeout(() => { rollDie(1, cube2); flashIfDouble(); }, 200);
     }, 8000);
 
-    /* SNAKE: first trace a rectangle around the image, then gravitate to mouse when a die is clicked */
-const cvs = document.getElementById('snake-canvas');
-const ctx = cvs.getContext('2d');
+    /* ===================== SNAKE ===================== */
+    const cvs = document.getElementById('snake-canvas');
+    const ctx = cvs.getContext('2d');
 
-function resizeCanvas() {
-  const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-  cvs.width  = Math.floor(window.innerWidth  * dpr);
-  cvs.height = Math.floor(window.innerHeight * dpr);
-  cvs.style.width  = window.innerWidth + 'px';
-  cvs.style.height = window.innerHeight + 'px';
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  computeFrame();                 // recompute frame on resize
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-BG.addEventListener('load', computeFrame); // recompute when the image swaps
+    // 1:1 canvas (no DPR scaling, avoids Safari/WebKit issues)
+    function resizeCanvas() {
+      cvs.width  = window.innerWidth;
+      cvs.height = window.innerHeight;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      computeFrame();
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    BG.addEventListener('load', () => { computeFrame(); });
 
-const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
-const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
+    const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
+    const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
-const MARGIN_FRAME = TILE * 1.8;  // distance from image edges
-let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
+    // distance from image edges
+    const MARGIN_FRAME = TILE * 1.8;
 
-function snap(v){ return Math.round(v / TILE) * TILE; }
+    // frame defaults (updated by computeFrame)
+    let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
 
-function computeFrame(){
-  const r = BG.getBoundingClientRect();
+    function snap(v){ return Math.round(v / TILE) * TILE; }
 
-  // proposed frame around the image
-  let L = Math.max(0, r.left   - MARGIN_FRAME);
-  let T = Math.max(0, r.top    - MARGIN_FRAME);
-  let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
-  let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
+    function computeFrame(){
+      const r = BG.getBoundingClientRect();
 
-  // Fallback if the image isn't ready (too thin/small)
-  const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8;
-  if (tooSmall || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B)) {
-    const pad = Math.round(Math.min(innerWidth, innerHeight) * 0.12);
-    L = pad; T = pad; R = innerWidth - pad; B = innerHeight - pad;
-  }
+      // proposed frame around the image
+      let L = Math.max(0, r.left   - MARGIN_FRAME);
+      let T = Math.max(0, r.top    - MARGIN_FRAME);
+      let R = Math.min(window.innerWidth,  r.right  + MARGIN_FRAME);
+      let B = Math.min(window.innerHeight, r.bottom + MARGIN_FRAME);
 
-  // snap to grid
-  frame.left   = snap(L);
-  frame.top    = snap(T);
-  frame.right  = snap(R);
-  frame.bottom = snap(B);
+      // Fallback if the image isn't ready (too thin/small)
+      const tooSmall = (R - L) < TILE * 8 || (B - T) < TILE * 8 || !isFinite(L) || !isFinite(T) || !isFinite(R) || !isFinite(B);
+      if (tooSmall) {
+        const pad = Math.round(Math.min(innerWidth, innerHeight) * 0.12);
+        L = pad; T = pad; R = innerWidth - pad; B = innerHeight - pad;
+      }
 
-  // reset head only while we're in "rect" mode
-  if (mode === 'rect') {
-    head.x = frame.left;
-    head.y = frame.top;
-    dir = { x: TILE, y: 0 };
-    rectEdge = 0;
-  }
-}
+      // snap to grid
+      frame.left   = snap(L);
+      frame.top    = snap(T);
+      frame.right  = snap(R);
+      frame.bottom = snap(B);
 
+      // reset head only in rectangle mode
+      if (mode === 'rect') {
+        head.x = frame.left;
+        head.y = frame.top;
+        dir = { x: TILE, y: 0 };
+        rectEdge = 0;
+      }
+    }
 
-/* snake state */
-let head = { x: frame.left, y: frame.top };
-let dir  = { x: TILE, y: 0 };
-let trail = [];
-let lastStep = 0;
+    // snake state
+    let head = { x: frame.left, y: frame.top };
+    let dir  = { x: TILE, y: 0 };
+    let trail = [];
+    let lastStep = 0;
 
-let mode = 'rect';              // start by framing the image
-let rectEdge = 0;               // 0 top, 1 right, 2 bottom, 3 left
-const RECT_STEP_MS = 64;
-const GRAV_STEP_MS = 78;
-let gravStrength = 0;
-let target = { x: innerWidth/2, y: innerHeight/2 };
+    // modes: 'rect' (perimeter) -> 'grav' (mouse gravitation)
+    let mode = 'rect';
+    let rectEdge = 0;                      // 0 top, 1 right, 2 bottom, 3 left
+    const RECT_STEP_MS = 60;               // rectangle speed
+    const GRAV_STEP_MS = 78;               // gravitate speed
+    let gravStrength = 0;                  // grows after click
+    let target = { x: window.innerWidth/2, y: window.innerHeight/2 };
+    window.addEventListener('mousemove', (e) => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
 
-window.addEventListener('mousemove', e => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
-document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', e => {
-  e.stopPropagation();
-  mode = 'grav';
-  gravStrength = 0;            // ramp in
-}));
+    // clicking either die switches to gravitation
+    document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mode = 'grav';
+      gravStrength = 0; // ramp in slowly
+    }));
 
-function step(now){
-  requestAnimationFrame(step);
-  const ms = (mode === 'rect') ? RECT_STEP_MS : GRAV_STEP_MS;
-  if (now - lastStep < ms) return;
-  lastStep = now;
+    function step(now){
+      requestAnimationFrame(step);
+      const ms = (mode === 'rect') ? RECT_STEP_MS : GRAV_STEP_MS;
+      if (now - lastStep < ms) return;
+      lastStep = now;
 
-  if (mode === 'rect') {
-    let nx = head.x + dir.x, ny = head.y + dir.y;
-    if (rectEdge === 0 && nx >= frame.right)     { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
-    else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
-    else if (rectEdge === 2 && nx <= frame.left) { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
-    else if (rectEdge === 3 && ny <= frame.top)  { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
-    head = { x: nx, y: ny };
-  } else {
-    gravStrength = Math.min(1, gravStrength + 0.06);
-    const dx = target.x - head.x, dy = target.y - head.y;
-    const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
-    if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
-    else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
-    else                                       dir = { x: 0, y: 0 };
-    head = {
-      x: Math.max(TILE/2, Math.min(innerWidth  - TILE/2, head.x + dir.x)),
-      y: Math.max(TILE/2, Math.min(innerHeight - TILE/2, head.y + dir.y))
-    };
-  }
+      if (mode === 'rect') {
+        let nx = head.x + dir.x;
+        let ny = head.y + dir.y;
 
-  trail.unshift({ x: head.x, y: head.y });
-  if (trail.length > TAIL) trail.pop();
+        if (rectEdge === 0 && nx >= frame.right)     { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
+        else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
+        else if (rectEdge === 2 && nx <= frame.left) { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
+        else if (rectEdge === 3 && ny <= frame.top)  { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
 
-  // draw
-  ctx.clearRect(0, 0, cvs.width, cvs.height);
-  ctx.shadowColor = 'rgba(255,255,255,1)';
-  ctx.shadowBlur = 26;                             // a bit glowier
+        head = { x: nx, y: ny };
 
-  // guide: show the computed rectangle (helps debugging)
-ctx.save();
-ctx.globalAlpha = 0.18;
-ctx.lineWidth = 2;
-ctx.strokeStyle = '#fff';
-ctx.strokeRect(frame.left, frame.top, frame.right - frame.left, frame.bottom - frame.top);
-ctx.restore();
+      } else {
+        // GRAVITATE toward mouse in Manhattan steps (snake vibe)
+        gravStrength = Math.min(1, gravStrength + 0.06);
+        const dx = target.x - head.x, dy = target.y - head.y;
 
-  // head
-  ctx.fillStyle = '#fff';
-  ctx.beginPath();
-  ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
-  ctx.fill();
+        const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
+        if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
+        else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
+        else                                       dir = { x: 0, y: 0 };
 
-  // body
-  for (let i = 1; i < trail.length; i++) {
-    const t = i / trail.length;
-    const alpha = Math.max(0, 1 - t * 1.05);
-    if (alpha <= 0) continue;
-    ctx.globalAlpha = alpha;
-    const gx = Math.round(trail[i].x / TILE) * TILE;
-    const gy = Math.round(trail[i].y / TILE) * TILE;
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(gx - TILE/2, gy - TILE/2, TILE, TILE);
-    ctx.globalAlpha = alpha * 0.35;
-    const p = TILE / 4;
-    ctx.fillRect(gx - TILE/2 + p, gy - TILE/2 + p, TILE - 2*p, TILE - 2*p);
-  }
-  ctx.globalAlpha = 1;
-  ctx.shadowBlur = 0;
-}
+        head = {
+          x: Math.max(TILE/2, Math.min(window.innerWidth  - TILE/2, head.x + dir.x)),
+          y: Math.max(TILE/2, Math.min(window.innerHeight - TILE/2, head.y + dir.y))
+        };
+      }
 
-/* Seed a short visible tail so you see the snake immediately */
-function primeTrail(len = 24){
-  trail.length = 0;
-  for (let i = 0; i < len; i++){
-    trail.unshift({ x: frame.left - i*TILE, y: frame.top });
-  }
-}
+      // trail buffer
+      trail.unshift({ x: head.x, y: head.y });
+      if (trail.length > TAIL) trail.pop();
 
-requestAnimationFrame(step);
-computeFrame();
-primeTrail();
+      // draw
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
 
+      // glow
+      ctx.shadowColor = 'rgba(255,255,255,1)';
+      ctx.shadowBlur = 26;
+
+      // (optional) faint frame guide — comment out if you don't want it
+      // ctx.save();
+      // ctx.globalAlpha = 0.18;
+      // ctx.setLineDash([8,8]);
+      // ctx.lineWidth = 2;
+      // ctx.strokeStyle = '#fff';
+      // ctx.strokeRect(frame.left, frame.top, frame.right - frame.left, frame.bottom - frame.top);
+      // ctx.restore();
+
+      // head
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // body squares with fade (grid-snapped)
+      for (let i = 1; i < trail.length; i++) {
+        const t = i / trail.length;
+        const alpha = Math.max(0, 1 - t * 1.05);
+        if (alpha <= 0) continue;
+
+        ctx.globalAlpha = alpha;
+
+        const gx = Math.round(trail[i].x / TILE) * TILE;
+        const gy = Math.round(trail[i].y / TILE) * TILE;
+
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(gx - TILE/2, gy - TILE/2, TILE, TILE);
+
+        // subtle inner pixel
+        ctx.globalAlpha = alpha * 0.35;
+        const p = TILE / 4;
+        ctx.fillRect(gx - TILE/2 + p, gy - TILE/2 + p, TILE - 2*p, TILE - 2*p);
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+    }
+
+    /* Seed a short visible tail so you see the snake immediately */
+    function primeTrail(len = 24){
+      trail.length = 0;
+      for (let i = 0; i < len; i++){
+        trail.unshift({ x: frame.left - i*TILE, y: frame.top });
+      }
+    }
+
+    requestAnimationFrame(step);
+    computeFrame();
+    primeTrail();
+    // extra layout kick (in case image rect was 0 on first pass)
+    setTimeout(() => { resizeCanvas(); computeFrame(); }, 0);
   </script>
 </body>
 </html>
-
