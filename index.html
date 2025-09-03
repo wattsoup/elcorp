@@ -10,8 +10,8 @@
 
   <style>
     :root{
-      --px: 8;               /* snake tile size (px) */
-      --trail-steps: 160;    /* tail length in tiles */
+      --px: 10;              /* thicker snake (was 8) */
+      --trail-steps: 170;    /* tail length in tiles */
     }
 
     html, body {
@@ -24,7 +24,7 @@
       scroll-behavior: smooth;
     }
 
-    /* Brighter background image (dimmed less) */
+    /* Brighter background image */
     .background-img {
       position: fixed;
       top: 50%;
@@ -32,14 +32,14 @@
       transform: translate(-50%, -50%);
       max-height: 70%;
       max-width: 70%;
-      opacity: 0.40; /* was 0.25 */
+      opacity: 0.40;
       pointer-events: none;
       z-index: 0;
       filter: contrast(120%) grayscale(60%) brightness(1.05);
       transition: opacity 180ms linear;
     }
 
-    /* Black flicker between images */
+    /* Black flicker between slides */
     .black-flicker {
       position: fixed;
       inset: 0;
@@ -56,11 +56,12 @@
       top: 0;
       left: 0;
       width: 100vw;
-      height: 22vh;      /* band height; tweak 18–28vh if you want */
+      height: 22vh;      /* band height */
       z-index: 5;
       pointer-events: none;
     }
 
+    /* "PLANNED / ECONOMY" */
     .switcher {
       position: absolute;
       top: 30%;
@@ -74,9 +75,8 @@
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      text-align: center;
+      text-align: left; /* ensure left text alignment */
     }
-
     .anti-word {
       visibility: hidden;
       font-size: 4.5rem;
@@ -87,7 +87,13 @@
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
-    .planned-word { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+    .planned-word {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start; /* <<< LEFT aligned again */
+      line-height: 1.1;
+      text-align: left;        /* make sure both lines are left-aligned */
+    }
 
     .hero {
       height: 100vh;
@@ -103,7 +109,7 @@
 
     .text-flicker {
       font-family: 'Cinzel', serif;
-      font-size: 5rem; /* smaller than original */
+      font-size: 5rem;
       text-align: center;
       animation: flicker 1s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
@@ -145,8 +151,10 @@
     }
     .content.visible { opacity: 1; transform: translateY(0); }
 
-    .text-block { max-width: 800px; }
-    .text-block p { margin: 0 0 0.9rem 0; line-height: 1.45; }
+    .text-block {
+      max-width: 560px;     /* <<< narrower text window */
+    }
+    .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
 
     @media (max-width: 768px) {
       .text-flicker { font-size: 3rem; text-shadow: 0 0 5px white, 0 0 10px white; }
@@ -155,6 +163,7 @@
       .hero-inner { margin-top: 3rem; }
       .content { font-size: 1rem; padding: 0 1.5rem; }
       .anti-word { font-size: 2rem; }
+      .text-block { max-width: 90vw; }
     }
   </style>
 </head>
@@ -186,7 +195,7 @@
   <!-- Content -->
   <section class="content" id="reveal">
     <div class="text-block">
-      <p><strong>ELSIE CORP</strong>  is a perfume salon.</p>
+      <p><strong>ELSIE CORP</strong> is a perfume salon.</p>
       <p>We work with artists, theorists, funders, and institutions to shape forces, not products.</p>
       <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
     </div>
@@ -278,7 +287,9 @@
     const TILE = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
     const TRAIL_STEPS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
-    let speedMs = 120; // bigger = slower
+    // Faster snake (lower ms), but still smooth
+    let speedMs = 90; // was 120 → faster
+
     const MARGIN = TILE * 2;
 
     // snake state
@@ -286,6 +297,11 @@
     let dir  = { x: TILE, y: 0 };          // moving right
     let trail = [];
     let lastStep = 0;
+
+    // turn control for bigger, more global figures
+    const TURN_BASE = 0.06;   // lower base chance → longer straights
+    const STRAIGHT_MIN = 6;   // must travel at least N steps before another turn
+    let stepsSinceTurn = 0;
 
     // scroll input → nudge snake only (no page scroll while locked)
     let boostUntil = 0;
@@ -302,11 +318,13 @@
       if (now - lastStep < stepDelay) return;
       lastStep = now;
 
-      // occasional 90° turns (retro look), with bias when scrolling
-      const turnChance = 0.12 + (Math.abs(turnBias) ? 0.06 : 0);
-      if (Math.random() < turnChance) {
+      // bigger figures: fewer turns + minimum straight run
+      stepsSinceTurn++;
+      const extraBias = Math.abs(turnBias) ? 0.06 : 0;
+      if (stepsSinceTurn >= STRAIGHT_MIN && Math.random() < (TURN_BASE + extraBias)) {
         const turnRight = Math.random() < (turnBias > 0 ? 0.7 : (turnBias < 0 ? 0.3 : 0.5));
         dir = turnRight ? { x:  dir.y, y: -dir.x } : { x: -dir.y, y:  dir.x };
+        stepsSinceTurn = 0;
       }
 
       // move one tile
@@ -314,10 +332,10 @@
       let ny = head.y + dir.y;
 
       // bounce within the band (canvas bounds)
-      if (nx < TILE/2)                 { nx = TILE/2;                 dir = { x: TILE,  y: 0 }; }
-      if (ny < TILE/2)                 { ny = TILE/2;                 dir = { x: 0,     y: TILE }; }
-      if (nx > cvs.width - TILE/2)     { nx = cvs.width - TILE/2;     dir = { x: -TILE, y: 0 }; }
-      if (ny > cvs.height - TILE/2)    { ny = cvs.height - TILE/2;    dir = { x: 0,     y: -TILE }; }
+      if (nx < TILE/2)                 { nx = TILE/2;                 dir = { x: TILE,  y: 0 }; stepsSinceTurn = 0; }
+      if (ny < TILE/2)                 { ny = TILE/2;                 dir = { x: 0,     y: TILE }; stepsSinceTurn = 0; }
+      if (nx > cvs.width - TILE/2)     { nx = cvs.width - TILE/2;     dir = { x: -TILE, y: 0 }; stepsSinceTurn = 0; }
+      if (ny > cvs.height - TILE/2)    { ny = cvs.height - TILE/2;    dir = { x: 0,     y: -TILE }; stepsSinceTurn = 0; }
 
       head = { x: nx, y: ny };
 
@@ -330,12 +348,12 @@
 
       // glow
       ctx.shadowColor = 'rgba(255,255,255,1)';
-      ctx.shadowBlur = 16;
+      ctx.shadowBlur = 20; // a little stronger for thicker look
 
-      // head (rounded)
+      // head (rounded & slightly larger with new TILE)
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(head.x, head.y, TILE * 0.7, 0, Math.PI * 2);
+      ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
       ctx.fill();
 
       // body squares with fade
