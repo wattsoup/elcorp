@@ -4,9 +4,18 @@
   <meta charset="UTF-8" />
   <title>ELSIE CORP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Title font (adjust or swap as you like) -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
 
   <style>
+    :root{
+      --px: 8px;              /* <<< pixel size of the snake blocks */
+      --snake-glow-hi: rgba(255,255,255,1);
+      --snake-glow-med: rgba(255,255,255,0.65);
+      --snake-glow-low: rgba(255,255,255,0.35);
+      --snake-glow-far: rgba(255,255,255,0.18);
+    }
+
     html, body {
       margin: 0;
       padding: 0;
@@ -17,6 +26,7 @@
       scroll-behavior: smooth;
     }
 
+    /* Background image that changes every 2s */
     .background-img {
       position: fixed;
       top: 50%;
@@ -28,6 +38,18 @@
       pointer-events: none;
       z-index: 0;
       filter: contrast(120%) grayscale(80%) brightness(0.9);
+      transition: opacity 180ms linear; /* quick settle after flicker */
+    }
+
+    /* Black flicker overlay for image swap */
+    .black-flicker {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      transition: opacity 120ms linear;
+      z-index: 5;
+      pointer-events: none;
     }
 
     .snake-frame {
@@ -39,87 +61,46 @@
       transform: translateX(-50%);
       z-index: 3;
       pointer-events: none;
-      /* allow glow to spill out */
       overflow: visible;
+      /* optional faint frame so you can see the path */
+      /* outline: 1px solid rgba(255,255,255,0.06); */
     }
 
-    /* HARD-EDGE PIXEL + GLOW + FADE */
-.snake-trail {
-  position: absolute;
-  width: 12px;             /* grid pixel size */
-  height: 12px;
-  background: #ffffff;     /* solid pixel core */
-  image-rendering: pixelated;
-  border-radius: 0;        /* keep it square */
-  /* bright halo */
-  box-shadow:
-    0 0 4px rgba(255,255,255,0.9),
-    0 0 10px rgba(255,255,255,0.6),
-    0 0 18px rgba(255,255,255,0.35),
-    0 0 34px rgba(255,255,255,0.18);
-  filter: brightness(1.05);
-  opacity: 1;
-  animation: fadePixel 1.2s linear forwards, glowPulse 1s ease-in-out infinite alternate;
-  pointer-events: none;
-  z-index: 4;
-}
-
-@keyframes fadePixel {
-  0%   { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-@keyframes glowPulse {
-  from { box-shadow:
-    0 0 3px rgba(255,255,255,0.8),
-    0 0 8px rgba(255,255,255,0.55),
-    0 0 14px rgba(255,255,255,0.3),
-    0 0 26px rgba(255,255,255,0.15); }
-  to   { box-shadow:
-    0 0 6px rgba(255,255,255,1),
-    0 0 12px rgba(255,255,255,0.7),
-    0 0 22px rgba(255,255,255,0.45),
-    0 0 40px rgba(255,255,255,0.25); }
-}
-
-
-    .overlay {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.02),
-        rgba(255,255,255,0.02) 1px,
-        transparent 1px,
-        transparent 2px
-      );
+    /* Pixel snake block: square + glow + fade + subtle pulse */
+    .snake-trail {
+      position: absolute;
+      width: var(--px);
+      height: var(--px);
+      background: #fff;
+      image-rendering: pixelated;
+      border-radius: 0;
+      box-shadow:
+        0 0 4px var(--snake-glow-hi),
+        0 0 10px var(--snake-glow-med),
+        0 0 18px var(--snake-glow-low),
+        0 0 34px var(--snake-glow-far);
+      filter: brightness(1.05);
+      opacity: 1;
+      animation: fadePixel var(--trail-ms, 3000ms) linear forwards,
+                 glowPulse 1000ms ease-in-out infinite alternate;
       pointer-events: none;
-      z-index: 2;
+      z-index: 4;
+      transform: translate(-50%, -50%); /* place by center */
     }
 
-    .flicker-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: red;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
+    @keyframes fadePixel { to { opacity: 0; } }
 
-    .flicker-text {
-      font-family: Helvetica, sans-serif;
-      font-weight: bold;
-      text-align: center;
-      line-height: 1.2;
-      font-size: 6rem;
+    @keyframes glowPulse {
+      from { box-shadow:
+        0 0 3px rgba(255,255,255,0.9),
+        0 0 8px rgba(255,255,255,0.6),
+        0 0 14px rgba(255,255,255,0.35),
+        0 0 26px rgba(255,255,255,0.18); }
+      to { box-shadow:
+        0 0 6px rgba(255,255,255,1),
+        0 0 12px rgba(255,255,255,0.75),
+        0 0 22px rgba(255,255,255,0.5),
+        0 0 40px rgba(255,255,255,0.28); }
     }
 
     .switcher {
@@ -144,28 +125,14 @@
       color: white;
       transition: opacity 0.3s ease, color 0.3s ease;
     }
-
-    .anti-word.visible-white {
-      visibility: visible;
-      opacity: 1;
-      color: white;
-    }
-
-    .anti-word.visible-red {
-      visibility: visible;
-      opacity: 1;
-      color: red;
-    }
+    .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
+    .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
     .planned-word {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       line-height: 1.1;
-    }
-
-    .planned-word .line {
-      display: block;
     }
 
     .hero {
@@ -187,8 +154,8 @@
     }
 
     .text-flicker {
-      font-family: 'Cinzel', serif; /* or 'Bebas Neue', 'Unica One', 'Cormorant Garamond' */
-      font-size: 5rem;
+      font-family: 'Cinzel', serif;
+      font-size: 5rem; /* make it a bit smaller */
       text-align: center;
       animation: flicker 1s infinite;
       text-shadow: 0 0 10px white, 0 0 20px white;
@@ -212,11 +179,7 @@
       z-index: 3;
       transition: all 0.2s ease;
     }
-
-    #enter-btn:hover {
-      background: white;
-      color: black;
-    }
+    #enter-btn:hover { background: white; color: black; }
 
     .content {
       font-size: 1.7rem;
@@ -233,43 +196,17 @@
       text-align: left;
       background: black;
     }
-
-    .content.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .text-block p {
-      max-width: 700px;
-      margin: 0 0 0.7rem 0;
-      line-height: 1.4;
-    }
+    .content.visible { opacity: 1; transform: translateY(0); }
+    .text-block p { max-width: 700px; margin: 0 0 0.7rem 0; line-height: 1.4; }
 
     @media (max-width: 768px) {
-      .text-flicker {
-        font-size: 3rem;
-        text-shadow: 0 0 5px white, 0 0 10px white;
-      }
-
-      .switcher {
-        top: 20%;
-        font-size: 1.2rem;
-        flex-direction: column;
-        gap: 0.3rem;
-        transform: translate(-50%, -50%);
-        text-align: center;
-      }
-
+      .text-flicker { font-size: 3rem; text-shadow: 0 0 5px white, 0 0 10px white; }
+      .switcher { top: 20%; font-size: 1.2rem; flex-direction: column; gap: 0.3rem; transform: translate(-50%, -50%); text-align: center; }
       .planned-word { align-items: center; font-size: 2rem; }
-
       #enter-btn { font-size: 1rem; padding: 0.6rem 2rem; }
-
       .hero-inner { margin-top: 3rem; }
-
       .content { font-size: 1rem; padding: 0 1.5rem; text-align: left; }
-
       .anti-word { font-size: 2rem; }
-
       .snake-frame {
         width: 80vw;
         height: 80vh;
@@ -278,17 +215,18 @@
         transform: translate(-50%, 0);
         margin: 0;
       }
-
-      .flicker-text { font-size: 2.5rem; padding: 0 1rem; line-height: 1.2; }
     }
   </style>
 </head>
 <body>
-  <img src="images.jpeg" alt="Background doorway" class="background-img">
+  <!-- Background slideshow image -->
+  <img src="" alt="Background" class="background-img" id="bg-img">
+
+  <!-- Black flicker overlay for image swaps -->
+  <div class="black-flicker" id="black-flicker"></div>
+
+  <!-- Rectangular path container for the pixel snake -->
   <div class="snake-frame" id="snake-frame"></div>
-  <div class="flicker-overlay" id="flicker-overlay">
-    <div class="flicker-text">ANTI-<br>PLANNED<br>ECONOMY</div>
-  </div>
 
   <div class="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
@@ -314,12 +252,12 @@
   </section>
 
   <script>
+    /* ====== BASIC UI ====== */
     const enterBtn = document.getElementById('enter-btn');
     const title = document.getElementById('title');
     const reveal = document.getElementById('reveal');
     const antiText = document.getElementById('anti-text');
     const snakeFrame = document.getElementById('snake-frame');
-    const flickerOverlay = document.getElementById('flicker-overlay');
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
@@ -330,9 +268,7 @@
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
-      if (rect.top < window.innerHeight) {
-        reveal.classList.add('visible');
-      }
+      if (rect.top < window.innerHeight) reveal.classList.add('visible');
     });
 
     function complexFlickerAnti() {
@@ -345,73 +281,122 @@
             antiText.className = 'anti-word';
             setTimeout(() => {
               antiText.className = 'anti-word visible-white';
-              setTimeout(() => {
-                antiText.className = 'anti-word';
-              }, 200);
+              setTimeout(() => { antiText.className = 'anti-word'; }, 200);
             }, 200);
           }, 100);
         }, 100);
       }, 100);
     }
-
     (function loopAntiFlicker() {
       const interval = Math.floor(Math.random() * 10000) + 5000;
       setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
     })();
 
-    function flickerRed() {
-      flickerOverlay.style.opacity = 1;
-      setTimeout(() => { flickerOverlay.style.opacity = 0; }, 250);
+    /* ====== BACKGROUND SLIDESHOW WITH BLACK FLICKER ====== */
+    const BG = document.getElementById('bg-img');
+    const FLICK = document.getElementById('black-flicker');
+
+    // TODO: Replace with your GitHub raw image URLs
+    const IMAGES = [
+  'images.jpeg', // first stays the same
+  '01.png',
+  '02.png',
+  '02.jpg',
+  '03.png',
+  '03.jpg',
+  '04.jpg',
+  '05.jpg',
+  '06.jpg',
+  '07.jpg',
+  '08.jpg',
+  '09.jpg',
+  '010.jpg',
+  '011.jpg',
+  '012.jpg',
+  '013.jpg'
+];
+    const SHOW_MS   = 2000;  // how long each image is displayed
+    const FLICK_MS  = 120;   // black flash duration
+
+    // Preload
+    const PRE = IMAGES.map(src => { const i = new Image(); i.src = src; return i; });
+
+    let idx = 0;
+    function nextImage() {
+      // Black flicker
+      FLICK.style.opacity = '1';
+      setTimeout(() => {
+        BG.src = IMAGES[idx % IMAGES.length];
+        idx++;
+        FLICK.style.opacity = '0';
+      }, FLICK_MS);
     }
 
-    (function randomFlickerLoop() {
-      const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => { flickerRed(); randomFlickerLoop(); }, interval);
-    })();
+    // Start slideshow
+    BG.addEventListener('load', () => { /* slight visual settle if needed */ });
+    // initial
+    BG.src = IMAGES[0];
+    idx = 1;
+    setInterval(nextImage, SHOW_MS);
 
-    // --- PIXEL SNAKE: grid movement around the frame with glowing blocks ---
-const gridSize = 14;   // pixel step size (match to .snake-trail width/height)
-let gx = 0, gy = 0;    // grid coords inside the frame
-let dir = 0;           // 0:right, 1:down, 2:left, 3:up
+    /* ====== PIXEL SNAKE (glowing, small pixels, long trail, two-row thickness) ====== */
 
-function spawnTrailPx(x, y) {
-  const seg = document.createElement('div');
-  seg.className = 'snake-trail';
-  seg.style.left = `${x}px`;
-  seg.style.top  = `${y}px`;
-  document.body.appendChild(seg);
-  setTimeout(() => seg.remove(), 1200); // matches fadePixel duration
-}
+    // Read pixel size from CSS variable so CSS & JS stay in sync
+    const gridSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'));
+    // expose trail length to CSS animation via variable
+    const TRAIL_MS = 3000;   // <<< longer trail (ms)
+    const STEP_MS  = 110;    // <<< movement speed (bigger = slower)
+    document.documentElement.style.setProperty('--trail-ms', TRAIL_MS + 'ms');
 
-function animatePixelSnake() {
-  const box = snakeFrame.getBoundingClientRect();
-  const cols = Math.floor(box.width  / gridSize);
-  const rows = Math.floor(box.height / gridSize);
-  const x0 = box.left + window.scrollX;
-  const y0 = box.top  + window.scrollY;
+    let gx = 0, gy = 0;      // grid coords within frame
+    let dir = 0;             // 0:right, 1:down, 2:left, 3:up
 
-  // place glowing pixel at current grid position
-  spawnTrailPx(x0 + gx * gridSize, y0 + gy * gridSize);
+    // thickness = 2 rows (you can make it 3 for chunkier)
+    const THICKNESS = 2;
 
-  // advance one step
-  if (dir === 0) gx++;
-  else if (dir === 1) gy++;
-  else if (dir === 2) gx--;
-  else gy--;
+    function spawnPixel(x, y) {
+      const seg = document.createElement('div');
+      seg.className = 'snake-trail';
+      seg.style.left = `${x}px`;
+      seg.style.top  = `${y}px`;
+      document.body.appendChild(seg);
+      setTimeout(() => seg.remove(), TRAIL_MS);
+    }
 
-  // turn at edges to trace the rectangle clockwise
-  if (dir === 0 && gx >= cols - 1) { dir = 1; gx = cols - 1; }
-  else if (dir === 1 && gy >= rows - 1) { dir = 2; gy = rows - 1; }
-  else if (dir === 2 && gx <= 0) { dir = 3; gx = 0; }
-  else if (dir === 3 && gy <= 0) { dir = 0; gy = 0; }
+    function animatePixelSnake() {
+      const box = snakeFrame.getBoundingClientRect();
+      const cols = Math.max(1, Math.floor(box.width  / gridSize));
+      const rows = Math.max(1, Math.floor(box.height / gridSize));
+      const x0 = box.left + window.scrollX;
+      const y0 = box.top  + window.scrollY;
 
-  setTimeout(animatePixelSnake, 110); // speed (lower = faster)
-}
+      // Perpendicular offset vector for thickness (normal to direction)
+      let nx = 0, ny = 0;
+      if (dir === 0 || dir === 2) { nx = 0; ny = 1; } // moving horizontally → normal is vertical
+      else                         { nx = 1; ny = 0; } // moving vertically   → normal is horizontal
 
-animatePixelSnake();
+      // Spawn two rows (THICKNESS) of pixels per step
+      for (let i = 0; i < THICKNESS; i++) {
+        const px = x0 + (gx + nx * i) * gridSize + gridSize/2;
+        const py = y0 + (gy + ny * i) * gridSize + gridSize/2;
+        spawnPixel(px, py);
+      }
 
+      // Advance one grid step
+      if (dir === 0) gx++;
+      else if (dir === 1) gy++;
+      else if (dir === 2) gx--;
+      else gy--;
+
+      // Turn at edges to trace the rectangle clockwise
+      if (dir === 0 && gx >= cols - 1) { dir = 1; gx = cols - 1; }
+      else if (dir === 1 && gy >= rows - 1) { dir = 2; gy = rows - 1; }
+      else if (dir === 2 && gx <= 0) { dir = 3; gx = 0; }
+      else if (dir === 3 && gy <= 0) { dir = 0; gy = 0; }
+
+      setTimeout(animatePixelSnake, STEP_MS);
+    }
+    animatePixelSnake();
   </script>
 </body>
 </html>
-
-
