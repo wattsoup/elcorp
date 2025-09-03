@@ -10,9 +10,9 @@
 
   <style>
     :root{
-      --px: 10;            /* snake tile size (thicker) */
-      --trail-steps: 360;  /* MUCH longer tail */
-      --band: 22vh;        /* height of the top snake strip */
+      --px: 10;            /* snake tile size */
+      --trail-steps: 360;  /* long tail */
+      --band: 22vh;        /* top snake strip height */
     }
 
     html, body {
@@ -26,10 +26,10 @@
       overflow-anchor: none;
     }
 
-    /* Keep content below the fixed snake band */
+    /* Push content below the fixed snake band */
     body { padding-top: var(--band); }
 
-    /* Brighter background image */
+    /* Background slideshow image (a bit brighter) */
     .background-img {
       position: fixed;
       top: 50%;
@@ -44,6 +44,7 @@
       transition: opacity 180ms linear;
     }
 
+    /* Black flicker between images */
     .black-flicker {
       position: fixed;
       inset: 0;
@@ -54,7 +55,7 @@
       pointer-events: none;
     }
 
-    /* Snake lives in a fixed shallow strip at the very top */
+    /* Snake band */
     #snake-canvas {
       position: fixed;
       top: 0;
@@ -65,10 +66,10 @@
       pointer-events: none;
     }
 
-    /* PLANNED / ECONOMY — placed just BELOW the band, left-aligned */
+    /* PLANNED / ECONOMY (below band) */
     .switcher {
       position: fixed;
-      top: calc(var(--band) + 1.2rem); /* moved down so it's not too high */
+      top: calc(var(--band) + 1.2rem); /* sits just under the band */
       left: 50%;
       transform: translateX(-50%);
       font-family: Helvetica, Arial, sans-serif;
@@ -80,27 +81,24 @@
       justify-content: center;
       gap: 1rem;
       text-align: left;
+      transition: opacity .25s ease;   /* fade-out */
     }
+    .switcher.is-hidden { opacity: 0; pointer-events: none; }
+
     .anti-word { visibility: hidden; font-size: 4.5rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
 
-    .planned-word {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start; /* left aligned */
-      line-height: 1.1;
-      text-align: left;
-    }
+    .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; text-align: left; }
 
+    /* Hero centered perfectly */
     .hero {
       min-height: calc(100vh - var(--band));
-      display: grid;              /* perfect centering */
+      display: grid;
       place-items: center;
       position: relative;
       z-index: 3;
     }
-
     .hero-inner { display: grid; place-items: center; }
 
     .text-flicker {
@@ -147,7 +145,7 @@
     }
     .content.visible { opacity: 1; transform: translateY(0); }
 
-    .text-block { max-width: 560px; } /* narrower text window */
+    .text-block { max-width: 640px; } /* slightly wider */
     .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
 
     @media (max-width: 768px) {
@@ -167,8 +165,8 @@
   <!-- Snake band -->
   <canvas id="snake-canvas"></canvas>
 
-  <!-- Label below band -->
-  <div class="switcher">
+  <!-- Label (fades out after ENTER) -->
+  <div class="switcher" id="switcher">
     <span class="anti-word" id="anti-text">ANTI-</span>
     <div class="planned-word">
       <span class="line">PLANNED</span>
@@ -194,30 +192,34 @@
   </section>
 
   <script>
-    /* Start at top to avoid odd offsets */
+    /* Start at top */
     try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch(e){}
     window.addEventListener('load', () => window.scrollTo(0, 0));
 
-    /* ---------------- UI: ENTER + reveal ---------------- */
-    const enterBtn = document.getElementById('enter-btn');
-    const title = document.getElementById('title');
-    const reveal = document.getElementById('reveal');
-    const antiText = document.getElementById('anti-text');
+    /* --- UI: ENTER + reveal --- */
+    const enterBtn  = document.getElementById('enter-btn');
+    const title     = document.getElementById('title');
+    const reveal    = document.getElementById('reveal');
+    const antiText  = document.getElementById('anti-text');
+    const switcher  = document.getElementById('switcher');
 
-    // Wheel controls the snake only until ENTER
-    let scrollLocked = true;
+    let scrollLocked = true; // wheel controls snake until ENTER
 
     enterBtn.addEventListener('click', () => {
       title.style.animation = 'none';
       title.style.opacity = '1';
       enterBtn.style.display = 'none';
-      scrollLocked = false; // allow normal page scroll now
+      scrollLocked = false;
+      switcher.classList.add('is-hidden');            // hide PLANNED/ECONOMY
       window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
     });
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
-      if (rect.top < window.innerHeight) reveal.classList.add('visible');
+      if (rect.top < window.innerHeight) {
+        reveal.classList.add('visible');
+        switcher.classList.add('is-hidden');          // keep hidden while reading
+      }
     });
 
     function complexFlickerAnti() {
@@ -241,7 +243,7 @@
       setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
     })();
 
-    /* ---------------- Background slideshow ---------------- */
+    /* --- Slideshow with black flicker (4s) --- */
     const BG = document.getElementById('bg-img');
     const FX = document.getElementById('black-fx');
 
@@ -252,7 +254,7 @@
       '09.jpg','010.jpg','011.jpg','012.jpg','013.jpg'
     ];
 
-    const SHOW_MS = 4000; // 4 seconds per image
+    const SHOW_MS = 4000;
     const FLICK_MS = 120;
 
     IMAGES.forEach(src => { const i = new Image(); i.src = src; });
@@ -267,7 +269,7 @@
       }, FLICK_MS);
     }, SHOW_MS);
 
-    /* ---------------- Snake in top band (canvas) ---------------- */
+    /* --- Snake in top band --- */
     const cvs = document.getElementById('snake-canvas');
     const ctx = cvs.getContext('2d');
 
@@ -282,26 +284,25 @@
     const TRAIL_STEPS = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
 
     let speedMs = 90; // lower = faster
-
     const MARGIN = TILE * 2;
 
     // snake state
-    let head = { x: MARGIN + TILE/2, y: MARGIN + TILE/2 }; // start top-left inner corner
-    let dir  = { x: TILE, y: 0 };          // moving right
+    let head = { x: MARGIN + TILE/2, y: MARGIN + TILE/2 };
+    let dir  = { x: TILE, y: 0 };
     let trail = [];
     let lastStep = 0;
 
-    // RECTANGLE → then WANDER
+    // rectangle lap then wander
     let mode = 'rect';
-    let rectEdge = 0;       // 0 top→right, 1 right→down, 2 bottom→left, 3 left→up
-    let lapsLeft = 1;       // do exactly one full lap
+    let rectEdge = 0;   // 0 top→right, 1 right→down, 2 bottom→left, 3 left→up
+    let lapsLeft = 1;
 
-    // wander settings (big figures)
+    // wander settings
     const TURN_BASE = 0.06;
     const STRAIGHT_MIN = 6;
     let stepsSinceTurn = 0;
 
-    // wheel affects snake only while locked
+    // wheel influences snake while locked
     let boostUntil = 0;
     let turnBias = 0;
     window.addEventListener('wheel', (e) => {
@@ -327,11 +328,9 @@
 
       if (mode === 'rect') {
         const L = rectLimits();
-        // move one tile along current edge
         let nx = head.x + dir.x;
         let ny = head.y + dir.y;
 
-        // clamp and turn at edges in exact rectangle
         if (rectEdge === 0 && nx >= L.right) { nx = L.right; dir = {x:0,y:TILE}; rectEdge = 1; }
         else if (rectEdge === 1 && ny >= L.bottom){ ny = L.bottom; dir = {x:-TILE,y:0}; rectEdge = 2; }
         else if (rectEdge === 2 && nx <= L.left) { nx = L.left;  dir = {x:0,y:-TILE}; rectEdge = 3; }
@@ -339,10 +338,8 @@
           ny = L.top; dir = {x:TILE,y:0}; rectEdge = 0; lapsLeft--;
           if (lapsLeft <= 0) { mode = 'wander'; stepsSinceTurn = 0; }
         }
-
         head = { x: nx, y: ny };
       } else {
-        // WANDER MODE (bigger figures)
         stepsSinceTurn++;
         const extraBias = Math.abs(turnBias) ? 0.06 : 0;
         if (stepsSinceTurn >= STRAIGHT_MIN && Math.random() < (TURN_BASE + extraBias)) {
@@ -351,11 +348,9 @@
           stepsSinceTurn = 0;
         }
 
-        // move one tile
         let nx = head.x + dir.x;
         let ny = head.y + dir.y;
 
-        // bounce within the band
         const L = rectLimits();
         if (nx < L.left)   { nx = L.left;   dir = { x: TILE,  y: 0 }; stepsSinceTurn = 0; }
         if (ny < L.top)    { ny = L.top;    dir = { x: 0,     y: TILE }; stepsSinceTurn = 0; }
@@ -382,7 +377,7 @@
       ctx.arc(head.x, head.y, TILE * 0.8, 0, Math.PI * 2);
       ctx.fill();
 
-      // body with fade (very long)
+      // body with fade
       for (let i = 1; i < trail.length; i++) {
         const t = i / trail.length;
         const alpha = Math.max(0, 1 - t * 1.05);
