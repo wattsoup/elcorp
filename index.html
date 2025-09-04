@@ -345,7 +345,7 @@
   /* Title: one line, a bit lower & bigger */
   .text-flicker{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 4.2rem); /* ↓ lowered */
+    top: calc(env(safe-area-inset-top, 0) + 2.8rem); /* ↓ lowered */
     left: 50%;
     transform: translateX(-50%);
     width: 92vw;
@@ -358,7 +358,7 @@
   /* ANTI- PLANNED ECONOMY: right under title, smaller */
   .switcher{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 7.8rem); /* ↓ sits right under title */
+    top: calc(env(safe-area-inset-top, 0) + 6.4rem); /* ↓ sits right under title */
     left: 50%;
     transform: translateX(-50%);
     width: 92vw;
@@ -367,46 +367,36 @@
     z-index: 9;
   }
   .switcher .anti-word{ font-size: inherit; }
-  .planned-word{ flex-direction: row; gap: .45rem; }
+  .planned-word{ flex-direction: row; gap: .35rem; }
   .planned-word .line{ display:inline-block; }
 
   /* Dice: smaller & higher; centered with a clearer diagonal */
   :root{ --dice: 76px; }                             /* ↓ smaller */
   .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 36vh; margin-left: calc(-0.80 * var(--dice)); } /* ↑ higher */
-  .dice2 { top: 44vh; margin-left: calc( 0.55 * var(--dice)); } /* ↘ diagonal */
+  .dice  { top: 50vh; margin-left: calc(-0.90 * var(--dice)); } /* ↑ higher */
+  .dice2 { top: 58vh; margin-left: calc( 0.55 * var(--dice)); } /* ↘ diagonal */
 
-  .countdown-box,
-  .stats{
-    bottom: calc(env(safe-area-inset-bottom,0) + 8.6vh);
+  /* Bottom row: countdown (left) and basket number (right) perfectly aligned */
+  .countdown-box{
+    position: fixed; left: 5vw; right: auto;
+    bottom: 8.6vh; top: auto; transform: none; text-align: left;
   }
-
-  /* use the SAME font + tabular digits + identical metrics for both numbers */
-  .countdown-box .digits,
-  .stats .basket-num{
-    font-family: Helvetica, Arial, sans-serif;           /* ← match fonts */
-    font-variant-numeric: tabular-nums lining-nums;
-    -webkit-font-feature-settings: 'tnum' 1, 'lnum' 1;
-    font-feature-settings: 'tnum' 1, 'lnum' 1;
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
-    line-height: 1;
-    margin: 0;
-    padding: 0;
-    display: block;
-  }
-
-  /* avoid column-reverse offset; lay out basket as a tiny grid */
   .stats{
     position: fixed; right: 5vw; left: auto;
-    top: auto; text-align: right;
-    display: grid;
-    grid-template-rows: auto auto;   /* row 1: number, row 2: labels */
-    row-gap: .35rem;
-    align-items: end;
+    bottom: 8.6vh; top: auto; text-align: right;
+    display: flex; flex-direction: column-reverse; align-items: flex-end;
   }
-  .stats .basket-num{ grid-row: 1; }
-  .stats .label, .stats .basket-line{ grid-row: 2; }
 
+  /* Same size + baseline for both numbers */
+  .countdown-box .digits,
+  .stats .basket-num{
+    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
+    line-height: 1;
+  }
+
+  /* Basket labels appear under the number (smaller spacing) */
+  .stats .label{ margin-top: .25rem; }
+  .stats .basket-line{ margin-top: .15rem; }
 
   /* Text section width on phones (unchanged) */
   .text-block{ max-width: 86vw; margin: 0 auto; }
@@ -414,6 +404,7 @@
   /* Hide snake on mobile to avoid overlap/perf issues */
   #snake-canvas{ display: none !important; }
 }
+
 
 
 
