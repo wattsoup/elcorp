@@ -345,7 +345,7 @@
   /* Title: one line, a bit lower & bigger */
   .text-flicker{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 2.8rem); /* ↓ lowered */
+    top: calc(env(safe-area-inset-top, 0) + 4.2rem); /* ↓ lowered */
     left: 50%;
     transform: translateX(-50%);
     width: 92vw;
@@ -358,7 +358,7 @@
   /* ANTI- PLANNED ECONOMY: right under title, smaller */
   .switcher{
     position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 6.4rem); /* ↓ sits right under title */
+    top: calc(env(safe-area-inset-top, 0) + 7.8rem); /* ↓ sits right under title */
     left: 50%;
     transform: translateX(-50%);
     width: 92vw;
@@ -367,14 +367,14 @@
     z-index: 9;
   }
   .switcher .anti-word{ font-size: inherit; }
-  .planned-word{ flex-direction: row; gap: .35rem; }
+  .planned-word{ flex-direction: row; gap: .45rem; }
   .planned-word .line{ display:inline-block; }
 
   /* Dice: smaller & higher; centered with a clearer diagonal */
   :root{ --dice: 76px; }                             /* ↓ smaller */
   .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 50vh; margin-left: calc(-0.90 * var(--dice)); } /* ↑ higher */
-  .dice2 { top: 58vh; margin-left: calc( 0.55 * var(--dice)); } /* ↘ diagonal */
+  .dice  { top: 36vh; margin-left: calc(-0.80 * var(--dice)); } /* ↑ higher */
+  .dice2 { top: 44vh; margin-left: calc( 0.55 * var(--dice)); } /* ↘ diagonal */
 
   /* Bottom row: countdown (left) and basket number (right) perfectly aligned */
   .countdown-box{
@@ -388,11 +388,13 @@
   }
 
   /* Same size + baseline for both numbers */
-  .countdown-box .digits,
+    .countdown-box .digits{ transform: translateY(0.08em); }
   .stats .basket-num{
     font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
   }
+
+
 
   /* Basket labels appear under the number (smaller spacing) */
   .stats .label{ margin-top: .25rem; }
@@ -404,7 +406,6 @@
   /* Hide snake on mobile to avoid overlap/perf issues */
   #snake-canvas{ display: none !important; }
 }
-
 
 
 
