@@ -376,29 +376,37 @@
   .dice  { top: 36vh; margin-left: calc(-0.80 * var(--dice)); } /* ↑ higher */
   .dice2 { top: 44vh; margin-left: calc( 0.55 * var(--dice)); } /* ↘ diagonal */
 
-  /* Bottom row: countdown (left) and basket number (right) perfectly aligned */
-  .countdown-box{
-    position: fixed; left: 5vw; right: auto;
-    bottom: 8.6vh; top: auto; transform: none; text-align: left;
-  }
+  .countdown-box,
   .stats{
-    position: fixed; right: 5vw; left: auto;
-    bottom: 8.6vh; top: auto; text-align: right;
-    display: flex; flex-direction: column-reverse; align-items: flex-end;
+    bottom: calc(env(safe-area-inset-bottom,0) + 8.6vh);
   }
 
-  /* Same size + baseline for both numbers */
-    .countdown-box .digits{ transform: translateY(0.08em); }
+  /* use the SAME font + tabular digits + identical metrics for both numbers */
+  .countdown-box .digits,
   .stats .basket-num{
+    font-family: Helvetica, Arial, sans-serif;           /* ← match fonts */
+    font-variant-numeric: tabular-nums lining-nums;
+    -webkit-font-feature-settings: 'tnum' 1, 'lnum' 1;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
     font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
+    margin: 0;
+    padding: 0;
+    display: block;
   }
 
+  /* avoid column-reverse offset; lay out basket as a tiny grid */
+  .stats{
+    position: fixed; right: 5vw; left: auto;
+    top: auto; text-align: right;
+    display: grid;
+    grid-template-rows: auto auto;   /* row 1: number, row 2: labels */
+    row-gap: .35rem;
+    align-items: end;
+  }
+  .stats .basket-num{ grid-row: 1; }
+  .stats .label, .stats .basket-line{ grid-row: 2; }
 
-
-  /* Basket labels appear under the number (smaller spacing) */
-  .stats .label{ margin-top: .25rem; }
-  .stats .basket-line{ margin-top: .15rem; }
 
   /* Text section width on phones (unchanged) */
   .text-block{ max-width: 86vw; margin: 0 auto; }
