@@ -362,7 +362,6 @@
 .join-badge.show{ opacity: 1; }
 
    
-//* ===== PHONE REFINEMENTS (all-in-one) ===== */
 /* ===== PHONE REFINEMENTS (final pass) ===== */
 @media (max-width: 820px){
 
@@ -376,7 +375,7 @@
     text-align: center;
     font-size: clamp(3.2rem, 12vw, 4.6rem);
     line-height: 1;
-    white-space: nowrap;                  /* keep on one line */
+    white-space: nowrap;               /* keep on one line */
     z-index: 9;
   }
 
@@ -389,11 +388,15 @@
     width: 92vw;
     text-align: center;
     font-size: clamp(1.15rem, 5.8vw, 1.9rem);
-    white-space: nowrap;                  /* one line */
-    gap: 0;                               /* no gap between ANTI- and PLANNED */
+    white-space: nowrap;               /* one line */
+    gap: 0;                            /* no gap between ANTI- and PLANNED */
     z-index: 9;
   }
-  .switcher .anti-word{ font-size: inherit; margin-right: .1rem; } /* tiny nudge after the dash */
+  .switcher .anti-word{
+    font-size: inherit;
+    margin-right: .1rem;               /* tiny nudge after the dash */
+    transform: translateY(-0.06em);    /* baseline alignment tweak */
+  }
   .planned-word{ flex-direction: row; gap: .45rem; }
   .planned-word .line{ display:inline-block; }
 
@@ -432,26 +435,43 @@
   /* Keep the labels tight under the number, and correct wording order */
   .stats .label{ font-size: .95rem; margin-top: .25rem; }
   .stats .basket-line{ font-size: 1.05rem; margin-top: .1rem; }
-}
-enterBtn.addEventListener('click', () => {
-  if (window.matchMedia('(max-width: 820px)').matches) {
-    document.body.classList.add('reading');  // mobile reading mode
+
+  /* ENTER stays fixed on mobile */
+  #enter-btn{
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0) + 6vh);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
   }
-  title.style.animation = 'none';
-  title.style.opacity = '1';
-  enterBtn.style.display = 'none';
-  switcher.classList.add('is-hidden');
-  window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
-});
 
-const backBtn = document.getElementById('back-btn');
-if (backBtn) {
-  backBtn.addEventListener('click', () => {
-    document.body.classList.remove('reading');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
+  /* Mobile "reading mode" after ENTER:
+     - hide chrome
+     - show only text (smaller), over translucent dice
+     - dice remain tappable; back button appears */
+  body.reading .text-flicker,
+  body.reading .switcher,
+  body.reading .stats,
+  body.reading .countdown-box{ display: none !important; }
+
+  body.reading .content{
+    font-size: 1.45rem;
+    z-index: 20;
+    background: transparent;           /* let dice show behind text */
+    pointer-events: none;              /* taps pass through to dice */
+  }
+  body.reading .join-badge{ display: none; }
+
+  body.reading .dice{
+    opacity: .22;
+    z-index: 5;                        /* behind text */
+    pointer-events: auto;              /* keep dice tappable */
+  }
+
+  body.reading #back-btn{ display: block; }
+  body.reading #enter-btn{ display: none !important; }
+  body.reading #snake-canvas{ display: none !important; }
 }
-
 
 
 
