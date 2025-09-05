@@ -362,10 +362,12 @@
 .join-badge.show{ opacity: 1; }
 
    
-/* ===== PHONE REFINEMENTS (final pass) ===== */
+//* ===== PHONE REFINEMENTS (all-in-one) ===== */
 @media (max-width: 820px){
 
-  /* Title: one line, a bit lower & bigger */
+  :root{ --band: 12vh; --dice: 76px; }
+
+  /* Title: one line, centered, a bit lower & bigger */
   .text-flicker{
     position: fixed;
     top: calc(env(safe-area-inset-top, 0) + 4.2rem);
@@ -375,11 +377,11 @@
     text-align: center;
     font-size: clamp(3.2rem, 12vw, 4.6rem);
     line-height: 1;
-    white-space: nowrap;                  /* keep on one line */
+    white-space: nowrap;
     z-index: 9;
   }
 
-  /* ANTI- PLANNED ECONOMY: right under title, same “sentence” */
+  /* “ANTI- PLANNED ECONOMY” on one line, baseline-tight to feel like one sentence */
   .switcher{
     position: fixed;
     top: calc(env(safe-area-inset-top, 0) + 7.8rem);
@@ -388,21 +390,29 @@
     width: 92vw;
     text-align: center;
     font-size: clamp(1.15rem, 5.8vw, 1.9rem);
-    white-space: nowrap;                  /* one line */
-    gap: 0;                               /* no gap between ANTI- and PLANNED */
+    white-space: nowrap;
+    gap: 0;
     z-index: 9;
   }
-  .switcher .anti-word{ font-size: inherit; margin-right: .1rem; } /* tiny nudge after the dash */
+  .switcher .anti-word{
+    display: inline-block;
+    font-size: inherit;
+    margin-right: .12rem;           /* keep dash tight */
+    transform: translateY(-0.06em); /* tiny lift to align baselines */
+  }
   .planned-word{ flex-direction: row; gap: .45rem; }
   .planned-word .line{ display:inline-block; }
 
-  /* Dice: smaller & higher; centered with a clearer diagonal */
-  :root{ --dice: 76px; }
-  .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); } /* upper a touch left */
-  .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); } /* lower a touch right */
+  /* Dice: centered + gentle diagonal, slightly higher */
+  .dice, .dice2{
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 12;
+  }
+  .dice  { top: 36vh; margin-left: calc(-0.72 * var(--dice)); }
+  .dice2 { top: 44vh; margin-left: calc( 0.48 * var(--dice)); }
 
-  /* Bottom row: countdown (left) and basket number (right) perfectly aligned */
+  /* Bottom row: countdown (left) and basket number (right) aligned */
   .countdown-box{
     position: fixed; left: 5vw; right: auto;
     bottom: 8.6vh; top: auto; transform: none; text-align: left;
@@ -410,27 +420,61 @@
   .stats{
     position: fixed; right: 5vw; left: auto;
     bottom: 8.6vh; top: auto; text-align: right;
-    display: flex; flex-direction: column-reverse; align-items: flex-end; /* number above labels */
+    display: flex; flex-direction: column; align-items: flex-end; /* no reverse */
   }
 
   /* Same size + baseline for both numbers */
   .countdown-box .digits{
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);  /* match basket-num */
+    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
     font-variant-numeric: tabular-nums lining-nums;
     -moz-font-feature-settings: "tnum" 1, "lnum" 1;
     -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
     font-feature-settings: "tnum" 1, "lnum" 1;
-    transform: translateY(0.06em);            /* micro-baseline trim */
+    transform: translateY(0.06em);  /* micro baseline trim */
   }
   .stats .basket-num{
+    order: 1;
     font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
   }
+  .stats .label{
+    order: 2;
+    font-size: .95rem;
+    margin-top: .25rem;
+  }
+  .stats .basket-line{
+    order: 3;
+    font-size: 1.05rem;
+    margin-top: .10rem;
+  }
 
-  /* Keep the labels tight under the number, and correct wording order */
-  .stats .label{ font-size: .95rem; margin-top: .25rem; }
-  .stats .basket-line{ font-size: 1.05rem; margin-top: .1rem; }
+  /* Fix the ENTER button so it doesn't scroll away */
+  #enter-btn{
+    position: fixed;
+    bottom: calc(env(safe-area-inset-bottom, 0) + 6vh);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+  }
+
+  /* Text block sizing + JOIN placement */
+  .text-block{ max-width: 86vw; margin: 0 auto; }
+  .join-badge{ position: static; display: inline-block; margin-top: 1.2rem; transform: none; }
+
+  /* Reading mode (after tapping ENTER on mobile): text only,
+     dice translucent + tappable, show “back to the counter” */
+  body.reading .text-flicker,
+  body.reading .switcher,
+  body.reading .stats,
+  body.reading .countdown-box{
+    display: none !important; /* hide chrome */
+  }
+  body.reading .content{ font-size: 1.45rem; z-index: 20; }
+  body.reading .dice{ opacity: .22; z-index: 5; pointer-events: auto; }
+  body.reading #back-btn{ display: block; }
+  body.reading #enter-btn{ display: none !important; }
+  body.reading #snake-canvas{ display: none !important; } /* keep text clean */
 }
 
 
