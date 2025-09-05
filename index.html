@@ -375,11 +375,11 @@
     text-align: center;
     font-size: clamp(3.2rem, 12vw, 4.6rem);
     line-height: 1;
-    white-space: nowrap;               /* keep on one line */
+    white-space: nowrap;
     z-index: 9;
   }
 
-  /* ANTI- PLANNED ECONOMY: right under title, same “sentence” */
+  /* ANTI- PLANNED ECONOMY as one sentence, aligned */
   .switcher{
     position: fixed;
     top: calc(env(safe-area-inset-top, 0) + 7.8rem);
@@ -388,91 +388,84 @@
     width: 92vw;
     text-align: center;
     font-size: clamp(1.15rem, 5.8vw, 1.9rem);
-    white-space: nowrap;               /* one line */
-    gap: 0;                            /* no gap between ANTI- and PLANNED */
+    white-space: nowrap;
+    gap: 0;
     z-index: 9;
   }
   .switcher .anti-word{
     font-size: inherit;
-    margin-right: .1rem;               /* tiny nudge after the dash */
-    transform: translateY(-0.06em);    /* baseline alignment tweak */
+    margin-right: .1rem;          /* hugs the dash */
+    position: relative;
+    top: -0.06em;                  /* tiny lift to align baseline */
   }
   .planned-word{ flex-direction: row; gap: .45rem; }
   .planned-word .line{ display:inline-block; }
 
-  /* Dice: smaller & higher; centered with a clearer diagonal */
+  /* Dice: smaller, higher, centered with diagonal */
   :root{ --dice: 76px; }
   .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); } /* upper a touch left */
-  .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); } /* lower a touch right */
+  .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); }
+  .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); }
 
-  /* Bottom row: countdown (left) and basket number (right) perfectly aligned */
+  /* ENTER: fixed and around the end of the picture */
+  #enter-btn{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 72vh;                     /* tweak 70–78vh if needed */
+    z-index: 15;
+    pointer-events: auto;
+  }
+
+  /* Bottom row: countdown (left) and basket number (right) aligned */
   .countdown-box{
     position: fixed; left: 5vw; right: auto;
     bottom: 8.6vh; top: auto; transform: none; text-align: left;
   }
-  .stats{
-    position: fixed; right: 5vw; left: auto;
-    bottom: 8.6vh; top: auto; text-align: right;
-    display: flex; flex-direction: column-reverse; align-items: flex-end; /* number above labels */
-  }
-
-  /* Same size + baseline for both numbers */
   .countdown-box .digits{
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);  /* match basket-num */
+    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
     line-height: 1;
     font-variant-numeric: tabular-nums lining-nums;
     -moz-font-feature-settings: "tnum" 1, "lnum" 1;
     -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
     font-feature-settings: "tnum" 1, "lnum" 1;
-    transform: translateY(0.06em);            /* micro-baseline trim */
-  }
-  .stats .basket-num{
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
-    line-height: 1;
+    transform: translateY(0.06em);
   }
 
-  /* Keep the labels tight under the number, and correct wording order */
-  .stats .label{ font-size: .95rem; margin-top: .25rem; }
-  .stats .basket-line{ font-size: 1.05rem; margin-top: .1rem; }
-
-  /* ENTER stays fixed on mobile */
-  #enter-btn{
-    position: fixed;
-    bottom: calc(env(safe-area-inset-bottom, 0) + 6vh);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
+  /* Basket: (number) then “PERFUMES” then “IN YOUR BASKET” */
+  .stats{
+    position: fixed; right: 5vw; left: auto;
+    bottom: 8.6vh; top: auto; text-align: right;
+    display: flex; flex-direction: column; align-items: flex-end;
   }
+  .stats .basket-num{ order: 0; font-size: clamp(1.9rem, 8.2vw, 2.6rem); line-height: 1; }
+  .stats .label     { order: 1; font-size: .95rem;  margin-top: .25rem; }   /* PERFUMES */
+  .stats .basket-line{order: 2; font-size: 1.05rem; margin-top: .1rem;}     /* IN YOUR BASKET */
 
-  /* Mobile "reading mode" after ENTER:
-     - hide chrome
-     - show only text (smaller), over translucent dice
-     - dice remain tappable; back button appears */
+  /* Reading mode (after ENTER): text only + translucent dice behind */
+  body.reading #bg-img{ opacity: 0 !important; }           /* hide slideshow */
+  body.reading #snake-canvas{ display: none !important; }  /* no snake */
   body.reading .text-flicker,
   body.reading .switcher,
-  body.reading .stats,
-  body.reading .countdown-box{ display: none !important; }
-
-  body.reading .content{
-    font-size: 1.45rem;
-    z-index: 20;
-    background: transparent;           /* let dice show behind text */
-    pointer-events: none;              /* taps pass through to dice */
-  }
-  body.reading .join-badge{ display: none; }
-
-  body.reading .dice{
-    opacity: .22;
-    z-index: 5;                        /* behind text */
-    pointer-events: auto;              /* keep dice tappable */
-  }
-
-  body.reading #back-btn{ display: block; }
+  body.reading .countdown-box,
+  body.reading .stats{ display: none !important; }
   body.reading #enter-btn{ display: none !important; }
-  body.reading #snake-canvas{ display: none !important; }
-}
 
+  body.reading .dice, body.reading .dice2{
+    opacity: .26;           /* transparent dice */
+    z-index: 1;             /* behind the text */
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    pointer-events: auto;   /* still playable */
+  }
+
+  .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }     /* slightly smaller reading font */
+
+  /* “back to the counter” – only in reading, and bigger */
+  .back-counter{
+    font-size: clamp(1.05rem, 4.8vw, 1.6rem);
+  }
+  body.reading .back-counter{ display: block; }            /* show only in reading */
+}
 
 
 
