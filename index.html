@@ -457,6 +457,19 @@
     filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
     pointer-events: auto;   /* still playable */
   }
+  
+  /* make the reading page transparent so dice show through */
+body.reading .content{
+  background: transparent !important;   /* ← this is the fix */
+}
+
+/* give the dice a touch more presence under the text */
+body.reading .dice,
+body.reading .dice2{
+  opacity: .34;                          /* was .26 — tweak as you like */
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+}
+
 
   .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }     /* slightly smaller reading font */
 
