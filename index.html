@@ -162,7 +162,7 @@
       text-shadow: 0 0 14px rgba(255,255,255,.35), 0 0 26px rgba(255,255,255,.18);
     }
 
-    /* Countdown lower-right */
+    /* Countdown lower-right (roughly image bottom) */
     .countdown-box{
       position: fixed;
       right: 6vw;
@@ -178,13 +178,14 @@
       font-size: clamp(1.8rem, 4.2vw, 2.8rem);
       letter-spacing: .04em;
       text-shadow: 0 0 14px rgba(255,255,255,.35), 0 0 26px rgba(255,255,255,.18);
+      /* keep width stable so it doesn't “wiggle” */
       font-variant-numeric: tabular-nums lining-nums;
       -moz-font-feature-settings: "tnum" 1, "lnum" 1;
       -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
       font-feature-settings: "tnum" 1, "lnum" 1;
     }
 
-    /* Double effects */
+    /* One-off effects ONLY when a double happens */
     .match-bounce { animation: matchBounce .25s ease-out; }
     @keyframes matchBounce {
       0%   { transform: translateY(0) scale(1); }
@@ -197,22 +198,26 @@
       20%,60% { color: #ff3b3b; text-shadow: 0 0 18px rgba(255,0,0,.5), 0 0 28px rgba(255,0,0,.3); }
     }
 
+    
     /* RED pair overlay */
-    .combo-overlay{
-      position: fixed; inset: 0;
-      background:#c40000;
-      display:flex; align-items:center; justify-content:center;
-      opacity:0;
-      visibility:hidden;
-      transition: opacity .08s linear, visibility 0s linear .08s;
-      z-index:10000;
-      pointer-events:none;
-    }
-    .combo-overlay.show{
-      opacity:1;
-      visibility:visible;
-      transition: opacity .08s linear;
-    }
+.combo-overlay{
+  position: fixed; inset: 0;
+  background:#c40000;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0;
+  visibility:hidden;                /* ← hide when not shown */
+  transition: opacity .08s linear,  /* fade */
+              visibility 0s linear .08s; /* hide after fade completes */
+  z-index:10000;
+  pointer-events:none;
+}
+.combo-overlay.show{
+  opacity:1;
+  visibility:visible;               /* ← show immediately */
+  transition: opacity .08s linear;  /* no visibility delay on show */
+}
+
+    
     .combo-overlay .big{
       font-family: Helvetica, Arial, sans-serif;
       font-weight: 900;
@@ -223,245 +228,261 @@
     }
 
     .white-flash{
-      position: fixed; inset: 0;
-      background:#fff;
-      opacity:0;
-      transition: opacity .06s linear;
-      z-index:10002;
-      pointer-events:none;
-    }
-    .white-flash.show{ opacity:1; }
+  position: fixed; inset: 0;
+  background:#fff;
+  opacity:0;
+  transition: opacity .06s linear;
+  z-index:10002;           /* above red pair and milestone */
+  pointer-events:none;
+}
+.white-flash.show{ opacity:1; }
 
     /* back to the counter (hidden by default) */
-    .back-counter{
-      position: fixed;
-      top: calc(env(safe-area-inset-top, 0px) + 10px);
-      left: 6vw;
-      z-index: 30;
-      display: none;
-      background: none; border: 0; padding: 0;
-      color:#fff;
-      font-family:'Cinzel', serif;
-      font-style: italic;
-      text-transform: lowercase;
-      letter-spacing:.02em;
-      cursor:pointer;
-      text-shadow: 0 0 8px rgba(255,255,255,.7), 0 0 20px rgba(255,255,255,.35);
-      animation: softFlicker 1.2s steps(2,end) infinite;
-    }
-    @keyframes softFlicker{
-      0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
-      20%,24%,55%{opacity:.55}
-    }
+.back-counter{
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: 6vw;
+  z-index: 30;
+  display: none;
+  background: none; border: 0; padding: 0;
+  color:#fff;
+  font-family:'Cinzel', serif;
+  font-style: italic;
+  text-transform: lowercase;
+  letter-spacing:.02em;
+  cursor:pointer;
+  text-shadow: 0 0 8px rgba(255,255,255,.7), 0 0 20px rgba(255,255,255,.35);
+  animation: softFlicker 1.2s steps(2,end) infinite;
+}
+@keyframes softFlicker{
+  0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
+  20%,24%,55%{opacity:.55}
+}
+
+
 
     /* ===== MILESTONES ===== */
-    .milestone{
-      position:fixed; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      background:#0aa84f;
-      opacity:0; visibility:hidden;
-      transition:opacity .14s ease;
-      z-index:10001;
-      pointer-events:none;
-      isolation:isolate;
-      mix-blend-mode:normal;
-    }
-    .milestone.show{ opacity:1; visibility:visible; }
+.milestone{
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  background:#0aa84f;      /* ← solid (no alpha) for green variants */
+  opacity:0; visibility:hidden;
+  transition:opacity .14s ease;
+  z-index:10001;           /* above red pair */
+  pointer-events:none;
+  isolation:isolate;       /* avoid blending with layers below */
+  mix-blend-mode:normal;   /* ensure normal compositing */
+}
+.milestone.show{ opacity:1; visibility:visible; }
 
-    .milestone .inner{
-      text-align: center;
-      color: #fff;
-      line-height: 1.1;
-      white-space: pre-line;
-      font-family: Helvetica, Arial, sans-serif;
-      text-transform: none;
-      text-shadow: 0 0 18px rgba(255,255,255,.25);
-      padding: 4vmin 6vmin;
-    }
+
+.milestone .inner{
+  text-align: center;
+  color: #fff;
+  line-height: 1.1;
+  white-space: pre-line;                 /* honor \n in text */
+  font-family: Helvetica, Arial, sans-serif;
+  text-transform: none;
+  text-shadow: 0 0 18px rgba(255,255,255,.25);
+  padding: 4vmin 6vmin;
+}
     .milestone.red   { background:#d30000; }
-    .milestone.green { background:#0aa84f; }
-    .milestone.black { background:#000000; }
+.milestone.green { background:#0aa84f; }
+.milestone.black { background:#000000; }
 
-    /* size presets */
-    .ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
-    .ms-big    { font-weight: 900; font-size: clamp(2.6rem, 10vw, 10rem); }
-    .ms-medium { font-weight: 800; font-size: clamp(1.4rem, 4vw, 3rem); }
-    .ms-small  { font-weight: 600; font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.35; }
-    .ms-italic    { font-style: italic; }
-    .ms-lowercase { text-transform: lowercase; }
+/* size presets */
+.ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
+.ms-big    { font-weight: 900; font-size: clamp(2.6rem, 10vw, 10rem); }
+.ms-medium { font-weight: 800; font-size: clamp(1.4rem, 4vw, 3rem); }
+.ms-small  { font-weight: 600; font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.35; }
 
-    /* ====== SWITCHER (PLANNED ECONOMY) ====== */
+/* modifiers */
+.ms-italic    { font-style: italic; }
+.ms-lowercase { text-transform: lowercase; }
+
+
+    /* Label (center) */
     .switcher {
-      /* let JS position it freely for the DVD bounce */
       position: fixed;
-      left: 120px; top: 120px;       /* starting pos; JS will move it */
+      top: calc(var(--band) + 1.0rem);
+      left: 50%;
+      transform: translateX(-50%);
       font-family: Helvetica, Arial, sans-serif;
       font-weight: 800;
       font-size: 2.3rem;
       z-index: 10;
       display: flex; gap: 1rem;
       text-align: left;
-      pointer-events: none;
-      will-change: transform;
       transition: opacity .25s ease;
+      pointer-events: none;
     }
     .switcher.is-hidden { opacity: 0; }
     .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
-    .anti-word { visibility: hidden; font-size: 3.2rem; opacity: 0; color: white; transition: opacity .2s, color .2s; }
+    .anti-word { visibility: hidden; font-size: 3.2rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
-
-    /* Red flicker on edge hit */
-    .switcher.edge-flash .planned-word{
-      animation: edgeFlicker 0.42s steps(1,end) 3;
-    }
-    @keyframes edgeFlicker{
-      0%,24%,48%,72%,100% { color:#ffffff; text-shadow:none; }
-      12%,36%,60%,84%     { color:#ff2b2b; text-shadow:0 0 12px rgba(255,0,0,.65); }
-    }
 
     /* Hero + content */
     .hero { min-height: calc(100vh - var(--band)); display: grid; place-items: center; position: relative; z-index: 3; }
     .hero-inner { display: grid; place-items: center; }
-
-    /* Title – star flicker is applied by JS only on dice roll */
-    .text-flicker {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 5rem;
-      text-align: center;
-      text-shadow: 0 0 8px rgba(255,255,255,0.5), 0 0 18px rgba(255,255,255,0.25);
-    }
-    .star-flick { animation: flickerStars 0.9s steps(1,end); }
-    @keyframes flickerStars{
-      0%,7%,11%,19%,23%,31%,49%,61%,73%,100% { opacity:1; text-shadow:0 0 8px rgba(255,255,255,.6), 0 0 20px rgba(255,255,255,.4); }
-      8%,20%,50%,62%                                   { opacity:.55; text-shadow:0 0 4px rgba(255,255,255,.25); }
-      12%,33%,70%                                      { opacity:.2;  text-shadow:none; }
-    }
-
+    .text-flicker { font-family: 'Cormorant Garamond', serif; font-size: 5rem; text-align: center; animation: flicker 1s infinite; text-shadow: 0 0 10px white, 0 0 20px white; }
+    @keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:.4} }
     #enter-btn { margin-top: 2rem; font: inherit; font-size: 1.2rem; background: none; color: #fff; border: 1px solid #fff; padding: .5rem 1.5rem; cursor: pointer; }
     #enter-btn:hover { background: #fff; color: #000; }
 
     .content { font-size: 1.7rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 2; position: relative; opacity: 0; transform: translateY(50px); transition: all 1.2s ease; padding: 0 10vw; text-align: left; background: #000; }
     .content.visible { opacity: 1; transform: translateY(0); }
+    /* replace your current rules with these */
+.text-block {
+  position: relative;          /* ← add this */
+  max-width: 640px;
+  margin: 0 auto;
+}
 
-    .text-block { position: relative; max-width: 640px; margin: 0 auto; }
-    .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
+.text-block p {
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
 
-    /* JOIN badge */
+
+    /* JOIN badge under text section (appears briefly on doubles, random) */
     .join-badge{
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      top: calc(100% + 1rem);
-      padding: .3rem 1.2rem;
-      border: 1px solid #fff;
-      font-family: 'Cinzel', serif;
-      letter-spacing: .08em;
-      opacity: 0;
-      transition: opacity .18s ease;
-      pointer-events: none;
-    }
-    .join-badge.show{ opacity: 1; }
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(100% + 1rem);  /* 1rem below the end of .text-block */
+  padding: .3rem 1.2rem;
+  border: 1px solid #fff;
+  font-family: 'Cinzel', serif;
+  letter-spacing: .08em;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events: none;
+}
+.join-badge.show{ opacity: 1; }
 
-    /* ===== PHONE REFINEMENTS (layout still preserved) ===== */
-    @media (max-width: 820px){
+   
+/* ===== PHONE REFINEMENTS (final pass) ===== */
+@media (max-width: 820px){
 
-      .text-flicker{
-        position: fixed;
-        top: calc(env(safe-area-inset-top, 0) + 4.2rem);
-        left: 50%;
-        transform: translateX(-50%);
-        width: 92vw;
-        text-align: center;
-        font-size: clamp(3.2rem, 12vw, 4.6rem);
-        line-height: 1;
-        white-space: nowrap;
-        z-index: 9;
-      }
+  /* Title: one line, a bit lower & bigger */
+  .text-flicker{
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 4.2rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    text-align: center;
+    font-size: clamp(3.2rem, 12vw, 4.6rem);
+    line-height: 1;
+    white-space: nowrap;
+    z-index: 9;
+  }
 
-      /* On mobile we keep the label centered; JS transform still overrides */
-      .switcher{
-        position: fixed;
-        top: calc(env(safe-area-inset-top, 0) + 7.8rem);
-        left: 50%;
-        transform: translateX(-50%);
-        width: 92vw;
-        text-align: center;
-        font-size: clamp(1.15rem, 5.8vw, 1.9rem);
-        white-space: nowrap;
-        gap: 0;
-        z-index: 9;
-      }
-      .switcher .anti-word{
-        font-size: inherit;
-        margin-right: .1rem;
-        position: relative;
-        top: -0.06em;
-      }
-      .planned-word{ flex-direction: row; gap: .45rem; }
-      .planned-word .line{ display:inline-block; }
+  /* ANTI- PLANNED ECONOMY as one sentence, aligned */
+  .switcher{
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0) + 7.8rem);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92vw;
+    text-align: center;
+    font-size: clamp(1.15rem, 5.8vw, 1.9rem);
+    white-space: nowrap;
+    gap: 0;
+    z-index: 9;
+  }
+  .switcher .anti-word{
+    font-size: inherit;
+    margin-right: .1rem;          /* hugs the dash */
+    position: relative;
+    top: -0.06em;                  /* tiny lift to align baseline */
+  }
+  .planned-word{ flex-direction: row; gap: .45rem; }
+  .planned-word .line{ display:inline-block; }
 
-      :root{ --dice: 76px; }
-      .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-      .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); }
-      .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); }
+  /* Dice: smaller, higher, centered with diagonal */
+  :root{ --dice: 76px; }
+  .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
+  .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); }
+  .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); }
 
-      #enter-btn{
-        position: fixed;
-        left: 50%;
-        transform: translateX(-50%);
-        top: 58vh;
-        z-index: 15;
-        pointer-events: auto;
-      }
+  /* ENTER: fixed and around the end of the picture */
+  #enter-btn{
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 58vh;                     /* tweak 70–78vh if needed */
+    z-index: 15;
+    pointer-events: auto;
+  }
 
-      .countdown-box{
-        position: fixed; left: 5vw; right: auto;
-        bottom: 8.6vh; top: auto; transform: none; text-align: left;
-      }
-      .countdown-box .digits{
-        font-size: clamp(1.9rem, 8.2vw, 2.6rem);
-        line-height: 1;
-        font-variant-numeric: tabular-nums lining-nums;
-        -moz-font-feature-settings: "tnum" 1, "lnum" 1;
-        -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
-        font-feature-settings: "tnum" 1, "lnum" 1;
-        transform: translateY(0.06em);
-      }
+  /* Bottom row: countdown (left) and basket number (right) aligned */
+  .countdown-box{
+    position: fixed; left: 5vw; right: auto;
+    bottom: 8.6vh; top: auto; transform: none; text-align: left;
+  }
+  .countdown-box .digits{
+    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums lining-nums;
+    -moz-font-feature-settings: "tnum" 1, "lnum" 1;
+    -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    transform: translateY(0.06em);
+  }
 
-      .stats{
-        position: fixed; right: 5vw; left: auto;
-        bottom: 8.6vh; top: auto; text-align: right;
-        display: flex; flex-direction: column; align-items: flex-end;
-      }
-      .stats .basket-num{ order: 0; font-size: clamp(1.9rem, 8.2vw, 2.6rem); line-height: 1; }
-      .stats .label     { order: 1; font-size: .95rem;  margin-top: .25rem; }
-      .stats .basket-line{order: 2; font-size: 1.05rem; margin-top: .1rem;}
+  /* Basket: (number) then “PERFUMES” then “IN YOUR BASKET” */
+  .stats{
+    position: fixed; right: 5vw; left: auto;
+    bottom: 8.6vh; top: auto; text-align: right;
+    display: flex; flex-direction: column; align-items: flex-end;
+  }
+  .stats .basket-num{ order: 0; font-size: clamp(1.9rem, 8.2vw, 2.6rem); line-height: 1; }
+  .stats .label     { order: 1; font-size: .95rem;  margin-top: .25rem; }   /* PERFUMES */
+  .stats .basket-line{order: 2; font-size: 1.05rem; margin-top: .1rem;}     /* IN YOUR BASKET */
 
-      body.reading #bg-img{ opacity: 0 !important; }
-      body.reading #snake-canvas{ display: none !important; }
-      body.reading .text-flicker,
-      body.reading .switcher,
-      body.reading .countdown-box,
-      body.reading .stats{ display: none !important; }
-      body.reading #enter-btn{ display: none !important; }
+  /* Reading mode (after ENTER): text only + translucent dice behind */
+  body.reading #bg-img{ opacity: 0 !important; }           /* hide slideshow */
+  body.reading #snake-canvas{ display: none !important; }  /* no snake */
+  body.reading .text-flicker,
+  body.reading .switcher,
+  body.reading .countdown-box,
+  body.reading .stats{ display: none !important; }
+  body.reading #enter-btn{ display: none !important; }
 
-      body.reading .dice, body.reading .dice2{
-        opacity: .26;
-        z-index: 1;
-        filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
-        pointer-events: auto;
-      }
-      body.reading .content{ background: transparent !important; }
-      body.reading .dice, body.reading .dice2{
-        opacity: .34;
-        filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
-      }
+  body.reading .dice, body.reading .dice2{
+    opacity: .26;           /* transparent dice */
+    z-index: 1;             /* behind the text */
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    pointer-events: auto;   /* still playable */
+  }
+  
+  /* make the reading page transparent so dice show through */
+body.reading .content{
+  background: transparent !important;   /* ← this is the fix */
+}
 
-      .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }
-      .back-counter{ font-size: clamp(1.05rem, 4.8vw, 1.6rem); }
-      body.reading .back-counter{ display: block; }
-    }
+/* give the dice a touch more presence under the text */
+body.reading .dice,
+body.reading .dice2{
+  opacity: .34;                          /* was .26 — tweak as you like */
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+}
+
+
+  .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }     /* slightly smaller reading font */
+
+  /* “back to the counter” – only in reading, and bigger */
+  .back-counter{
+    font-size: clamp(1.05rem, 4.8vw, 1.6rem);
+  }
+  body.reading .back-counter{ display: block; }            /* show only in reading */
+}
+
+
+
+    
   </style>
 </head>
 <body>
@@ -519,11 +540,12 @@
   <div id="white-flash" class="white-flash"></div>
   
   <!-- Milestone overlay (big messages on color backgrounds) -->
-  <div id="milestone" class="milestone">
-    <div id="milestone-inner" class="inner ms-big"></div>
-  </div>
+<div id="milestone" class="milestone">
+  <div id="milestone-inner" class="inner ms-big"></div>
+</div>
 
   <button id="back-btn" class="back-counter">back to the counter</button>
+
 
   <!-- Center label -->
   <div class="switcher" id="switcher">
@@ -546,12 +568,15 @@
   <section class="content" id="reveal">
     <div class="text-block">
       <p><strong>ELSIE INC</strong> is a perfume salon.</p>
-      <p>We work on the <em>Playground for the Muddle of History</em> with angel investors, soft speculators, and practitioners of the <span style="
-        display: inline-block;
-        transform: scaleX(-1);
-        font-style: italic;
-      ">transcendental turn</span> <span style="display:inline-block; transform: scaleX(-1);">...</span></p>
-      <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
+<p>We work on the <em>Playground for the Muddle of History</em> with angel investors, soft speculators, and practitioners of the <span style="
+    display: inline-block;
+    transform: scaleX(-1);
+    font-style: italic;
+  ">
+    transcendental turn
+  </span>
+  <span style="display:inline-block; transform: scaleX(-1);">...</p>
+<p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
       <div id="join-badge" class="join-badge">JOIN</div>
     </div>
   </section>
@@ -569,24 +594,28 @@
     const switcher  = document.getElementById('switcher');
 
     enterBtn.addEventListener('click', () => {
-      // mobile-only reading mode
-      if (window.matchMedia('(max-width: 820px)').matches) {
-        document.body.classList.add('reading');
-      }
+  // mobile-only reading mode
+  if (window.matchMedia('(max-width: 820px)').matches) {
+    document.body.classList.add('reading');
+  }
 
-      title.style.opacity = '1';
-      enterBtn.style.display = 'none';
-      switcher.classList.add('is-hidden');
-      window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
-    });
+  // your existing behavior
+  title.style.animation = 'none';
+  title.style.opacity = '1';
+  enterBtn.style.display = 'none';
+  switcher.classList.add('is-hidden');
+  window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
+});
 
     const backBtn = document.getElementById('back-btn');
-    if (backBtn) {
-      backBtn.addEventListener('click', () => {
-        document.body.classList.remove('reading');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
+if (backBtn) {
+  backBtn.addEventListener('click', () => {
+    document.body.classList.remove('reading');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
@@ -597,46 +626,26 @@
       }
     });
 
-    /* ====== DVD-style bounce for PLANNED ECONOMY ====== */
-    const PE = switcher;
-    const ANTI = antiText;
-    let x = 120, y = 120;              // starting pos
-    let vx = 160, vy = 160;            // px/s → 45°
-    const margin = 8;
-    let last = performance.now();
-
-    function peSize(){ return PE.getBoundingClientRect(); }
-
-    function hitEdgeFlash(){
-      ANTI.className = 'anti-word visible-red';
-      PE.classList.add('edge-flash');
+    function complexFlickerAnti() {
+      antiText.className = 'anti-word visible-white';
       setTimeout(() => {
-        PE.classList.remove('edge-flash');
-        ANTI.className = 'anti-word';
-      }, 520);
+        antiText.className = 'anti-word';
+        setTimeout(() => {
+          antiText.className = 'anti-word visible-red';
+          setTimeout(() => {
+            antiText.className = 'anti-word';
+            setTimeout(() => {
+              antiText.className = 'anti-word visible-white';
+              setTimeout(() => { antiText.className = 'anti-word'; }, 200);
+            }, 200);
+          }, 120);
+        }, 120);
+      }, 120);
     }
-
-    function rafPE(t){
-      const dt = (t - last) / 1000;
-      last = t;
-
-      x += vx * dt; y += vy * dt;
-
-      const r = peSize();
-      const maxX = innerWidth  - r.width  - margin;
-      const maxY = innerHeight - r.height - margin;
-
-      let bounced = false;
-      if (x <= margin) { x = margin; vx = Math.abs(vx); bounced = true; }
-      if (x >= maxX)   { x = maxX;   vx = -Math.abs(vx); bounced = true; }
-      if (y <= margin) { y = margin; vy = Math.abs(vy); bounced = true; }
-      if (y >= maxY)   { y = maxY;   vy = -Math.abs(vy); bounced = true; }
-      if (bounced) hitEdgeFlash();
-
-      PE.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      requestAnimationFrame(rafPE);
-    }
-    requestAnimationFrame(rafPE);
+    (function loopAntiFlicker() {
+      const interval = Math.floor(Math.random() * 10000) + 5000;
+      setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
+    })();
 
     /* ---------- Slideshow (4s) ---------- */
     const BG = document.getElementById('bg-img');
@@ -679,12 +688,13 @@
     const countdownEl = document.getElementById('countdown');
     const joinBadge   = document.getElementById('join-badge');
 
-    let rollCount = 0;
-    let contentVisible = false;
+    
+let rollCount = 0;
+let contentVisible = false; // only show JOIN when text screen is visible
 
     function flashOnce(el){
       el.classList.remove('match-flash','match-bounce');
-      void el.offsetWidth;
+      void el.offsetWidth; // reflow
       el.classList.add('match-flash','match-bounce');
       setTimeout(() => el.classList.remove('match-flash','match-bounce'), 500);
     }
@@ -711,121 +721,113 @@
     setInterval(tickCountdown, 1000);
     setRandomCountdown();
 
-    /* ===== Title flicker synced to dice rolls ===== */
-    function flickerTitleStars(){
-      title.classList.remove('star-flick');
-      void title.offsetWidth;               // restart animation
-      title.classList.add('star-flick');
-      setTimeout(()=>title.classList.remove('star-flick'), 950);
-    }
-
-    function flashOverlay(val, showMs = 260){
-      const overlay = document.getElementById('combo-overlay');
-      const text = document.getElementById('combo-text');
-      return new Promise(resolve => {
-        text.textContent = `${val}   ${val}`;
-        overlay.classList.add('show');
-        setTimeout(() => {
-          const onEnd = (e) => {
-            if (e.propertyName === 'opacity') {
-              overlay.removeEventListener('transitionend', onEnd);
-              resolve();
-            }
-          };
-          overlay.addEventListener('transitionend', onEnd, { once:true });
-          overlay.classList.remove('show');
-        }, showMs);
-      });
-    }
-    function whiteFlash(ms = 70){
-      const wf = document.getElementById('white-flash');
-      if (!wf) return Promise.resolve();
-      return new Promise(resolve => {
-        wf.classList.add('show');
-        setTimeout(() => {
-          wf.classList.remove('show');
-          setTimeout(resolve, 80);
-        }, ms);
-      });
-    }
-
-    /* ===== MILESTONE MESSAGES ===== */
-    const milestoneEl = document.getElementById('milestone');
-    const milestoneInner = document.getElementById('milestone-inner');
-
-    const MILESTONES = {
-      5:  { bg:'#0d8f4a', text:'WAGMI',                         cls:'ms-huge',                 dur:1400 },
-      10: { bg:'#c40000', text:'ily\nsometimes',                cls:'ms-huge ms-lowercase',    dur:1500 },
-      15: { bg:'#000000', text:'WAGMI\nWAGMI\nWAGMI',           cls:'ms-huge',                 dur:1400 },
-      20: { bg:'#c40000', text:'its was all planned\nTHANK YOU FOR PLAYING', cls:'ms-big',    dur:1800 },
-      25: { bg:'#0d8f4a', text:`I'm thinking of art as an inversion of apocalypse, art as an inversion of revelation, art as obscuration of, not necessarily truth, maybe that's the thing, because Heidegger is talking about, what is his term that he is using, coming into being, what is his term, but he basically resorts to pre-socraticism, this process of revealing, revealing, yeah, he's talking about revealing via technology, and it's apocalyptic also, he's like also an apocalyptic thinker, Hegelian is also an apocalyptic thinker, but I'm thinking, yeah, like in some parts, art still needs this revelation, because there is things to reveal still, there are things to learn from, but art bubble definitely does not need any revelation, they need something else, but global, like a more globalized, like Normie, you know, Normies need revelation, art hosts don't need revelation, so there should be like a systematic overview of like strategic tasking for a contemporary artist, which is taking into consideration the complex, layered environments that, where some of them require apocalypse, and some of them don't.`,
-           cls:'ms-small', dur:6500 },
-      30: { bg:'#c40000', text:'They made all the roses transparent. Toss a coin! They put on soundcloud mysticism. They were imposing “DJ BERKLEY” upon us. Toss a coin! GO ON',
-           cls:'ms-medium', dur:3200 },
-      35: { bg:'#c40000', text:'GO ON',                        cls:'ms-huge',                 dur:1500 },
-      40: { bg:'#0d8f4a', text:'A LITTLE MORE',                cls:'ms-huge',                 dur:1500 },
-      50: { bg:'#c40000', text:'Redistribution of the..\nsensible-financial',
-           cls:'ms-big ms-italic',                              dur:2000 },
-      60: { bg:'#7a0000', text:'secret',                        cls:'ms-huge',                 dur:1600 },
-      70: { bg:'#000000', text:'sorry. forgive me. forgive me', cls:'ms-big ms-lowercase',     dur:2000 },
-    };
-
-    function showMilestone(n){
-      const ms = MILESTONES?.[n];
-      return new Promise(resolve => {
-        if (!ms) return resolve();
-        milestoneEl.style.background = ms.bg;
-        milestoneInner.className = 'inner ' + ms.cls;
-        milestoneInner.textContent = ms.text;
-        milestoneEl.classList.add('show');
-        setTimeout(() => {
-          milestoneEl.classList.remove('show');
+    
+function flashOverlay(val, showMs = 260){
+  const overlay = document.getElementById('combo-overlay');
+  const text = document.getElementById('combo-text');
+  return new Promise(resolve => {
+    text.textContent = `${val}   ${val}`;
+    overlay.classList.add('show');
+    setTimeout(() => {
+      const onEnd = (e) => {
+        if (e.propertyName === 'opacity') {
+          overlay.removeEventListener('transitionend', onEnd);
           resolve();
-        }, ms.dur || 1600);
-      });
-    }
-
-    async function onDouble(val){
-      basket += 1;
-      basketEl.textContent = String(basket);
-      flashOnce(basketEl);
-      flashOnce(countdownEl);
-      setRandomCountdown();
-
-      await flashOverlay(val, 260);
-      await whiteFlash(70);
-      await showMilestone(basket);
-
-      maybeShowJoin();
-    }
-
-    function pulseJoin(){
-      if (!contentVisible) return;
-      joinBadge.classList.add('show');
-      setTimeout(() => joinBadge.classList.remove('show'), 1000);
-    }
-
-    function maybeShowJoin(){           // ensure no ReferenceError
-      if (!contentVisible) return;
-      if (Math.random() < 0.35) pulseJoin();
-    }
-
-    function rollBothAndMaybeFlash(){
-      rollCount++;
-      rollDie(0, cube1);
-      setTimeout(() => {
-        rollDie(1, cube2);
-
-        // star flicker exactly when dice roll
-        flickerTitleStars();
-
-        if (faces[0] === faces[1]) {
-          const val = faces[0] + 1;
-          onDouble(val);
         }
-        if (rollCount % 2 === 0) pulseJoin();
-      }, 0);
+      };
+      overlay.addEventListener('transitionend', onEnd, { once:true });
+      overlay.classList.remove('show');   // start fade-out
+    }, showMs);
+  });
+}
+    function whiteFlash(ms = 70){
+  const wf = document.getElementById('white-flash');
+  if (!wf) return Promise.resolve();  // fail-safe
+  return new Promise(resolve => {
+    wf.classList.add('show');
+    setTimeout(() => {
+      wf.classList.remove('show');
+      setTimeout(resolve, 80); // let the CSS transition finish
+    }, ms);
+  });
+}
+
+
+
+    
+ /* ===== MILESTONE MESSAGES ===== */
+  const milestoneEl = document.getElementById('milestone');
+  const milestoneInner = document.getElementById('milestone-inner');
+
+  const MILESTONES = {
+    5:  { bg:'#0d8f4a', text:'WAGMI',                         cls:'ms-huge',                 dur:1400 },
+    10: { bg:'#c40000', text:'ily\nsometimes',                cls:'ms-huge ms-lowercase',    dur:1500 },
+    15: { bg:'#000000', text:'WAGMI\nWAGMI\nWAGMI',           cls:'ms-huge',                 dur:1400 },
+    20: { bg:'#c40000', text:'its was all planned\nTHANK YOU FOR PLAYING', cls:'ms-big',    dur:1800 },
+    25: { bg:'#0d8f4a', text:`I'm thinking of art as an inversion of apocalypse, art as an inversion of revelation, art as obscuration of, not necessarily truth, maybe that's the thing, because Heidegger is talking about, what is his term that he is using, coming into being, what is his term, but he basically resorts to pre-socraticism, this process of revealing, revealing, yeah, he's talking about revealing via technology, and it's apocalyptic also, he's like also an apocalyptic thinker, Hegelian is also an apocalyptic thinker, but I'm thinking, yeah, like in some parts, art still needs this revelation, because there is things to reveal still, there are things to learn from, but art bubble definitely does not need any revelation, they need something else, but global, like a more globalized, like Normie, you know, Normies need revelation, art hosts don't need revelation, so there should be like a systematic overview of like strategic tasking for a contemporary artist, which is taking into consideration the complex, layered environments that, where some of them require apocalypse, and some of them don't.`,
+         cls:'ms-small', dur:6500 },
+    30: { bg:'#c40000', text:'They made all the roses transparent. Toss a coin! They put on soundcloud mysticism. They were imposing “DJ BERKLEY” upon us. Toss a coin! GO ON',
+         cls:'ms-medium', dur:3200 },
+    35: { bg:'#c40000', text:'GO ON',                        cls:'ms-huge',                 dur:1500 },
+    40: { bg:'#0d8f4a', text:'A LITTLE MORE',                cls:'ms-huge',                 dur:1500 },
+    50: { bg:'#c40000', text:'Redistribution of the..\nsensible-financial',
+         cls:'ms-big ms-italic',                              dur:2000 },
+    60: { bg:'#7a0000', text:'secret',                        cls:'ms-huge',                 dur:1600 },
+    70: { bg:'#000000', text:'sorry. forgive me. forgive me', cls:'ms-big ms-lowercase',     dur:2000 },
+  };
+
+  function showMilestone(n){
+  const milestoneEl = document.getElementById('milestone');
+  const milestoneInner = document.getElementById('milestone-inner');
+  const ms = MILESTONES?.[n];     // your milestones map from earlier
+  return new Promise(resolve => {
+    if (!ms) return resolve();
+    milestoneEl.style.background = ms.bg;  // solid color (no alpha)
+    milestoneInner.className = 'inner ' + ms.cls;
+    milestoneInner.textContent = ms.text;
+    milestoneEl.classList.add('show');
+    setTimeout(() => {
+      milestoneEl.classList.remove('show');
+      resolve();
+    }, ms.dur || 1600);
+  });
+}
+async function onDouble(val){
+  // bump basket + tiny reactions (use your existing helpers/vars)
+  basket += 1;
+  basketEl.textContent = String(basket);
+  flashOnce(basketEl);
+  flashOnce(countdownEl);
+  setRandomCountdown();
+
+  // sequence: red pair -> white flash -> milestone
+  await flashOverlay(val, 260);
+  await whiteFlash(70);
+  await showMilestone(basket);
+
+  // optional: your join blip
+  maybeShowJoin();
+}
+
+function pulseJoin(){
+  if (!contentVisible) return;
+  joinBadge.classList.add('show');
+  setTimeout(() => joinBadge.classList.remove('show'), 1000);
+}
+    
+    function rollBothAndMaybeFlash(){
+  rollCount++;
+  rollDie(0, cube1);
+  setTimeout(() => {
+    rollDie(1, cube2);
+    if (faces[0] === faces[1]) {
+      const val = faces[0] + 1;
+      onDouble(val);
     }
+    if (rollCount % 2 === 0) pulseJoin();  // ← every second roll
+  }, 0);
+}
+
 
     // roll when image changes (every 4s)
     setInterval(() => {
@@ -833,14 +835,14 @@
       setTimeout(() => {
         BG.src = IMAGES[idx % IMAGES.length];
         idx++;
-        rollBothAndMaybeFlash();  // title twinkles in sync with roll
+        rollBothAndMaybeFlash();
         FX.style.opacity = '0';
       }, FLICK_MS);
     }, SHOW_MS);
 
     // clicking a die also rolls & makes snake gravitate
     document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', () => {
-      rollBothAndMaybeFlash();    // twinkle again on click
+      rollBothAndMaybeFlash();
       mode = 'grav'; gravStrength = 0;
     }));
 
