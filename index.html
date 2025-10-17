@@ -369,6 +369,38 @@
     }
     .join-badge.show{ opacity: 1; }
 
+    /* Desktop: position ELSIE + ENTER relative to the ring */
+@media (min-width: 821px){
+  :root{
+    /* will be updated live by JS */
+    --ring-cx: 50vw;
+    --ring-cy: 50vh;
+    --ring-r:  200px; /* fallback equals your desktop ring radius */
+  }
+
+  /* ELSIE above the circle */
+  #title{
+    position: fixed;
+    left: var(--ring-cx);
+    top:  calc(var(--ring-cy) - var(--ring-r) - 18px); /* nudge gap above ring */
+    transform: translate(-50%, -100%);
+    z-index: 11;               /* above ring (ring canvas is 9) */
+    pointer-events: none;      /* no accidental clicks */
+    margin: 0;                 /* override any grid margins */
+  }
+
+  /* ENTER in the exact center of the ring */
+  #enter-btn{
+    position: fixed !important;
+    left: var(--ring-cx);
+    top:  var(--ring-cy);
+    transform: translate(-50%, -50%);
+    z-index: 12;               /* above ring, under dice if they overlap */
+    margin: 0;                 /* remove the old margin-top from hero */
+  }
+}
+
+
     /* ===== PHONE REFINEMENTS ===== */
     @media (max-width: 820px){
 
@@ -936,6 +968,13 @@
         const fontPx = IS_MOBILE.matches
           ? Math.max(16, Math.round(r * 0.13))
           : DESKTOP_FONT_PX;
+
+        // expose ring geometry to CSS so we can place ELSIE + ENTER
+const rootStyle = document.documentElement.style;
+rootStyle.setProperty('--ring-cx', `${cx}px`);
+rootStyle.setProperty('--ring-cy', `${cy}px`);
+rootStyle.setProperty('--ring-r',  `${r}px`);
+
 
         const chars = buildChars(2*Math.PI*r, fontPx);
 
