@@ -198,26 +198,22 @@
       20%,60% { color: #ff3b3b; text-shadow: 0 0 18px rgba(255,0,0,.5), 0 0 28px rgba(255,0,0,.3); }
     }
 
-    
     /* RED pair overlay */
-.combo-overlay{
-  position: fixed; inset: 0;
-  background:#c40000;
-  display:flex; align-items:center; justify-content:center;
-  opacity:0;
-  visibility:hidden;                /* ← hide when not shown */
-  transition: opacity .08s linear,  /* fade */
-              visibility 0s linear .08s; /* hide after fade completes */
-  z-index:10000;
-  pointer-events:none;
-}
-.combo-overlay.show{
-  opacity:1;
-  visibility:visible;               /* ← show immediately */
-  transition: opacity .08s linear;  /* no visibility delay on show */
-}
-
-    
+    .combo-overlay{
+      position: fixed; inset: 0;
+      background:#c40000;
+      display:flex; align-items:center; justify-content:center;
+      opacity:0;
+      visibility:hidden;
+      transition: opacity .08s linear, visibility 0s linear .08s;
+      z-index:10000;
+      pointer-events:none;
+    }
+    .combo-overlay.show{
+      opacity:1;
+      visibility:visible;
+      transition: opacity .08s linear;
+    }
     .combo-overlay .big{
       font-family: Helvetica, Arial, sans-serif;
       font-weight: 900;
@@ -228,261 +224,256 @@
     }
 
     .white-flash{
-  position: fixed; inset: 0;
-  background:#fff;
-  opacity:0;
-  transition: opacity .06s linear;
-  z-index:10002;           /* above red pair and milestone */
-  pointer-events:none;
-}
-.white-flash.show{ opacity:1; }
+      position: fixed; inset: 0;
+      background:#fff;
+      opacity:0;
+      transition: opacity .06s linear;
+      z-index:10002;
+      pointer-events:none;
+    }
+    .white-flash.show{ opacity:1; }
 
     /* back to the counter (hidden by default) */
-.back-counter{
-  position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 10px);
-  left: 6vw;
-  z-index: 30;
-  display: none;
-  background: none; border: 0; padding: 0;
-  color:#fff;
-  font-family:'Cinzel', serif;
-  font-style: italic;
-  text-transform: lowercase;
-  letter-spacing:.02em;
-  cursor:pointer;
-  text-shadow: 0 0 8px rgba(255,255,255,.7), 0 0 20px rgba(255,255,255,.35);
-  animation: softFlicker 1.2s steps(2,end) infinite;
-}
-@keyframes softFlicker{
-  0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
-  20%,24%,55%{opacity:.55}
-}
-
-
+    .back-counter{
+      position: fixed;
+      top: calc(env(safe-area-inset-top, 0px) + 10px);
+      left: 6vw;
+      z-index: 30;
+      display: none;
+      background: none; border: 0; padding: 0;
+      color:#fff;
+      font-family:'Cinzel', serif;
+      font-style: italic;
+      text-transform: lowercase;
+      letter-spacing:.02em;
+      cursor:pointer;
+      text-shadow: 0 0 8px rgba(255,255,255,.7), 0 0 20px rgba(255,255,255,.35);
+      animation: softFlicker 1.2s steps(2,end) infinite;
+    }
+    @keyframes softFlicker{
+      0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
+      20%,24%,55%{opacity:.55}
+    }
 
     /* ===== MILESTONES ===== */
-.milestone{
-  position:fixed; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  background:#0aa84f;      /* ← solid (no alpha) for green variants */
-  opacity:0; visibility:hidden;
-  transition:opacity .14s ease;
-  z-index:10001;           /* above red pair */
-  pointer-events:none;
-  isolation:isolate;       /* avoid blending with layers below */
-  mix-blend-mode:normal;   /* ensure normal compositing */
-}
-.milestone.show{ opacity:1; visibility:visible; }
+    .milestone{
+      position:fixed; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      background:#0aa84f;
+      opacity:0; visibility:hidden;
+      transition:opacity .14s ease;
+      z-index:10001;
+      pointer-events:none;
+      isolation:isolate;
+      mix-blend-mode:normal;
+    }
+    .milestone.show{ opacity:1; visibility:visible; }
 
-
-.milestone .inner{
-  text-align: center;
-  color: #fff;
-  line-height: 1.1;
-  white-space: pre-line;                 /* honor \n in text */
-  font-family: Helvetica, Arial, sans-serif;
-  text-transform: none;
-  text-shadow: 0 0 18px rgba(255,255,255,.25);
-  padding: 4vmin 6vmin;
-}
+    .milestone .inner{
+      text-align: center;
+      color: #fff;
+      line-height: 1.1;
+      white-space: pre-line;
+      font-family: Helvetica, Arial, sans-serif;
+      text-transform: none;
+      text-shadow: 0 0 18px rgba(255,255,255,.25);
+      padding: 4vmin 6vmin;
+    }
     .milestone.red   { background:#d30000; }
-.milestone.green { background:#0aa84f; }
-.milestone.black { background:#000000; }
+    .milestone.green { background:#0aa84f; }
+    .milestone.black { background:#000000; }
 
-/* size presets */
-.ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
-.ms-big    { font-weight: 900; font-size: clamp(2.6rem, 10vw, 10rem); }
-.ms-medium { font-weight: 800; font-size: clamp(1.4rem, 4vw, 3rem); }
-.ms-small  { font-weight: 600; font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.35; }
+    /* size presets */
+    .ms-huge   { font-weight: 900; font-size: clamp(3.4rem, 12vw, 12rem); }
+    .ms-big    { font-weight: 900; font-size: clamp(2.6rem, 10vw, 10rem); }
+    .ms-medium { font-weight: 800; font-size: clamp(1.4rem, 4vw, 3rem); }
+    .ms-small  { font-weight: 600; font-size: clamp(0.95rem, 2.2vw, 1.3rem); line-height: 1.35; }
 
-/* modifiers */
-.ms-italic    { font-style: italic; }
-.ms-lowercase { text-transform: lowercase; }
+    /* modifiers */
+    .ms-italic    { font-style: italic; }
+    .ms-lowercase { text-transform: lowercase; }
 
-
-    /* Label (center) */
+    /* ====== SWITCHER (PLANNED ECONOMY) ====== */
     .switcher {
-      position: fixed;
-      top: calc(var(--band) + 1.0rem);
-      left: 50%;
-      transform: translateX(-50%);
+      /* CHANGED: let JS position it freely for DVD bounce */
+      position: fixed;                 /* NEW / CHANGED */
+      left: 120px; top: 120px;         /* NEW / CHANGED starting pos */
       font-family: Helvetica, Arial, sans-serif;
       font-weight: 800;
       font-size: 2.3rem;
       z-index: 10;
       display: flex; gap: 1rem;
       text-align: left;
+      pointer-events: none;            /* keep clicks free */
+      will-change: transform;          /* smoother RAF updates */
       transition: opacity .25s ease;
-      pointer-events: none;
     }
     .switcher.is-hidden { opacity: 0; }
     .planned-word { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.05; }
-    .anti-word { visibility: hidden; font-size: 3.2rem; opacity: 0; color: white; transition: opacity .3s, color .3s; }
+    .anti-word { visibility: hidden; font-size: 3.2rem; opacity: 0; color: white; transition: opacity .2s, color .2s; }
     .anti-word.visible-white { visibility: visible; opacity: 1; color: white; }
     .anti-word.visible-red   { visibility: visible; opacity: 1; color: red; }
+
+    /* Edge flicker on the “PLANNED ECONOMY” when bouncing */
+    .switcher.edge-flash .planned-word{               /* NEW */
+      animation: edgeFlicker 0.42s steps(1,end) 3;
+    }
+    @keyframes edgeFlicker{                           /* NEW */
+      0%,24%,48%,72%,100% { color:#ffffff; text-shadow:none; }
+      12%,36%,60%,84%     { color:#ff2b2b; text-shadow:0 0 12px rgba(255,0,0,.65); }
+    }
 
     /* Hero + content */
     .hero { min-height: calc(100vh - var(--band)); display: grid; place-items: center; position: relative; z-index: 3; }
     .hero-inner { display: grid; place-items: center; }
-    .text-flicker { font-family: 'Cormorant Garamond', serif; font-size: 5rem; text-align: center; animation: flicker 1s infinite; text-shadow: 0 0 10px white, 0 0 20px white; }
-    @keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:.4} }
+
+    /* CHANGED: title uses star flicker class only when JS adds it on dice roll */
+    .text-flicker {                                     /* CHANGED */
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem;
+      text-align: center;
+      text-shadow: 0 0 8px rgba(255,255,255,0.5), 0 0 18px rgba(255,255,255,0.25);
+    }
+    .star-flick {                                       /* NEW: applied temporarily by JS on rolls */
+      animation: flickerStars 0.9s steps(1,end);
+    }
+    @keyframes flickerStars{                             /* NEW: irregular twinkle */
+      0%,7%,11%,19%,23%,31%,49%,61%,73%,100% { opacity:1; text-shadow:0 0 8px rgba(255,255,255,.6), 0 0 20px rgba(255,255,255,.4); }
+      8%,20%,50%,62%                                   { opacity:.55; text-shadow:0 0 4px rgba(255,255,255,.25); }
+      12%,33%,70%                                      { opacity:.2;  text-shadow:none; }
+    }
+
     #enter-btn { margin-top: 2rem; font: inherit; font-size: 1.2rem; background: none; color: #fff; border: 1px solid #fff; padding: .5rem 1.5rem; cursor: pointer; }
     #enter-btn:hover { background: #fff; color: #000; }
 
     .content { font-size: 1.7rem; min-height: 100vh; display: flex; justify-content: center; align-items: center; z-index: 2; position: relative; opacity: 0; transform: translateY(50px); transition: all 1.2s ease; padding: 0 10vw; text-align: left; background: #000; }
     .content.visible { opacity: 1; transform: translateY(0); }
-    /* replace your current rules with these */
-.text-block {
-  position: relative;          /* ← add this */
-  max-width: 640px;
-  margin: 0 auto;
-}
 
-.text-block p {
-  margin: 0 0 1rem 0;
-  line-height: 1.5;
-}
+    .text-block {
+      position: relative;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .text-block p { margin: 0 0 1rem 0; line-height: 1.5; }
 
-
-    /* JOIN badge under text section (appears briefly on doubles, random) */
+    /* JOIN badge */
     .join-badge{
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: calc(100% + 1rem);  /* 1rem below the end of .text-block */
-  padding: .3rem 1.2rem;
-  border: 1px solid #fff;
-  font-family: 'Cinzel', serif;
-  letter-spacing: .08em;
-  opacity: 0;
-  transition: opacity .18s ease;
-  pointer-events: none;
-}
-.join-badge.show{ opacity: 1; }
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: calc(100% + 1rem);
+      padding: .3rem 1.2rem;
+      border: 1px solid #fff;
+      font-family: 'Cinzel', serif;
+      letter-spacing: .08em;
+      opacity: 0;
+      transition: opacity .18s ease;
+      pointer-events: none;
+    }
+    .join-badge.show{ opacity: 1; }
 
-   
-/* ===== PHONE REFINEMENTS (final pass) ===== */
-@media (max-width: 820px){
+    /* ===== PHONE REFINEMENTS ===== */
+    @media (max-width: 820px){
 
-  /* Title: one line, a bit lower & bigger */
-  .text-flicker{
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 4.2rem);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 92vw;
-    text-align: center;
-    font-size: clamp(3.2rem, 12vw, 4.6rem);
-    line-height: 1;
-    white-space: nowrap;
-    z-index: 9;
-  }
+      .text-flicker{
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0) + 4.2rem);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92vw;
+        text-align: center;
+        font-size: clamp(3.2rem, 12vw, 4.6rem);
+        line-height: 1;
+        white-space: nowrap;
+        z-index: 9;
+      }
 
-  /* ANTI- PLANNED ECONOMY as one sentence, aligned */
-  .switcher{
-    position: fixed;
-    top: calc(env(safe-area-inset-top, 0) + 7.8rem);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 92vw;
-    text-align: center;
-    font-size: clamp(1.15rem, 5.8vw, 1.9rem);
-    white-space: nowrap;
-    gap: 0;
-    z-index: 9;
-  }
-  .switcher .anti-word{
-    font-size: inherit;
-    margin-right: .1rem;          /* hugs the dash */
-    position: relative;
-    top: -0.06em;                  /* tiny lift to align baseline */
-  }
-  .planned-word{ flex-direction: row; gap: .45rem; }
-  .planned-word .line{ display:inline-block; }
+      /* keep the switcher legible on mobile; DVD motion is desktop */
+      .switcher{                                       /* CHANGED for mobile */
+        position: fixed;
+        top: calc(env(safe-area-inset-top, 0) + 7.8rem);
+        left: 50%;
+        transform: translateX(-50%);
+        width: 92vw;
+        text-align: center;
+        font-size: clamp(1.15rem, 5.8vw, 1.9rem);
+        white-space: nowrap;
+        gap: 0;
+        z-index: 9;
+      }
+      .switcher .anti-word{
+        font-size: inherit;
+        margin-right: .1rem;
+        position: relative;
+        top: -0.06em;
+      }
+      .planned-word{ flex-direction: row; gap: .45rem; }
+      .planned-word .line{ display:inline-block; }
 
-  /* Dice: smaller, higher, centered with diagonal */
-  :root{ --dice: 76px; }
-  .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
-  .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); }
-  .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); }
+      :root{ --dice: 76px; }
+      .dice, .dice2{ left: 50%; transform: translateX(-50%); z-index: 12; }
+      .dice  { top: 36vh; margin-left: calc(-0.70 * var(--dice)); }
+      .dice2 { top: 44vh; margin-left: calc( 0.50 * var(--dice)); }
 
-  /* ENTER: fixed and around the end of the picture */
-  #enter-btn{
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    top: 58vh;                     /* tweak 70–78vh if needed */
-    z-index: 15;
-    pointer-events: auto;
-  }
+      #enter-btn{
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 58vh;
+        z-index: 15;
+        pointer-events: auto;
+      }
 
-  /* Bottom row: countdown (left) and basket number (right) aligned */
-  .countdown-box{
-    position: fixed; left: 5vw; right: auto;
-    bottom: 8.6vh; top: auto; transform: none; text-align: left;
-  }
-  .countdown-box .digits{
-    font-size: clamp(1.9rem, 8.2vw, 2.6rem);
-    line-height: 1;
-    font-variant-numeric: tabular-nums lining-nums;
-    -moz-font-feature-settings: "tnum" 1, "lnum" 1;
-    -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
-    font-feature-settings: "tnum" 1, "lnum" 1;
-    transform: translateY(0.06em);
-  }
+      .countdown-box{
+        position: fixed; left: 5vw; right: auto;
+        bottom: 8.6vh; top: auto; transform: none; text-align: left;
+      }
+      .countdown-box .digits{
+        font-size: clamp(1.9rem, 8.2vw, 2.6rem);
+        line-height: 1;
+        font-variant-numeric: tabular-nums lining-nums;
+        -moz-font-feature-settings: "tnum" 1, "lnum" 1;
+        -webkit-font-feature-settings: "tnum" 1, "lnum" 1;
+        font-feature-settings: "tnum" 1, "lnum" 1;
+        transform: translateY(0.06em);
+      }
 
-  /* Basket: (number) then “PERFUMES” then “IN YOUR BASKET” */
-  .stats{
-    position: fixed; right: 5vw; left: auto;
-    bottom: 8.6vh; top: auto; text-align: right;
-    display: flex; flex-direction: column; align-items: flex-end;
-  }
-  .stats .basket-num{ order: 0; font-size: clamp(1.9rem, 8.2vw, 2.6rem); line-height: 1; }
-  .stats .label     { order: 1; font-size: .95rem;  margin-top: .25rem; }   /* PERFUMES */
-  .stats .basket-line{order: 2; font-size: 1.05rem; margin-top: .1rem;}     /* IN YOUR BASKET */
+      .stats{
+        position: fixed; right: 5vw; left: auto;
+        bottom: 8.6vh; top: auto; text-align: right;
+        display: flex; flex-direction: column; align-items: flex-end;
+      }
+      .stats .basket-num{ order: 0; font-size: clamp(1.9rem, 8.2vw, 2.6rem); line-height: 1; }
+      .stats .label     { order: 1; font-size: .95rem;  margin-top: .25rem; }
+      .stats .basket-line{order: 2; font-size: 1.05rem; margin-top: .1rem;}
 
-  /* Reading mode (after ENTER): text only + translucent dice behind */
-  body.reading #bg-img{ opacity: 0 !important; }           /* hide slideshow */
-  body.reading #snake-canvas{ display: none !important; }  /* no snake */
-  body.reading .text-flicker,
-  body.reading .switcher,
-  body.reading .countdown-box,
-  body.reading .stats{ display: none !important; }
-  body.reading #enter-btn{ display: none !important; }
+      body.reading #bg-img{ opacity: 0 !important; }
+      body.reading #snake-canvas{ display: none !important; }
+      body.reading .text-flicker,
+      body.reading .switcher,
+      body.reading .countdown-box,
+      body.reading .stats{ display: none !important; }
+      body.reading #enter-btn{ display: none !important; }
 
-  body.reading .dice, body.reading .dice2{
-    opacity: .26;           /* transparent dice */
-    z-index: 1;             /* behind the text */
-    filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
-    pointer-events: auto;   /* still playable */
-  }
-  
-  /* make the reading page transparent so dice show through */
-body.reading .content{
-  background: transparent !important;   /* ← this is the fix */
-}
+      body.reading .dice, body.reading .dice2{
+        opacity: .26;
+        z-index: 1;
+        filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+        pointer-events: auto;
+      }
 
-/* give the dice a touch more presence under the text */
-body.reading .dice,
-body.reading .dice2{
-  opacity: .34;                          /* was .26 — tweak as you like */
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
-}
+      body.reading .content{ background: transparent !important; }
 
+      body.reading .dice, body.reading .dice2{
+        opacity: .34;
+        filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+      }
 
-  .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }     /* slightly smaller reading font */
+      .content{ font-size: clamp(1.2rem, 5.4vw, 1.5rem); }
 
-  /* “back to the counter” – only in reading, and bigger */
-  .back-counter{
-    font-size: clamp(1.05rem, 4.8vw, 1.6rem);
-  }
-  body.reading .back-counter{ display: block; }            /* show only in reading */
-}
-
-
-
-    
+      .back-counter{ font-size: clamp(1.05rem, 4.8vw, 1.6rem); }
+      body.reading .back-counter{ display: block; }
+    }
   </style>
 </head>
 <body>
@@ -540,12 +531,11 @@ body.reading .dice2{
   <div id="white-flash" class="white-flash"></div>
   
   <!-- Milestone overlay (big messages on color backgrounds) -->
-<div id="milestone" class="milestone">
-  <div id="milestone-inner" class="inner ms-big"></div>
-</div>
+  <div id="milestone" class="milestone">
+    <div id="milestone-inner" class="inner ms-big"></div>
+  </div>
 
   <button id="back-btn" class="back-counter">back to the counter</button>
-
 
   <!-- Center label -->
   <div class="switcher" id="switcher">
@@ -568,15 +558,12 @@ body.reading .dice2{
   <section class="content" id="reveal">
     <div class="text-block">
       <p><strong>ELSIE INC</strong> is a perfume salon.</p>
-<p>We work on the <em>Playground for the Muddle of History</em> with angel investors, soft speculators, and practitioners of the <span style="
-    display: inline-block;
-    transform: scaleX(-1);
-    font-style: italic;
-  ">
-    transcendental turn
-  </span>
-  <span style="display:inline-block; transform: scaleX(-1);">...</p>
-<p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
+      <p>We work on the <em>Playground for the Muddle of History</em> with angel investors, soft speculators, and practitioners of the <span style="
+        display: inline-block;
+        transform: scaleX(-1);
+        font-style: italic;
+      ">transcendental turn</span> <span style="display:inline-block; transform: scaleX(-1);">...</span></p>
+      <p>Our primary goal is consensual abductive teamwork. Here, we are teaching a course on hyperadaptive identities.</p>
       <div id="join-badge" class="join-badge">JOIN</div>
     </div>
   </section>
@@ -594,28 +581,25 @@ body.reading .dice2{
     const switcher  = document.getElementById('switcher');
 
     enterBtn.addEventListener('click', () => {
-  // mobile-only reading mode
-  if (window.matchMedia('(max-width: 820px)').matches) {
-    document.body.classList.add('reading');
-  }
+      // mobile-only reading mode
+      if (window.matchMedia('(max-width: 820px)').matches) {
+        document.body.classList.add('reading');
+      }
 
-  // your existing behavior
-  title.style.animation = 'none';
-  title.style.opacity = '1';
-  enterBtn.style.display = 'none';
-  switcher.classList.add('is-hidden');
-  window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
-});
+      // your existing behavior
+      title.style.opacity = '1';
+      enterBtn.style.display = 'none';
+      switcher.classList.add('is-hidden');
+      window.scrollTo({ top: reveal.offsetTop, behavior: 'smooth' });
+    });
 
     const backBtn = document.getElementById('back-btn');
-if (backBtn) {
-  backBtn.addEventListener('click', () => {
-    document.body.classList.remove('reading');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-}
-
-
+    if (backBtn) {
+      backBtn.addEventListener('click', () => {
+        document.body.classList.remove('reading');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
 
     window.addEventListener('scroll', () => {
       const rect = reveal.getBoundingClientRect();
@@ -626,26 +610,49 @@ if (backBtn) {
       }
     });
 
-    function complexFlickerAnti() {
-      antiText.className = 'anti-word visible-white';
+    /* ====== DVD-style bounce for PLANNED ECONOMY (desktop) ====== */
+    const PE = switcher;                   /* NEW */
+    const ANTI = antiText;                 /* NEW */
+    let x = 120, y = 120;                  /* NEW */
+    let vx = 160, vy = 160;                /* px/s -> 45° */ /* NEW */
+    const margin = 8;                      /* NEW */
+    let last = performance.now();          /* NEW */
+
+    function peSize(){ return PE.getBoundingClientRect(); } /* NEW */
+
+    function hitEdgeFlash(){               /* NEW */
+      ANTI.className = 'anti-word visible-red';
+      PE.classList.add('edge-flash');
       setTimeout(() => {
-        antiText.className = 'anti-word';
-        setTimeout(() => {
-          antiText.className = 'anti-word visible-red';
-          setTimeout(() => {
-            antiText.className = 'anti-word';
-            setTimeout(() => {
-              antiText.className = 'anti-word visible-white';
-              setTimeout(() => { antiText.className = 'anti-word'; }, 200);
-            }, 200);
-          }, 120);
-        }, 120);
-      }, 120);
+        PE.classList.remove('edge-flash');
+        ANTI.className = 'anti-word';
+      }, 520);
     }
-    (function loopAntiFlicker() {
-      const interval = Math.floor(Math.random() * 10000) + 5000;
-      setTimeout(() => { complexFlickerAnti(); loopAntiFlicker(); }, interval);
-    })();
+
+    function rafPE(t){                     /* NEW */
+      if (window.matchMedia('(max-width: 820px)').matches) return;  // desktop only
+      const dt = (t - last) / 1000;
+      last = t;
+
+      x += vx * dt; y += vy * dt;
+
+      const r = peSize();
+      const maxX = innerWidth  - r.width  - margin;
+      const maxY = innerHeight - r.height - margin;
+
+      let bounced = false;
+      if (x <= margin) { x = margin; vx = Math.abs(vx); bounced = true; }
+      if (x >= maxX)   { x = maxX;   vx = -Math.abs(vx); bounced = true; }
+      if (y <= margin) { y = margin; vy = Math.abs(vy); bounced = true; }
+      if (y >= maxY)   { y = maxY;   vy = -Math.abs(vy); bounced = true; }
+      if (bounced) hitEdgeFlash();
+
+      PE.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      requestAnimationFrame(rafPE);
+    }
+    if (!window.matchMedia('(max-width: 820px)').matches) {
+      requestAnimationFrame(rafPE);
+    }
 
     /* ---------- Slideshow (4s) ---------- */
     const BG = document.getElementById('bg-img');
@@ -664,327 +671,4 @@ if (backBtn) {
 
     /* ---------- Dice ---------- */
     const cube1 = document.getElementById('cube1');
-    const cube2 = document.getElementById('cube2');
-
-    const POSES = [
-      'rotateX(0deg) rotateY(0deg)',       // 1
-      'rotateX(0deg) rotateY(180deg)',     // 2
-      'rotateX(0deg) rotateY(-90deg)',     // 3
-      'rotateX(0deg) rotateY(90deg)',      // 4
-      'rotateX(-90deg) rotateY(0deg)',     // 5
-      'rotateX(90deg) rotateY(0deg)'       // 6
-    ];
-
-    let faces = [0, 0];
-    function setFace(c, idx){ c.style.transform = POSES[idx]; }
-    function rollDie(i, c){
-      let n; do { n = (Math.random() * 6) | 0; } while (n === faces[i]);
-      faces[i] = n; setFace(c, n);
-    }
-    setFace(cube1, faces[0]); setFace(cube2, faces[1]);
-
-    /* ---------- Stats (basket + countdown) ---------- */
-    const basketEl    = document.getElementById('basket-num');
-    const countdownEl = document.getElementById('countdown');
-    const joinBadge   = document.getElementById('join-badge');
-
-    
-let rollCount = 0;
-let contentVisible = false; // only show JOIN when text screen is visible
-
-    function flashOnce(el){
-      el.classList.remove('match-flash','match-bounce');
-      void el.offsetWidth; // reflow
-      el.classList.add('match-flash','match-bounce');
-      setTimeout(() => el.classList.remove('match-flash','match-bounce'), 500);
-    }
-
-    let basket = 0;
-    let cdTarget = new Date(Date.now() + 3600 * 1000);
-
-    function setRandomCountdown(){
-      const hrs = Math.floor(Math.random()*7) + 1;     // 1..7 hours
-      const mins = Math.floor(Math.random()*60);
-      const secs = Math.floor(Math.random()*50)+10;    // 10..59
-      cdTarget = new Date(Date.now() + (hrs*3600 + mins*60 + secs)*1000);
-      countdownEl.textContent = [hrs,mins,secs].map(v=>String(v).padStart(2,'0')).join(':');
-    }
-    function tickCountdown(){
-      const now = new Date();
-      let diff = Math.max(0, Math.floor((cdTarget - now)/1000));
-      const h = String(Math.floor(diff/3600)).padStart(2,'0');
-      diff %= 3600;
-      const m = String(Math.floor(diff/60)).padStart(2,'0');
-      const s = String(diff%60).padStart(2,'0');
-      countdownEl.textContent = `${h}:${m}:${s}`;
-    }
-    setInterval(tickCountdown, 1000);
-    setRandomCountdown();
-
-    
-function flashOverlay(val, showMs = 260){
-  const overlay = document.getElementById('combo-overlay');
-  const text = document.getElementById('combo-text');
-  return new Promise(resolve => {
-    text.textContent = `${val}   ${val}`;
-    overlay.classList.add('show');
-    setTimeout(() => {
-      const onEnd = (e) => {
-        if (e.propertyName === 'opacity') {
-          overlay.removeEventListener('transitionend', onEnd);
-          resolve();
-        }
-      };
-      overlay.addEventListener('transitionend', onEnd, { once:true });
-      overlay.classList.remove('show');   // start fade-out
-    }, showMs);
-  });
-}
-    function whiteFlash(ms = 70){
-  const wf = document.getElementById('white-flash');
-  if (!wf) return Promise.resolve();  // fail-safe
-  return new Promise(resolve => {
-    wf.classList.add('show');
-    setTimeout(() => {
-      wf.classList.remove('show');
-      setTimeout(resolve, 80); // let the CSS transition finish
-    }, ms);
-  });
-}
-
-
-
-    
- /* ===== MILESTONE MESSAGES ===== */
-  const milestoneEl = document.getElementById('milestone');
-  const milestoneInner = document.getElementById('milestone-inner');
-
-  const MILESTONES = {
-    5:  { bg:'#0d8f4a', text:'WAGMI',                         cls:'ms-huge',                 dur:1400 },
-    10: { bg:'#c40000', text:'ily\nsometimes',                cls:'ms-huge ms-lowercase',    dur:1500 },
-    15: { bg:'#000000', text:'WAGMI\nWAGMI\nWAGMI',           cls:'ms-huge',                 dur:1400 },
-    20: { bg:'#c40000', text:'its was all planned\nTHANK YOU FOR PLAYING', cls:'ms-big',    dur:1800 },
-    25: { bg:'#0d8f4a', text:`I'm thinking of art as an inversion of apocalypse, art as an inversion of revelation, art as obscuration of, not necessarily truth, maybe that's the thing, because Heidegger is talking about, what is his term that he is using, coming into being, what is his term, but he basically resorts to pre-socraticism, this process of revealing, revealing, yeah, he's talking about revealing via technology, and it's apocalyptic also, he's like also an apocalyptic thinker, Hegelian is also an apocalyptic thinker, but I'm thinking, yeah, like in some parts, art still needs this revelation, because there is things to reveal still, there are things to learn from, but art bubble definitely does not need any revelation, they need something else, but global, like a more globalized, like Normie, you know, Normies need revelation, art hosts don't need revelation, so there should be like a systematic overview of like strategic tasking for a contemporary artist, which is taking into consideration the complex, layered environments that, where some of them require apocalypse, and some of them don't.`,
-         cls:'ms-small', dur:6500 },
-    30: { bg:'#c40000', text:'They made all the roses transparent. Toss a coin! They put on soundcloud mysticism. They were imposing “DJ BERKLEY” upon us. Toss a coin! GO ON',
-         cls:'ms-medium', dur:3200 },
-    35: { bg:'#c40000', text:'GO ON',                        cls:'ms-huge',                 dur:1500 },
-    40: { bg:'#0d8f4a', text:'A LITTLE MORE',                cls:'ms-huge',                 dur:1500 },
-    50: { bg:'#c40000', text:'Redistribution of the..\nsensible-financial',
-         cls:'ms-big ms-italic',                              dur:2000 },
-    60: { bg:'#7a0000', text:'secret',                        cls:'ms-huge',                 dur:1600 },
-    70: { bg:'#000000', text:'sorry. forgive me. forgive me', cls:'ms-big ms-lowercase',     dur:2000 },
-  };
-
-  function showMilestone(n){
-  const milestoneEl = document.getElementById('milestone');
-  const milestoneInner = document.getElementById('milestone-inner');
-  const ms = MILESTONES?.[n];     // your milestones map from earlier
-  return new Promise(resolve => {
-    if (!ms) return resolve();
-    milestoneEl.style.background = ms.bg;  // solid color (no alpha)
-    milestoneInner.className = 'inner ' + ms.cls;
-    milestoneInner.textContent = ms.text;
-    milestoneEl.classList.add('show');
-    setTimeout(() => {
-      milestoneEl.classList.remove('show');
-      resolve();
-    }, ms.dur || 1600);
-  });
-}
-async function onDouble(val){
-  // bump basket + tiny reactions (use your existing helpers/vars)
-  basket += 1;
-  basketEl.textContent = String(basket);
-  flashOnce(basketEl);
-  flashOnce(countdownEl);
-  setRandomCountdown();
-
-  // sequence: red pair -> white flash -> milestone
-  await flashOverlay(val, 260);
-  await whiteFlash(70);
-  await showMilestone(basket);
-
-  // optional: your join blip
-  maybeShowJoin();
-}
-
-function pulseJoin(){
-  if (!contentVisible) return;
-  joinBadge.classList.add('show');
-  setTimeout(() => joinBadge.classList.remove('show'), 1000);
-}
-    
-    function rollBothAndMaybeFlash(){
-  rollCount++;
-  rollDie(0, cube1);
-  setTimeout(() => {
-    rollDie(1, cube2);
-    if (faces[0] === faces[1]) {
-      const val = faces[0] + 1;
-      onDouble(val);
-    }
-    if (rollCount % 2 === 0) pulseJoin();  // ← every second roll
-  }, 0);
-}
-
-
-    // roll when image changes (every 4s)
-    setInterval(() => {
-      FX.style.opacity = '1';
-      setTimeout(() => {
-        BG.src = IMAGES[idx % IMAGES.length];
-        idx++;
-        rollBothAndMaybeFlash();
-        FX.style.opacity = '0';
-      }, FLICK_MS);
-    }, SHOW_MS);
-
-    // clicking a die also rolls & makes snake gravitate
-    document.querySelectorAll('.cube').forEach(c => c.addEventListener('click', () => {
-      rollBothAndMaybeFlash();
-      mode = 'grav'; gravStrength = 0;
-    }));
-
-    /* ===================== SNAKE ===================== */
-    const cvs = document.getElementById('snake-canvas');
-    const ctx = cvs.getContext('2d');
-
-    function resizeCanvas() {
-      cvs.width  = window.innerWidth;
-      cvs.height = window.innerHeight;
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      computeFrame();
-    }
-    window.addEventListener('resize', resizeCanvas);
-    BG.addEventListener('load', computeFrame);
-    resizeCanvas();
-
-    const TILE  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--px'), 10);
-    const TAIL  = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--trail-steps'), 10);
-    const MARGIN_FRAME = TILE * 2.2;
-
-    let frame = { left: 80, top: 80, right: window.innerWidth-80, bottom: window.innerHeight-80 };
-    function snap(v){ return Math.round(v / TILE) * TILE; }
-    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
-    function computeFrame(){
-      const r = BG.getBoundingClientRect();
-      let L = r.left   - MARGIN_FRAME;
-      let T = r.top    - MARGIN_FRAME;
-      let R = r.right  + MARGIN_FRAME;
-      let B = r.bottom + MARGIN_FRAME;
-
-      const tooSmall = (R - L) < TILE*12 || (B - T) < TILE*12 || !isFinite(L);
-      if (tooSmall) {
-        const vw = innerWidth, vh = innerHeight;
-        const s  = Math.round(0.70 * Math.min(vw, vh));
-        const L0 = Math.round((vw - s) / 2);
-        const T0 = Math.round((vh - s) / 2);
-        L = L0 - MARGIN_FRAME; T = T0 - MARGIN_FRAME; R = L0 + s + MARGIN_FRAME; B = T0 + s + MARGIN_FRAME;
-      }
-
-      frame.left   = snap(clamp(L, 8, innerWidth  - 8));
-      frame.top    = snap(clamp(T, 8, innerHeight - 8));
-      frame.right  = snap(clamp(R, frame.left+TILE*4, innerWidth  - 8));
-      frame.bottom = snap(clamp(B, frame.top +TILE*4, innerHeight - 8));
-
-      if (mode === 'rect') {
-        head.x = frame.left;
-        head.y = frame.top;
-        dir = { x: TILE, y: 0 };
-        rectEdge = 0;
-      }
-    }
-
-    // snake state
-    let head = { x: frame.left, y: frame.top };
-    let dir  = { x: TILE, y: 0 };
-    let trail = [];
-    let lastStep = 0;
-
-    let mode = 'rect';           // 'rect' perimeter -> 'grav' (after click)
-    let rectEdge = 0;            // 0 top, 1 right, 2 bottom, 3 left
-    const RECT_STEP_MS = 56;     // perimeter speed
-    const GRAV_STEP_MS = 74;     // gravitate speed
-    let gravStrength = 0;
-    let target = { x: innerWidth/2, y: innerHeight/2 };
-    window.addEventListener('mousemove', e => { target.x = e.clientX; target.y = e.clientY; }, { passive: true });
-
-    function step(now){
-      requestAnimationFrame(step);
-      const ms = (mode === 'rect') ? RECT_STEP_MS : GRAV_STEP_MS;
-      if (now - lastStep < ms) return;
-      lastStep = now;
-
-      if (mode === 'rect') {
-        let nx = head.x + dir.x, ny = head.y + dir.y;
-        if (rectEdge === 0 && nx >= frame.right)      { nx = frame.right;  dir = {x:0, y:TILE};   rectEdge = 1; }
-        else if (rectEdge === 1 && ny >= frame.bottom){ ny = frame.bottom; dir = {x:-TILE, y:0}; rectEdge = 2; }
-        else if (rectEdge === 2 && nx <= frame.left)  { nx = frame.left;   dir = {x:0, y:-TILE};  rectEdge = 3; }
-        else if (rectEdge === 3 && ny <= frame.top)   { ny = frame.top;    dir = {x:TILE, y:0};   rectEdge = 0; }
-        head = { x: nx, y: ny };
-      } else {
-        gravStrength = Math.min(1, gravStrength + 0.06);
-        const dx = target.x - head.x, dy = target.y - head.y;
-        const preferX = Math.abs(dx) > Math.abs(dy) * (1 - 0.4*gravStrength);
-        if (preferX && Math.abs(dx) > TILE/2)      dir = { x: Math.sign(dx)*TILE, y: 0 };
-        else if (Math.abs(dy) > TILE/2)            dir = { x: 0, y: Math.sign(dy)*TILE };
-        else                                       dir = { x: 0, y: 0 };
-        head = {
-          x: clamp(head.x + dir.x, TILE/2, innerWidth  - TILE/2),
-          y: clamp(head.y + dir.y, TILE/2, innerHeight - TILE/2)
-        };
-      }
-
-      trail.unshift({ x: head.x, y: head.y });
-      if (trail.length > TAIL) trail.pop();
-
-      // draw
-      ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-      // glow
-      ctx.shadowColor = 'rgba(255,255,255,1)';
-      ctx.shadowBlur = 26;
-
-      // head
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(head.x, head.y, TILE * 0.9, 0, Math.PI * 2);
-      ctx.fill();
-
-      // body squares with fade (grid-snapped)
-      for (let i = 1; i < trail.length; i++) {
-        const t = i / trail.length;
-        const alpha = Math.max(0, 1 - t * 1.05);
-        if (alpha <= 0) continue;
-
-        ctx.globalAlpha = alpha;
-        const gx = Math.round(trail[i].x / TILE) * TILE;
-        const gy = Math.round(trail[i].y / TILE) * TILE;
-
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(gx - TILE/2, gy - TILE/2, TILE, TILE);
-
-        ctx.globalAlpha = alpha * 0.35;
-        const p = TILE / 4;
-        ctx.fillRect(gx - TILE/2 + p, gy - TILE/2 + p, TILE - 2*p, TILE - 2*p);
-      }
-      ctx.globalAlpha = 1;
-      ctx.shadowBlur = 0;
-    }
-
-    function primeTrail(len = 28){
-      trail.length = 0;
-      for (let i = 0; i < len; i++){
-        trail.unshift({ x: frame.left - i*TILE, y: frame.top });
-      }
-    }
-
-    requestAnimationFrame(step);
-    computeFrame();
-    primeTrail();
-
-  </script>
-</body>
-</html>
+    const cube2 = document.get
