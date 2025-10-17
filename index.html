@@ -904,14 +904,28 @@
       }
 
       function buildChars(circumference, fontPx){
-        ctx.save();
-        ctx.font = `900 ${fontPx}px ${FONT}`;
-        const sample = 'PLANNED ECONOMY ';
-        const avg = ctx.measureText(sample).width / sample.length;
-        const n = Math.max(24, Math.floor(circumference / (avg * RING.spacing)));
-        ctx.restore();
-        return (' PLANNED ECONOMY '.repeat(40).slice(0,n)).split('');
-      }
+  ctx.save();
+  ctx.font = `900 ${fontPx}px ${FONT}`;
+
+  // quick average char width to estimate capacity
+  const sample = 'PLANNED ECONOMY ';
+  const avg = ctx.measureText(sample).width / sample.length;
+
+  // target number of characters for the circle
+  let n = Math.max(24, Math.floor(circumference / (avg * RING.spacing)));
+
+  // build a long buffer, but only cut at a space so we don't split words
+  let S = (' PLANNED ECONOMY '.repeat(60)).trim() + ' '; // ensure trailing space
+  if (n < S.length){
+    const cut = S.lastIndexOf(' ', n);   // last space before n
+    if (cut > 0) S = S.slice(0, cut);    // trim to a word boundary
+    else         S = S.slice(0, n);      // fallback (shouldn't happen)
+  }
+
+  ctx.restore();
+  return S.split(''); // per-char, but ends at a space => no dangling letter
+}
+
 
       function drawRing(cx, cy, r, rot, chars, fontPx){
         ctx.save();
